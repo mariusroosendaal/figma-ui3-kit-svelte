@@ -1,0 +1,6 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="icon.24.inner.shadow.left.small">
+<path id="Icon" d="M17 5C18.1046 5 19 5.89543 19 7V17C19 18.1046 18.1046 19 17 19H7C5.89543 19 5 18.1046 5 17V7C5 5.89543 5.89543 5 7 5H17ZM7 6C6.44772 6 6 6.44772 6 7V17C6 17.5523 6.44772 18 7 18H17C17.5523 18 18 17.5523 18 17V7C18 6.44772 17.5523 6 17 6H7Z" fill="black" fill-opacity="0.9"/>
+<path id="Subtract" d="M10 6C9.44772 6 9 6.44772 9 7V17C9 17.5523 9.44772 18 10 18H7C6.44772 18 6 17.5523 6 17V7C6 6.44772 6.44772 6 7 6H10Z" fill="black" fill-opacity="0.3"/>
+</g>
+</svg>

@@ -1,0 +1,68 @@
+{
+  "name": "figma-ui3-kit-svelte",
+  "version": "0.3.2",
+  "type": "module",
+  "description": "A collection of Svelte 4 components that match Figma UI3 for building plugins",
+  "svelte": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "svelte-click-outside": "^1.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.8",
+    "@rollup/plugin-node-resolve": "^15.3.1",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@storybook/addon-essentials": "^8.6.14",
+    "@storybook/addon-interactions": "^8.6.14",
+    "@storybook/addon-links": "^8.6.14",
+    "@storybook/svelte": "^8.6.14",
+    "@storybook/svelte-webpack5": "^8.6.14",
+    "@storybook/test": "^8.6.14",
+    "rollup": "^4.52.4",
+    "rollup-plugin-livereload": "^2.0.5",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-serve": "^2.0.3",
+    "rollup-plugin-svelte": "^7.2.3",
+    "rollup-plugin-svg": "^2.0.0",
+    "storybook": "^8.6.14",
+    "svelte": "^4.2.20",
+    "svelte-loader": "^3.2.4"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "serve": "rollup -c -w --serve",
+    "storybook": "storybook dev -p 6006",
+    "storybook:6007": "storybook dev -p 6007",
+    "build-storybook": "storybook build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mariusroosendaal/figma-ui3-kit-svelte.git"
+  },
+  "keywords": [
+    "figma",
+    "plugin",
+    "design-system",
+    "ui-components",
+    "svelte",
+    "figma-ui3"
+  ],
+  "author": "Marius Roosendaal",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mariusroosendaal/figma-ui3-kit-svelte/issues"
+  },
+  "homepage": "https://github.com/mariusroosendaal/figma-ui3-kit-svelte#readme"
+}
