@@ -63,10 +63,10 @@ This project includes Storybook for component development and documentation:
 
 ```bash
 # Start Storybook development server
-npm run storybook
+npm run dev
 
 # Build static Storybook for deployment
-npm run build-storybook
+npm run build
 ```
 
 Storybook opens at `http://localhost:6006` where you can browse, test, and document components.
@@ -74,23 +74,9 @@ Storybook opens at `http://localhost:6006` where you can browse, test, and docum
 **Online Documentation:**
 The Storybook is automatically deployed to GitHub Pages on every push to `main`.
 
-**Available Stories:** Button, Checkbox, Input (more coming soon)
-
 **Features:**
 - Automatic light/dark theme switching based on OS preference
 - Uses `figma-development-theme.css` for proper theming outside plugin context
-
----
-
-## Design Principles
-
-This library is built on three core principles:
-
-1. **Figma-Native** – Every component uses Figma's design tokens for colors, typography, spacing, and borders. Your plugin UI will automatically match Figma's interface.
-
-2. **Plugin-Optimized** – Small bundle size and zero heavy dependencies. Built specifically for the constraints of plugin environments.
-
-3. **Developer Experience** – Intuitive APIs, comprehensive prop support, and sensible defaults. Build faster without sacrificing flexibility.
 
 ---
 
@@ -98,43 +84,109 @@ This library is built on three core principles:
 
 _All components accept a `class` prop for custom styling and utility classes._
 
-### Core Components
-* [Button](#button) – Primary, secondary, and tertiary actions
-* [Input](#input) – Text input with icon support
-* [Textarea](#textarea) – Multi-line text input
-* [Text](#text) – UI3 typography component
-
-### Form Controls
+* [Badge](#badge) – Status and count indicators
+* [Banner](#banner) – Informational banners
+* [Button](#button) – Primary, secondary, and destructive actions
 * [Checkbox](#checkbox) – Standard checkbox with label
+* [Chip](#chip) – Removable tags
+* [Disclosure](#disclosure) – Collapsible accordion panels
+* [Dropdown](#dropdown) – Select dropdown
+* [Icon](#icon) – Icon display with color control
+* [Icon Button](#icon-button) – Clickable icon buttons
+* [Input](#input) – Text input with icon support
+* [Label](#labels) – Form labels
+* [Menu](#menu) – Dropdown menus with items and dividers
+* [Modal](#modal) – Dialogs and side panels
 * [Radio](#radio-button) – Radio button groups
 * [Slider](#slider) – Range slider with variants
 * [Switch](#switch) – Toggle switch control
-
-### Layout & Organization
-* [Disclosure](#disclosure) – Collapsible accordion panels
-* [Modal](#modal) – Dialogs and side panels
-* [Labels](#labels) – Form labels
-
-### Interactive Elements
-* [Icon](#icon) – Icon display with color control
-* [Icon Button](#icon-button) – Clickable icon buttons
-* [Tooltip](#tooltip) – Contextual help with hover tooltips
-
-### Advanced Components
-* [Badge](#badge) – Status and count indicators
-* [Banner](#banner) – Informational banners
-* [Chip](#chip) – Removable tags
 * [Tabs](#tabs) – Tab navigation
-* [Menu](#menu) – Dropdown menus with items and dividers
-* [Dropdown](#dropdown) – Select dropdown
+* [Text](#text) – UI3 typography component
+* [Textarea](#textarea) – Multi-line text input
+* [Tooltip](#tooltip) – Contextual help with hover tooltips
 
 ---
 
 ## Component Documentation
 
+### Badge
+
+Status and count indicators with multiple semantic variants.
+
+```javascript
+import { Badge } from 'figma-ui3-kit-svelte';
+```
+
+```html
+<!-- Basic badges -->
+<Badge>Default</Badge>
+<Badge variant="brand">Brand</Badge>
+<Badge variant="success">Success</Badge>
+<Badge variant="danger">Danger</Badge>
+<Badge variant="warning">Warning</Badge>
+
+<!-- Strong variants (filled backgrounds) -->
+<Badge variant="brand" strong>Brand Strong</Badge>
+<Badge variant="success" strong>Success Strong</Badge>
+<Badge variant="danger" strong>Danger Strong</Badge>
+
+<!-- With icon (for specific variants) -->
+<Badge variant="variable" iconName={IconVariable}>Variable</Badge>
+<Badge variant="feedback" iconName={IconFeedback}>Feedback</Badge>
+```
+
+**Props**
+
+| Prop       | Type    | Options/notes                                                    |
+|:-----------|:--------|:-----------------------------------------------------------------|
+| `variant`  | String  | Default: `"default"`, Options: `"brand"`, `"component"`, `"danger"`, `"success"`, `"warning"`, `"invert"`, `"selected"`, `"variable"`, `"variable-selected"`, `"feedback"`, `"merged"`, `"archived"`, `"menu"`, `"figjam"` |
+| `strong`   | Boolean | Default: `false`; Use filled background instead of outline       |
+| `iconName` | Var     | Optional icon (only for `variable`, `variable-selected`, `feedback`, `merged`, `archived` variants) |
+| `text`     | String  | Badge text (can also use slot content)                           |
+
+---
+
+### Banner
+
+Informational banners with automatic icons based on variant.
+
+```javascript
+import { Banner } from 'figma-ui3-kit-svelte';
+```
+
+```html
+<Banner variant="danger">
+  This action cannot be undone.
+</Banner>
+
+<Banner variant="warning">
+  Please save your changes before continuing.
+</Banner>
+
+<Banner variant="info">
+  Tip: You can use keyboard shortcuts for faster navigation.
+</Banner>
+
+<Banner variant="success">
+  Your changes have been saved successfully.
+</Banner>
+
+<!-- Using message prop instead of slot -->
+<Banner variant="info" message="This is an informational message." />
+```
+
+**Props**
+
+| Prop      | Type   | Options/notes                                                    |
+|:----------|:-------|:-----------------------------------------------------------------|
+| `variant` | String | Default: `"danger"`, Options: `"danger"`, `"warning"`, `"info"`, `"success"` |
+| `message` | String | Banner message (can also use slot content)                       |
+
+---
+
 ### Button
 
-The Button component provides primary, secondary, and tertiary button variants with destructive styling options.
+The Button component provides multiple variants for different use cases.
 
 ```javascript
 import { Button } from 'figma-ui3-kit-svelte';
@@ -143,8 +195,8 @@ import { Button } from 'figma-ui3-kit-svelte';
 ```html
 <Button on:click={handleSave}>Save Changes</Button>
 <Button variant="secondary" on:click={handleCancel}>Cancel</Button>
-<Button variant="tertiary" on:click={handleMore}>More Options</Button>
-<Button variant="secondary" destructive on:click={handleDelete}>Delete</Button>
+<Button variant="destructive" on:click={handleDelete}>Delete</Button>
+<Button variant="secondary-destructive" on:click={handleRemove}>Remove</Button>
 <Button disabled>Disabled State</Button>
 ```
 
@@ -152,9 +204,12 @@ import { Button } from 'figma-ui3-kit-svelte';
 
 | Prop          | Type    | Options/notes                                                   |
 |:--------------|:--------|:----------------------------------------------------------------|
-| `variant`     | String  | Default: `"primary"`, Options: `"secondary"`, `"tertiary"`      |
-| `destructive` | Boolean | Default: `false`; Applies destructive styling (red)             |
+| `variant`     | String  | Default: `"primary"`, Options: `"secondary"`, `"destructive"`, `"secondary-destructive"`, `"inverse"`, `"success"`, `"link"`, `"link-danger"`, `"ghost"` |
+| `size`        | String  | Default: `"default"`, Options: `"default"`, `"large"`, `"wide"` |
 | `disabled`    | Boolean | Default: `false`                                                |
+| `iconName`    | Var     | Optional icon to display in button                              |
+| `iconLead`    | String  | Default: `"left"`, Options: `"left"`, `"center"` (only for `wide` size) |
+| `label`       | String  | Button text (can also use slot content)                         |
 | `on:click`    | Func    | Click handler. Ex: `on:click={handleClick}`                     |
 
 ---
@@ -184,21 +239,66 @@ import { Checkbox } from 'figma-ui3-kit-svelte';
 | Prop        | Type    | Options/notes                                                    |
 |:------------|:--------|:-----------------------------------------------------------------|
 | `checked`   | Boolean | Default: `false`; Bind with `bind:checked={variable}`           |
-| `value`     | Boolean | Default: `false`; Current checkbox state                         |
+| `value`     | String  | Default: `""`; Form value when submitted                         |
 | `disabled`  | Boolean | Default: `false`                                                 |
+| `mixed`     | Boolean | Default: `false`; Indeterminate/mixed state                      |
+| `muted`     | Boolean | Default: `false`; Secondary/muted styling                        |
+| `ghost`     | Boolean | Default: `false`; Dark background variant                        |
+| `tabindex`  | Number  | Default: `0`                                                     |
 | `on:change` | Func    | Change handler. Ex: `on:change={handleChange}`                   |
+
+---
+
+### Chip
+
+Removable tags for filtering and selection.
+
+```javascript
+import { Chip } from 'figma-ui3-kit-svelte';
+```
+
+```html
+<!-- Basic chip -->
+<Chip label="Tag name" />
+
+<!-- Closable chip -->
+<Chip label="Removable" closable on:close={handleRemove} />
+
+<!-- With icon -->
+<Chip label="With icon" iconName={IconTag} />
+
+<!-- Component variant -->
+<Chip label="Component" variant="component" />
+
+<!-- States -->
+<Chip label="Focused" focused />
+<Chip label="Disabled" disabled />
+```
+
+**Props**
+
+| Prop       | Type    | Options/notes                                                    |
+|:-----------|:--------|:-----------------------------------------------------------------|
+| `label`    | String  | Chip label text                                                  |
+| `variant`  | String  | Default: `"default"`, Options: `"default"`, `"component"`        |
+| `iconName` | Var     | Optional icon to display                                         |
+| `closable` | Boolean | Default: `false`; Show close button                              |
+| `focused`  | Boolean | Default: `false`; Focused/selected state                         |
+| `disabled` | Boolean | Default: `false`                                                 |
+| `on:close` | Func    | Close handler. Receives `{ label }` in event detail              |
 
 ---
 
 ### Disclosure
 
-Collapsible panels for organizing content. Only one panel can be open at a time.
+Collapsible panels for organizing content.
 
 ```javascript
 import { Disclosure, DisclosureItem } from 'figma-ui3-kit-svelte';
 ```
 
 ```html
+<!-- Accordion mode (default) - only one panel open at a time -->
 <Disclosure>
   <DisclosureItem title="Export Settings" open>
     <Input placeholder="File name..." />
@@ -213,15 +313,73 @@ import { Disclosure, DisclosureItem } from 'figma-ui3-kit-svelte';
     <Text variant="body-small">Recent exports appear here</Text>
   </DisclosureItem>
 </Disclosure>
+
+<!-- Multiple mode - allows multiple panels open simultaneously -->
+<Disclosure multiple>
+  <DisclosureItem title="Panel 1" open>Content 1</DisclosureItem>
+  <DisclosureItem title="Panel 2" open>Content 2</DisclosureItem>
+</Disclosure>
+```
+
+**Disclosure Props**
+
+| Prop       | Type    | Options/notes                                            |
+|:-----------|:--------|:---------------------------------------------------------|
+| `multiple` | Boolean | Default: `false`; When false, only one panel can be open (accordion). When true, multiple panels can be open. |
+
+**DisclosureItem Props**
+
+| Prop         | Type    | Options/notes                                            |
+|:-------------|:--------|:---------------------------------------------------------|
+| `title`      | String  | Panel title text                                         |
+| `open`       | Boolean | Default: `false`; Initial open state                     |
+| `expanded`   | Boolean | Default: `false`; Controlled expanded state              |
+| `section`    | Boolean | Default: `false`; Bold section header styling            |
+| `standalone` | Boolean | Default: `false`; Use outside of Disclosure wrapper      |
+
+---
+
+### Dropdown
+
+Select dropdown for choosing from options.
+
+```javascript
+import { Dropdown } from 'figma-ui3-kit-svelte';
+
+const options = [
+  { value: 'option1', label: 'Option 1' },
+  { value: 'option2', label: 'Option 2' },
+  { value: 'option3', label: 'Option 3', group: 'Group 1' }
+];
+
+let selected = options[0];
+```
+
+```html
+<Dropdown 
+  bind:value={selected} 
+  menuItems={options} 
+  placeholder="Select an option" 
+/>
+
+<Dropdown 
+  bind:value={selected} 
+  menuItems={options} 
+  disabled 
+/>
 ```
 
 **Props**
 
-| Prop      | Type    | Options/notes                                            |
-|:----------|:--------|:---------------------------------------------------------|
-| `title`   | String  | Panel title text                                         |
-| `open`    | Boolean | Default: `false`; Only one panel can be open at once     |
-| `section` | Boolean | Default: `false`; Bold section header styling            |
+| Prop              | Type    | Options/notes                                                    |
+|:------------------|:--------|:-----------------------------------------------------------------|
+| `value`           | Object  | Selected item object. Bind with `bind:value={variable}`          |
+| `menuItems`       | Array   | Array of objects `{ value, label, group, selected }`             |
+| `placeholder`     | String  | Default: `"Please make a selection."`                            |
+| `showGroupLabels` | Boolean | Default: `false`; Show group headers in menu                     |
+| `disabled`        | Boolean | Default: `false`                                                 |
+| `iconName`        | Var     | Optional icon to display in trigger                              |
+| `on:change`       | Func    | Change handler                                                   |
 
 ---
 
@@ -233,8 +391,8 @@ Display icons from the included icon set or your own custom SVG icons. The libra
 import { Icon } from 'figma-ui3-kit-svelte';
 
 // Import icons from the library (24px default)
-import Icon24Visible from 'figma-ui3-kit-svelte/src/icons/24/icon.24.visible.svg';
-import Icon24Search from 'figma-ui3-kit-svelte/src/icons/24/icon.24.search.large.svg';
+import Icon24Eye from 'figma-ui3-kit-svelte/src/icons/24/icon.24.eye.small.svg';
+import Icon24Search from 'figma-ui3-kit-svelte/src/icons/24/icon.24.search.small.svg';
 
 // Or 16px icons for compact spaces
 import Icon16Check from 'figma-ui3-kit-svelte/src/icons/16/icon.16.check.svg';
@@ -245,7 +403,7 @@ import CustomIcon from './assets/custom-icon.svg';
 
 ```html
 <!-- Standard icon with color -->
-<Icon iconName={Icon24Visible} color="--figma-color-icon" />
+<Icon iconName={Icon24Eye} color="--figma-color-icon" />
 
 <!-- Loading spinner -->
 <Icon iconName={Icon24Search} color="--figma-color-icon-brand" spin />
@@ -263,7 +421,8 @@ import CustomIcon from './assets/custom-icon.svg';
 |:-----------|:--------|:-----------------------------------------------------------------|
 | `iconName` | Var     | Imported SVG icon. Ex: `iconName={Icon24Visible}`               |
 | `iconText` | String  | Text character to display instead of icon. Ex: `iconText="W"`   |
-| `color`    | String  | Figma color variable. Ex: `"--figma-color-icon-brand"`          |
+| `color`    | String  | Default: `"--figma-color-icon"`; Figma color variable            |
+| `size`     | Number  | Default: `24`; Icon size in pixels                               |
 | `spin`     | Boolean | Default: `false`; Rotates icon continuously (for loaders)       |
 
 **Icon Sizes**
@@ -274,22 +433,22 @@ import CustomIcon from './assets/custom-icon.svg';
 
 ### Icon Button
 
-Clickable icon buttons with hover and selected states.
+Clickable icon buttons with hover states and variants.
 
 ```javascript
 import { IconButton } from 'figma-ui3-kit-svelte';
-import Icon24Visible from 'figma-ui3-kit-svelte/src/icons/24/icon.24.visible.svg';
+import Icon24Eye from 'figma-ui3-kit-svelte/src/icons/24/icon.24.eye.small.svg';
 ```
 
 ```html
 <IconButton 
-  iconName={Icon24Visible} 
+  iconName={Icon24Eye} 
   on:click={toggleVisibility}
 />
 
 <IconButton 
-  iconName={Icon24Visible} 
-  selected 
+  iconName={Icon24Eye} 
+  variant="secondary"
   on:click={toggleVisibility}
 />
 
@@ -301,77 +460,16 @@ import Icon24Visible from 'figma-ui3-kit-svelte/src/icons/24/icon.24.visible.svg
 
 **Props**
 
-| Prop       | Type    | Options/notes                                                    |
-|:-----------|:--------|:-----------------------------------------------------------------|
-| `iconName` | Var     | Imported SVG icon                                                |
-| `iconText` | String  | Text character to display                                        |
-| `selected` | Boolean | Default: `false`; Selected/active state                          |
-| `spin`     | Boolean | Default: `false`; Rotates icon continuously                      |
-| `on:click` | Func    | Click handler                                                    |
-
----
-
-### Tooltip
-
-Contextual help tooltips that add hover functionality to any interactive element. Wrap any element to add tooltip behavior.
-
-```javascript
-import { Tooltip } from 'figma-ui3-kit-svelte';
-```
-
-```html
-<!-- Basic tooltip on button -->
-<Tooltip label="Save your changes" hotkeyText="⌘S">
-  <Button variant="primary">Save</Button>
-</Tooltip>
-
-<!-- Without hotkey -->
-<Tooltip label="Cancel and discard changes" hotkey={false}>
-  <Button variant="secondary">Cancel</Button>
-</Tooltip>
-
-<!-- Different directions -->
-<Tooltip label="Settings" direction="Bottom">
-  <IconButton iconName={IconSettings} />
-</Tooltip>
-
-<Tooltip label="Previous page" direction="Left">
-  <IconButton iconName={IconChevronRight} />
-</Tooltip>
-
-<!-- Custom elements -->
-<Tooltip label="This is a custom div with a tooltip" direction="Top">
-  <div style="padding: 8px 12px; background: var(--figma-color-bg-secondary); border-radius: 4px; cursor: pointer;">
-    Hover me
-  </div>
-</Tooltip>
-```
-
-**Props**
-
-| Prop         | Type    | Options/notes                                                         |
-|:-------------|:--------|:----------------------------------------------------------------------|
-| `label`      | String  | Default: `"Tooltip text"`; Tooltip content                            |
-| `hotkey`     | Boolean | Default: `true`; Show hotkey text                                     |
-| `hotkeyText` | String  | Default: `"⌘V"`; Hotkey to display                                    |
-| `direction`  | String  | Default: `"Top"`; Tooltip position relative to trigger (see below)   |
-| `disabled`  | Boolean | Default: `false`; Disable tooltip functionality                       |
-
-**Direction Options**
-- `Top` – Tooltip appears above trigger, centered
-- `TopLeft` – Tooltip appears above trigger, left-aligned
-- `TopRight` – Tooltip appears above trigger, right-aligned
-- `Bottom` – Tooltip appears below trigger, centered
-- `BottomLeft` – Tooltip appears below trigger, left-aligned
-- `BottomRight` – Tooltip appears below trigger, right-aligned
-- `Left` – Tooltip appears to the left of trigger, centered
-- `Right` – Tooltip appears to the right of trigger, centered
-
-**Behavior**
-- Tooltips appear on hover with a 500ms delay for the first tooltip shown
-- Subsequent tooltips appear with a 50ms delay for better UX
-- Tooltips automatically position themselves within viewport bounds
-- Global state management ensures consistent behavior across all tooltip instances
+| Prop        | Type    | Options/notes                                                    |
+|:------------|:--------|:-----------------------------------------------------------------|
+| `iconName`  | Var     | Imported SVG icon                                                |
+| `iconText`  | String  | Text character to display                                        |
+| `variant`   | String  | Default: `"default"`; Options: `"default"`, `"secondary"`        |
+| `disabled`  | Boolean | Default: `false`                                                 |
+| `spin`      | Boolean | Default: `false`; Rotates icon continuously                      |
+| `iconColor` | String  | Optional icon color override (e.g., `"--figma-color-icon-brand"`) |
+| `tabindex`  | Number  | Default: `0`                                                     |
+| `on:click`  | Func    | Click handler                                                    |
 
 ---
 
@@ -381,7 +479,7 @@ Text input field with optional icon support and various styling options.
 
 ```javascript
 import { Input } from 'figma-ui3-kit-svelte';
-import Icon24Search from 'figma-ui3-kit-svelte/src/icons/24/icon.24.search.large.svg';
+import Icon24Search from 'figma-ui3-kit-svelte/src/icons/24/icon.24.search.small.svg';
 ```
 
 ```html
@@ -398,16 +496,15 @@ import Icon24Search from 'figma-ui3-kit-svelte/src/icons/24/icon.24.search.large
   placeholder="Search..."
 />
 
-<!-- Loading state -->
+<!-- With validation error -->
 <Input 
-  value={fetchingData}
-  iconName={Icon24Spinner}
-  spin
-  placeholder="Loading..."
+  bind:value={email}
+  invalid
+  errorMessage="Invalid email format"
 />
 
-<!-- With borders (default is borderless) -->
-<Input value="Value" borders />
+<!-- Large size -->
+<Input value="Large input" size="large" />
 
 <!-- Disabled -->
 <Input value="Locked" disabled />
@@ -415,21 +512,21 @@ import Icon24Search from 'figma-ui3-kit-svelte/src/icons/24/icon.24.search.large
 
 **Props**
 
-| Prop          | Type    | Options/notes                                                    |
-|:--------------|:--------|:-----------------------------------------------------------------|
-| `value`       | String  | Input value. Bind with `bind:value={variable}`                   |
-| `placeholder` | String  | Placeholder text                                                 |
-| `borders`     | Boolean | Default: `false`; Show visible border                            |
-| `disabled`    | Boolean | Default: `false`                                                 |
-| `iconName`    | Var     | Optional icon to display in input                                |
-| `iconText`    | String  | Optional text character to display                               |
-| `spin`        | Boolean | Default: `false`; Rotates icon (for loading states)             |
-| `on:change`   | Func    | Change handler                                                   |
-| `on:input`    | Func    | Input handler (fires on every keystroke)                         |
+| Prop           | Type    | Options/notes                                                    |
+|:---------------|:--------|:-----------------------------------------------------------------|
+| `value`        | String  | Input value. Bind with `bind:value={variable}`                   |
+| `placeholder`  | String  | Default: `"Input something here..."`                             |
+| `disabled`     | Boolean | Default: `false`                                                 |
+| `iconName`     | Var     | Optional icon to display in input                                |
+| `invalid`      | Boolean | Default: `false`; Shows error state                              |
+| `errorMessage` | String  | Default: `"Error message"`; Shown when invalid                   |
+| `size`         | String  | Default: `"default"`; Options: `"default"` (24px), `"large"` (32px) |
+| `on:change`    | Func    | Change handler                                                   |
+| `on:input`     | Func    | Input handler (fires on every keystroke)                         |
 
 ---
 
-### Labels
+### Label
 
 Semantic labels for form controls.
 
@@ -448,11 +545,84 @@ import { Label } from 'figma-ui3-kit-svelte';
 <Input bind:value={name} />
 ```
 
-**Label Props**
+**Props**
 
 | Prop   | Type   | Options/notes                                      |
 |:-------|:-------|:---------------------------------------------------|
 | `size` | String | Default: `"medium"`, Options: `"medium"`, `"small"` |
+| `text` | String | Label text (can also use slot content)             |
+
+---
+
+### Menu
+
+Action-based dropdown menus with items, dividers, headings, and nested sub-menus.
+
+```javascript
+import { Menu, MenuItem, MenuDivider, MenuHeading } from 'figma-ui3-kit-svelte';
+```
+
+```html
+<script>
+  let menuOpen = false;
+  let triggerElement;
+
+  const menuItems = [
+    { value: 'copy', label: 'Copy' },
+    { value: 'paste', label: 'Paste' },
+    { value: 'delete', label: 'Delete', group: 'Destructive' }
+  ];
+
+  function handleSelect(event) {
+    console.log('Selected:', event.detail);
+  }
+</script>
+
+<button bind:this={triggerElement} on:click={() => menuOpen = !menuOpen}>
+  Open Menu
+</button>
+
+<Menu
+  bind:isOpen={menuOpen}
+  menuItems={menuItems}
+  anchorElement={triggerElement}
+  position="bottom-left"
+  on:select={handleSelect}
+/>
+```
+
+**Nested Menus:** Items can include a `subMenu` property for unlimited nesting levels. Sub-menus open on hover and support keyboard navigation.
+
+```javascript
+const menuItems = [
+  { value: 'copy', label: 'Copy' },
+  { 
+    value: 'export', 
+    label: 'Export', 
+    subMenu: [
+      { value: 'png', label: 'PNG' },
+      { value: 'svg', label: 'SVG' }
+    ]
+  }
+];
+```
+
+**Props**
+
+| Prop              | Type    | Options/notes                                                    |
+|:------------------|:--------|:-----------------------------------------------------------------|
+| `isOpen`          | Boolean | Controls menu visibility. Bind with `bind:isOpen={variable}`     |
+| `menuItems`       | Array   | Array of `{ value, label, group?, subMenu? }` objects            |
+| `anchorElement`   | Element | DOM element to position menu relative to                         |
+| `position`        | String  | Default: `"bottom-left"`, Options: `"bottom-left"`, `"bottom-right"`, `"top-left"`, `"top-right"` |
+| `showGroupLabels` | Boolean | Default: `false`; Show group headers                             |
+| `minWidth`        | String  | Optional minimum width (e.g., `"200px"`)                         |
+| `itemVariant`     | String  | Default: `"default"`, Options: `"default"`, `"checkmark"`        |
+| `nestingLevel`    | Number  | Default: `0`; Nesting level for z-index (0 = top-level)          |
+| `on:select`       | Func    | Selection handler. Receives selected item in event detail        |
+| `on:close`        | Func    | Close handler                                                    |
+
+**Note:** Menu is action-based (not select-like). Use Dropdown for select behavior.
 
 ---
 
@@ -493,7 +663,7 @@ import { Modal } from 'figma-ui3-kit-svelte';
     <Button variant="secondary" on:click={() => showWarning = false}>
       Cancel
     </Button>
-    <Button variant="secondary" destructive on:click={handleDelete}>
+    <Button variant="secondary-destructive" on:click={handleDelete}>
       Delete
     </Button>
   </svelte:fragment>
@@ -539,10 +709,14 @@ import { Modal } from 'figma-ui3-kit-svelte';
 | `height`              | String  | Default: `"auto"`; Custom height value (e.g., `"50vh"`, `"400px"`)  |
 | `position`            | String  | Default: `"center"`; Options: `"center"`, `"left"`, `"right"`, `"bottom"` |
 | `overlayPadding`      | String  | Default: `"16px"`; Padding around modal viewport                     |
+| `contentPadding`      | Boolean | Default: `true`; Add padding to content area                         |
 | `showOverlay`         | Boolean | Default: `true`; Show backdrop overlay                               |
 | `closeOnOverlayClick` | Boolean | Default: `true`; Close when clicking backdrop                        |
 | `closeOnEscape`       | Boolean | Default: `true`; Close when pressing ESC                             |
 | `onClose`             | Func    | Callback function when modal closes                                  |
+| `headerVariant`       | String  | Default: `"default"`; Header styling variant                         |
+| `footerVariant`       | String  | Default: `"default"`; Footer styling variant                         |
+| `footerBorder`        | Boolean | Default: `true`; Show footer border                                  |
 | `icon2`               | Boolean | Default: `false`; Show additional icon button in header              |
 | `icon2Name`           | Var     | Icon for secondary header button                                     |
 | `onIcon2Click`        | Func    | Click handler for secondary header button                            |
@@ -558,7 +732,7 @@ import { Modal } from 'figma-ui3-kit-svelte';
 
 ---
 
-### Radio Button
+### Radio
 
 Radio buttons for mutually exclusive selections.
 
@@ -593,6 +767,7 @@ let exportFormat = 'png'; // Selected value
 | `group`     | Var     | Bind to variable to track selected value. Ex: `bind:group={var}` |
 | `value`     | String  | Value when this radio is selected                                |
 | `disabled`  | Boolean | Default: `false`                                                 |
+| `tabindex`  | Number  | Default: `0`                                                     |
 | `on:change` | Func    | Change handler                                                   |
 
 ---
@@ -665,9 +840,62 @@ import { Switch } from 'figma-ui3-kit-svelte';
 | Prop        | Type    | Options/notes                                                    |
 |:------------|:--------|:-----------------------------------------------------------------|
 | `checked`   | Boolean | Default: `false`; Bind with `bind:checked={variable}`           |
-| `value`     | Boolean | Default: `false`; Current switch state                           |
+| `value`     | String  | Default: `""`; Form value when submitted                         |
 | `disabled`  | Boolean | Default: `false`                                                 |
+| `mixed`     | Boolean | Default: `false`; Indeterminate/mixed state                      |
+| `tabindex`  | Number  | Default: `0`                                                     |
 | `on:change` | Func    | Change handler                                                   |
+
+---
+
+### Tabs
+
+Tab navigation component for switching between views.
+
+```javascript
+import { Tabs } from 'figma-ui3-kit-svelte';
+```
+
+```html
+<script>
+  let selectedTab = 0;
+
+  const tabs = [
+    { label: 'Design' },
+    { label: 'Prototype' },
+    { label: 'Inspect' }
+  ];
+
+  // Or simple string array
+  const simpleTabs = ['Design', 'Prototype', 'Inspect'];
+
+  function handleTabChange(index) {
+    console.log('Tab changed to:', index);
+  }
+</script>
+
+<Tabs 
+  tabs={tabs} 
+  bind:selectedTab={selectedTab}
+  onTabChange={handleTabChange}
+/>
+
+{#if selectedTab === 0}
+  <div>Design content</div>
+{:else if selectedTab === 1}
+  <div>Prototype content</div>
+{:else}
+  <div>Inspect content</div>
+{/if}
+```
+
+**Props**
+
+| Prop          | Type   | Options/notes                                                    |
+|:--------------|:-------|:-----------------------------------------------------------------|
+| `tabs`        | Array  | Array of `{ label }` objects or strings                          |
+| `selectedTab` | Number | Default: `0`; Index of selected tab. Bind with `bind:selectedTab` |
+| `onTabChange` | Func   | Callback when tab changes. Receives tab index                    |
 
 ---
 
@@ -728,6 +956,7 @@ import { Text } from 'figma-ui3-kit-svelte';
 | `align`   | String  | Default: `"start"`; Options: `"start"`, `"center"`, `"end"`                          |
 | `block`   | Boolean | Default: `false`; Display as block element                                            |
 | `color`   | String  | Default: `"--figma-color-text"`; Any Figma color variable                             |
+| `text`    | String  | Text content (can also use slot content)                                              |
 
 **Typography Scale**
 
@@ -773,124 +1002,80 @@ import { Textarea } from 'figma-ui3-kit-svelte';
 
 **Props**
 
-| Prop          | Type    | Options/notes                                                    |
-|:--------------|:--------|:-----------------------------------------------------------------|
-| `value`       | String  | Textarea value. Bind with `bind:value={variable}`               |
-| `placeholder` | String  | Placeholder text                                                 |
-| `rows`        | Number  | Default: `2`; Number of visible text rows (height)              |
-| `disabled`    | Boolean | Default: `false`                                                 |
-| `on:change`   | Func    | Change handler                                                   |
-| `on:input`    | Func    | Input handler (fires on every keystroke)                         |
+| Prop           | Type    | Options/notes                                                    |
+|:---------------|:--------|:-----------------------------------------------------------------|
+| `value`        | String  | Textarea value. Bind with `bind:value={variable}`               |
+| `placeholder`  | String  | Default: `"Input something here..."`                             |
+| `rows`         | Number  | Default: `2`; Number of visible text rows (height)              |
+| `disabled`     | Boolean | Default: `false`                                                 |
+| `invalid`      | Boolean | Default: `false`; Shows error state                              |
+| `errorMessage` | String  | Default: `"Error message"`; Shown when invalid                   |
+| `on:change`    | Func    | Change handler                                                   |
+| `on:input`     | Func    | Input handler (fires on every keystroke)                         |
 
 ---
 
-## Additional Components
+### Tooltip
 
-The library includes several other specialized components:
-
-### Badge
-Status and count indicators
+Contextual help tooltips that add hover functionality to any interactive element. Wrap any element to add tooltip behavior.
 
 ```javascript
-import { Badge } from 'figma-ui3-kit-svelte';
-```
-
-### Banner
-Informational banners with icons
-
-```javascript
-import { Banner } from 'figma-ui3-kit-svelte';
-```
-
-### Chip
-Removable tags for filtering and selection
-
-```javascript
-import { Chip } from 'figma-ui3-kit-svelte';
-```
-
-### Menu
-Action-based dropdown menus with items, dividers, headings, and nested sub-menus.
-
-```javascript
-import { Menu, MenuItem, MenuDivider, MenuHeading } from 'figma-ui3-kit-svelte';
+import { Tooltip } from 'figma-ui3-kit-svelte';
 ```
 
 ```html
-<Menu
-  bind:isOpen={menuOpen}
-  menuItems={menuItems}
-  anchorElement={triggerElement}
-  position="bottom-left"
-  on:select={handleSelect}
-/>
-```
+<!-- Basic tooltip -->
+<Tooltip label="Cancel and discard changes">
+  <Button variant="secondary">Cancel</Button>
+</Tooltip>
 
-**Nested Menus:** Items can include a `subMenu` property for unlimited nesting levels. Sub-menus open on hover and support keyboard navigation.
+<!-- With hotkey -->
+<Tooltip label="Save your changes" hotkey={true} hotkeyText="⌘S">
+  <Button variant="primary">Save</Button>
+</Tooltip>
 
-```javascript
-const menuItems = [
-  { value: 'copy', label: 'Copy' },
-  { 
-    value: 'export', 
-    label: 'Export', 
-    subMenu: [
-      { value: 'png', label: 'PNG' },
-      { value: 'svg', label: 'SVG' }
-    ]
-  }
-];
-```
+<!-- Different directions -->
+<Tooltip label="Settings" direction="Bottom">
+  <IconButton iconName={IconSettings} />
+</Tooltip>
 
-**Note:** Menu is action-based (not select-like). Use Dropdown for select behavior.
+<Tooltip label="Previous page" direction="Left">
+  <IconButton iconName={IconChevronRight} />
+</Tooltip>
 
-### Dropdown
-Select dropdown for choosing from options.
-
-```javascript
-import { Dropdown } from 'figma-ui3-kit-svelte';
-
-const options = [
-  { value: 'option1', label: 'Option 1' },
-  { value: 'option2', label: 'Option 2' },
-  { value: 'option3', label: 'Option 3', group: 'Group 1' }
-];
-
-let selected = options[0];
-```
-
-```html
-<Dropdown 
-  bind:value={selected} 
-  menuItems={options} 
-  placeholder="Select an option" 
-/>
-
-<Dropdown 
-  bind:value={selected} 
-  menuItems={options} 
-  disabled 
-/>
+<!-- Custom elements -->
+<Tooltip label="This is a custom div with a tooltip" direction="Top">
+  <div style="padding: 8px 12px; background: var(--figma-color-bg-secondary); border-radius: 4px; cursor: pointer;">
+    Hover me
+  </div>
+</Tooltip>
 ```
 
 **Props**
 
-| Prop              | Type    | Options/notes                                                    |
-|:------------------|:--------|:-----------------------------------------------------------------|
-| `value`           | Object  | Selected item object. Bind with `bind:value={variable}`          |
-| `menuItems`       | Array   | Array of objects `{ value, label, group, selected }`             |
-| `placeholder`     | String  | Default: `"Please make a selection."`                            |
-| `showGroupLabels` | Boolean | Default: `false`; Show group headers in menu                     |
-| `disabled`        | Boolean | Default: `false`                                                 |
-| `iconName`        | Var     | Optional icon to display in trigger                              |
-| `on:change`       | Func    | Change handler                                                   |
+| Prop         | Type    | Options/notes                                                         |
+|:-------------|:--------|:----------------------------------------------------------------------|
+| `label`      | String  | Default: `"Tooltip text"`; Tooltip content                            |
+| `hotkey`     | Boolean | Default: `false`; Show hotkey text                                    |
+| `hotkeyText` | String  | Default: `"⌘V"`; Hotkey to display (only shown when `hotkey={true}`)  |
+| `direction`  | String  | Default: `"Top"`; Tooltip position relative to trigger (see below)   |
+| `disabled`   | Boolean | Default: `false`; Disable tooltip functionality                       |
 
-### Tabs
-Tab navigation component
+**Direction Options**
+- `Top` – Tooltip appears above trigger, centered
+- `TopLeft` – Tooltip appears above trigger, left-aligned
+- `TopRight` – Tooltip appears above trigger, right-aligned
+- `Bottom` – Tooltip appears below trigger, centered
+- `BottomLeft` – Tooltip appears below trigger, left-aligned
+- `BottomRight` – Tooltip appears below trigger, right-aligned
+- `Left` – Tooltip appears to the left of trigger, centered
+- `Right` – Tooltip appears to the right of trigger, centered
 
-```javascript
-import { Tabs } from 'figma-ui3-kit-svelte';
-```
+**Behavior**
+- Tooltips appear on hover with a 500ms delay for the first tooltip shown
+- Subsequent tooltips appear with a 50ms delay for better UX
+- Tooltips automatically position themselves within viewport bounds
+- Global state management ensures consistent behavior across all tooltip instances
 
 ---
 
