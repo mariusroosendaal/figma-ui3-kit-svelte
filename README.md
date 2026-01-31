@@ -4,9 +4,12 @@ A lightweight, modern Svelte component library for building Figma plugin interfa
 
 ## Features
 
-**Native Figma Design Language** – Components built to match Figma's UI3 specifications  
-**Automatic Dark Mode** – Seamless light/dark theme support using Figma's CSS variables  
-**Svelte-First** – Built with Svelte 4.x 
+- Light/dark theme support via Figma's CSS variables
+- 25+ components matching Figma UI3
+- 700+ icons (16px and 24px sizes)
+- Svelte 4.x, no heavy dependencies
+
+**[View Storybook](https://mariusroosendaal.github.io/figma-ui3-kit-svelte/)**
 
 ## Installation
 
@@ -17,12 +20,14 @@ npm install figma-ui3-kit-svelte
 ## Quick Start
 
 ```javascript
-// Import the global CSS with Figma's design tokens
+// Import the global CSS with the kit's design tokens
 import { GlobalCSS } from 'figma-ui3-kit-svelte';
 
 // Import the components you need
 import { Button, Input, Modal, Text } from 'figma-ui3-kit-svelte';
 ```
+
+> **Note:** The `GlobalCSS` import is required for proper styling. It provides the design tokens (spacing, typography, border radius, shadows) and utility classes that components depend on. Without it, some styles may appear inconsistent.
 
 ```html
 <Button variant="primary" on:click={handleClick}>
@@ -41,7 +46,7 @@ import { Button, Input, Modal, Text } from 'figma-ui3-kit-svelte';
 
 ### Enable Theme Support
 
-To enable automatic dark mode in your plugin, pass `themeColors: true` when showing your UI:
+Pass `themeColors: true` when showing your UI:
 
 ```javascript
 figma.showUI(__html__, { 
@@ -55,55 +60,30 @@ This enables Figma's native CSS variables that automatically adapt to the user's
 
 ---
 
-## Development
-
-### Storybook
-
-This project includes Storybook for component development and documentation:
-
-```bash
-# Start Storybook development server
-npm run dev
-
-# Build static Storybook for deployment
-npm run build
-```
-
-Storybook opens at `http://localhost:6006` where you can browse, test, and document components.
-
-**Online Documentation:**
-The Storybook is automatically deployed to GitHub Pages on every push to `main`.
-
-**Features:**
-- Automatic light/dark theme switching based on OS preference
-- Uses `figma-development-theme.css` for proper theming outside plugin context
-
----
-
 ## Components
 
 _All components accept a `class` prop for custom styling and utility classes._
 
-* [Badge](#badge) – Status and count indicators
-* [Banner](#banner) – Informational banners
-* [Button](#button) – Primary, secondary, and destructive actions
-* [Checkbox](#checkbox) – Standard checkbox with label
-* [Chip](#chip) – Removable tags
-* [Disclosure](#disclosure) – Collapsible accordion panels
-* [Dropdown](#dropdown) – Select dropdown
-* [Icon](#icon) – Icon display with color control
-* [Icon Button](#icon-button) – Clickable icon buttons
-* [Input](#input) – Text input with icon support
-* [Label](#labels) – Form labels
-* [Menu](#menu) – Dropdown menus with items and dividers
-* [Modal](#modal) – Dialogs and side panels
-* [Radio](#radio-button) – Radio button groups
-* [Slider](#slider) – Range slider with variants
-* [Switch](#switch) – Toggle switch control
-* [Tabs](#tabs) – Tab navigation
-* [Text](#text) – UI3 typography component
-* [Textarea](#textarea) – Multi-line text input
-* [Tooltip](#tooltip) – Contextual help with hover tooltips
+* [Badge](#badge) 
+* [Banner](#banner) 
+* [Button](#button) 
+* [Checkbox](#checkbox) 
+* [Chip](#chip)
+* [Disclosure](#disclosure) 
+* [Dropdown](#dropdown) 
+* [Icon](#icon) 
+* [Icon Button](#icon-button) 
+* [Input](#input) 
+* [Label](#labels) 
+* [Menu](#menu) 
+* [Modal](#modal)
+* [Radio](#radio-button)
+* [Slider](#slider) 
+* [Switch](#switch)
+* [Tabs](#tabs) 
+* [Text](#text)
+* [Textarea](#textarea)
+* [Tooltip](#tooltip) 
 
 ---
 
@@ -1171,196 +1151,53 @@ Each semantic token includes:
 }
 ```
 
-### Shadows
-
-- `--shadow-hud` – Menus, tooltips, toasts
-- `--shadow-floating-window` – Modals, dialogs
-
 ---
 
-## Building Your Plugin
+## Development
 
-### Project Structure
+### Storybook
 
-```
-my-plugin/
-├── src/
-│   ├── main.js        # Main plugin code (runs in Figma sandbox)
-│   ├── ui.html        # UI HTML
-│   └── App.svelte     # Your Svelte app
-├── package.json
-└── manifest.json      # Figma plugin manifest
-```
-
-### Basic Setup
-
-**manifest.json**
-```json
-{
-  "name": "My Plugin",
-  "id": "123456789",
-  "api": "1.0.0",
-  "main": "dist/main.js",
-  "ui": "dist/ui.html",
-  "editorType": ["figma"]
-}
-```
-
-**main.js**
-```javascript
-figma.showUI(__html__, {
-  themeColors: true,  // Enable automatic dark mode
-  width: 400,
-  height: 500
-});
-
-// Listen for messages from UI
-figma.ui.onmessage = (msg) => {
-  if (msg.type === 'create-rectangles') {
-    const nodes = [];
-    for (let i = 0; i < msg.count; i++) {
-      const rect = figma.createRectangle();
-      rect.x = i * 150;
-      rect.fills = [{type: 'SOLID', color: {r: 1, g: 0.5, b: 0}}];
-      figma.currentPage.appendChild(rect);
-      nodes.push(rect);
-    }
-    figma.currentPage.selection = nodes;
-    figma.viewport.scrollAndZoomIntoView(nodes);
-  }
-  
-  figma.closePlugin();
-};
-```
-
-**App.svelte**
-```svelte
-<script>
-  import { GlobalCSS, Button, Input, Text } from 'figma-ui3-kit-svelte';
-  
-  let count = 5;
-  
-  function create() {
-    parent.postMessage({
-      pluginMessage: {
-        type: 'create-rectangles',
-        count: parseInt(count)
-      }
-    }, '*');
-  }
-</script>
-
-<GlobalCSS />
-
-<div class="plugin-container">
-  <Text variant="heading-medium">Create Rectangles</Text>
-  
-  <Input 
-    type="number" 
-    bind:value={count} 
-    placeholder="Number of rectangles..."
-  />
-  
-  <Button variant="primary" on:click={create}>
-    Create
-  </Button>
-</div>
-
-<style>
-  .plugin-container {
-    padding: var(--size-xsmall);
-    display: flex;
-    flex-direction: column;
-    gap: var(--size-xxsmall);
-  }
-</style>
-```
-
----
-
-## Best Practices
-
-### Use Design Tokens
-
-Always use Figma's CSS variables instead of hardcoding values:
-
-```css
-/* ✅ Good - uses design tokens */
-.my-component {
-  background: var(--figma-color-bg);
-  color: var(--figma-color-text);
-  padding: var(--size-xsmall);
-  border-radius: var(--border-radius-medium);
-}
-
-/* ❌ Bad - hardcoded values break theme support */
-.my-component {
-  background: #ffffff;
-  color: #000000;
-  padding: 16px;
-  border-radius: 5px;
-}
-```
-
-### Choose the Right Icon Size
-
-- Use **24px icons** for most UI elements (buttons, inputs, headers)
-- Use **16px icons** for compact spaces (checkboxes, small buttons, list items)
-
-### Typography Consistency
-
-Use the Text component or semantic typography tokens for all text to maintain consistency:
-
-```html
-<!-- ✅ Good -->
-<Text variant="body-medium">Consistent text</Text>
-
-<!-- ❌ Avoid -->
-<span style="font-size: 11px;">Inconsistent text</span>
-```
-
-### Responsive Layouts
-
-Use Figma's spacing tokens with CSS Grid or Flexbox:
-
-```css
-.layout {
-  display: flex;
-  flex-direction: column;
-  gap: var(--size-xsmall);
-  padding: var(--size-xsmall);
-}
-```
-
----
-
-## Browser Compatibility
-
-This library is designed for modern Figma plugin environments, which use a recent Chromium-based webview. All modern CSS and JavaScript features are supported.
-
----
-
-## Contributing
-
-Contributions are welcome! If you find bugs or have feature requests, please open an issue on GitHub.
-
-### Development Setup
+This project includes Storybook for component development and documentation:
 
 ```bash
-# Clone the repository
-git clone https://github.com/mariusroosendaal/figma-ui3-kit-svelte.git
-
-# Install dependencies
-npm install
-
-# Run Storybook development server
+# Start Storybook development server
 npm run dev
 
-# Build Storybook for production
+# Build static Storybook for deployment
 npm run build
 ```
 
-The development server runs Storybook at http://localhost:6006 for component documentation and testing.
+Storybook opens at `http://localhost:6006` where you can browse, test, and document components.
+
+**Online Documentation:**
+The Storybook is automatically deployed to GitHub Pages on every push to `main`.
+
+**Features:**
+- Automatic light/dark theme switching based on OS preference
+- Accessibility panel (a11y addon) for checking component accessibility
+- Theme switcher toolbar for testing light/dark modes
+- Uses `figma-development-theme.css` for proper theming outside plugin context
+
+### Code Quality
+
+The project includes ESLint, Prettier, and svelte-check for code quality:
+
+```bash
+# Lint code (check for issues)
+npm run lint
+
+# Lint and auto-fix issues
+npm run lint:fix
+
+# Format code with Prettier
+npm run format
+
+# Check formatting without writing
+npm run format:check
+
+# Run Svelte type checking
+npm run check
+```
 
 ---
 
