@@ -54,10 +54,9 @@ export const Default = {
   args: {
     placeholder: 'Select size',
     menuItems: dropdownMenuItems,
-    value: dropdownMenuItems.find(item => item.selected) || null,
+    value: dropdownMenuItems.find((item) => item.selected) || null,
     disabled: false,
     showGroupLabels: false,
     iconName: null,
   },
 };
-

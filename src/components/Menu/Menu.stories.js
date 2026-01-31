@@ -30,7 +30,8 @@ export default {
     },
     menuItems: {
       control: 'object',
-      description: 'Array of menu item objects with label, value, selected, group, and optionally subMenu properties',
+      description:
+        'Array of menu item objects with label, value, selected, group, and optionally subMenu properties',
     },
     // Hide internal props
     anchorElement: {
@@ -68,9 +69,9 @@ const menuItemsWithGroups = [
 
 const menuItemsWithNested = [
   { value: 'copy', label: 'Copy' },
-  { 
-    value: 'copy-paste', 
-    label: 'Copy / Paste as', 
+  {
+    value: 'copy-paste',
+    label: 'Copy / Paste as',
     subMenu: [
       { value: 'png', label: 'PNG' },
       { value: 'jpg', label: 'JPG' },
@@ -79,14 +80,14 @@ const menuItemsWithNested = [
     ],
   },
   { value: 'paste', label: 'Paste' },
-  { 
-    value: 'export', 
-    label: 'Export', 
+  {
+    value: 'export',
+    label: 'Export',
     subMenu: [
       { value: 'export-selected', label: 'Export Selected' },
-      { 
-        value: 'export-options', 
-        label: 'Export Options', 
+      {
+        value: 'export-options',
+        label: 'Export Options',
         subMenu: [
           { value: 'export-all', label: 'Export All Pages' },
           { value: 'export-frame', label: 'Export Frame Only' },
@@ -137,4 +138,3 @@ export const WithNested = {
     props: { ...args },
   }),
 };
-

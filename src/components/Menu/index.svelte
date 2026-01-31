@@ -11,7 +11,7 @@
   export let anchorElement = null;
   export let position = 'bottom-left';
   export let minWidth = null;
-  export let itemVariant = "default"; // "default" | "checkmark"
+  export let itemVariant = 'default'; // "default" | "checkmark"
   export let nestingLevel = 0; // Nesting level for z-index calculation (0 = top-level)
 
   let className = '';
@@ -21,19 +21,19 @@
   let menuWrapper, menuList;
   let groups = checkGroups();
   let menuPosition = { top: 0, left: 0 };
-  
+
   // Unique identifier for this menu instance
   const menuId = Math.random().toString(36).substr(2, 9);
-  
+
   // Sub-menu state management
   let openSubMenuId = null; // ID of item with open sub-menu
   let hoverTimeouts = new Map(); // Timeouts for hover delays
   let hoverTimeout = null; // Global hover timeout for closing sub-menus
-  
+
   // Keyboard navigation state
   let focusedItemId = null; // ID of currently focused menu item
 
-  $: menuItems, updateSelectedAndIds();
+  $: (menuItems, updateSelectedAndIds());
   $: if (isOpen && anchorElement) {
     // Calculate position immediately when menu opens, before it renders
     updateMenuPosition();
@@ -42,7 +42,7 @@
     // Update position with actual dimensions after menu renders
     updateMenuPosition();
   }
-  
+
   // Reset focused item when menu opens
   $: if (isOpen && menuList) {
     // Focus first item when menu opens
@@ -54,13 +54,15 @@
       }
     }, 0);
   }
-  
+
   // Dispatch event when this menu opens (only for top-level menus)
   $: if (isOpen && nestingLevel === 0) {
     if (typeof document !== 'undefined') {
-      document.dispatchEvent(new CustomEvent('dropdown:open', {
-        detail: { dropdownId: menuId }
-      }));
+      document.dispatchEvent(
+        new CustomEvent('dropdown:open', {
+          detail: { dropdownId: menuId },
+        })
+      );
     }
   }
 
@@ -82,11 +84,11 @@
     const anchorRect = anchorElement.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    
+
     // Use estimated dimensions for initial positioning
     const estimatedMenuWidth = 200; // reasonable default
     const estimatedMenuHeight = 150; // reasonable default
-    
+
     let top = 0;
     let left = 0;
 
@@ -114,27 +116,27 @@
     }
 
     menuPosition = { top, left };
-    
+
     // Update position with actual dimensions after menu renders
     if (menuWrapper) {
       const actualMenuWidth = menuWrapper.offsetWidth;
       const actualMenuHeight = menuWrapper.offsetHeight;
-      
+
       if (actualMenuWidth > 0 && actualMenuHeight > 0) {
         // Recalculate with actual dimensions
         let adjustedTop = top;
         let adjustedLeft = left;
-        
+
         // Adjust for actual width if needed
         if (position.includes('right')) {
           adjustedLeft = anchorRect.right - actualMenuWidth;
         }
-        
+
         // Adjust for actual height if needed
         if (position.includes('top')) {
           adjustedTop = anchorRect.top - actualMenuHeight - 4;
         }
-        
+
         // Re-check viewport boundaries with actual dimensions
         if (adjustedLeft + actualMenuWidth > viewportWidth) {
           adjustedLeft = viewportWidth - actualMenuWidth - 8;
@@ -166,7 +168,6 @@
     document.body.style.overflow = '';
   }
 
-
   // this function runs everytime the menuItems array is updated
   // it will auto assign ids and keep the value var updated
   function updateSelectedAndIds() {
@@ -182,8 +183,10 @@
   function checkGroups() {
     let groupCount = 0;
     if (menuItems) {
-      menuItems.forEach(item => {
-        if (item.group != null) { groupCount++; }
+      menuItems.forEach((item) => {
+        if (item.group != null) {
+          groupCount++;
+        }
       });
       if (groupCount === menuItems.length) {
         return true;
@@ -197,7 +200,7 @@
   //menu highlight function on the selected menu item
   function removeHighlight(event) {
     let items = Array.from(event.target.parentNode.children);
-    items.forEach(item => {
+    items.forEach((item) => {
       item.blur();
       item.classList.remove('highlight');
     });
@@ -207,7 +210,7 @@
   function menuClick(event) {
     if (menuList.contains(event.target)) {
       //find selected item in array
-      let itemId = parseInt(event.target.getAttribute('id')); 
+      let itemId = parseInt(event.target.getAttribute('id'));
       const item = menuItems[itemId];
 
       // If item has sub-menu, don't close menu or dispatch select
@@ -217,7 +220,7 @@
       }
 
       //remove current selection if there is one
-      menuItems.forEach(item => {
+      menuItems.forEach((item) => {
         item.selected = false;
       });
       item.selected = true; //select current item
@@ -234,21 +237,21 @@
     const parentRect = parentItemElement.getBoundingClientRect();
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    
+
     // Estimate sub-menu dimensions
     const estimatedSubMenuWidth = 200;
     const estimatedSubMenuHeight = subMenuItems.length * 32; // ~32px per item
-    
+
     let top = parentRect.top - 9; // Align top edge of sub-menu with top edge of parent item
     let left = parentRect.right + 12; // Default: position to the right with 4px gap
-    
+
     // Check if there's enough room on the right
     const spaceOnRight = viewportWidth - parentRect.right;
     if (spaceOnRight < estimatedSubMenuWidth + 50) {
       // Position on left side instead
       left = parentRect.left - estimatedSubMenuWidth - 12;
     }
-    
+
     // Adjust for viewport boundaries
     if (left < 8) {
       left = 8;
@@ -256,7 +259,7 @@
     if (left + estimatedSubMenuWidth > viewportWidth - 8) {
       left = viewportWidth - estimatedSubMenuWidth - 8;
     }
-    
+
     // Adjust vertical position if sub-menu would go below viewport
     if (top + estimatedSubMenuHeight > viewportHeight - 8) {
       top = Math.max(8, viewportHeight - estimatedSubMenuHeight - 8);
@@ -264,7 +267,7 @@
     if (top < 8) {
       top = 8;
     }
-    
+
     return { top, left };
   }
 
@@ -280,7 +283,7 @@
       clearTimeout(hoverTimeouts.get(itemId));
       hoverTimeouts.delete(itemId);
     }
-    
+
     // Close any other open sub-menu
     if (openSubMenuId !== null && openSubMenuId !== itemId) {
       openSubMenuId = null;
@@ -291,7 +294,7 @@
       openSubMenuId = itemId;
       hoverTimeouts.delete(itemId);
     }, 120); // 120ms delay
-    
+
     hoverTimeouts.set(itemId, timeoutId);
   }
 
@@ -302,7 +305,7 @@
       clearTimeout(hoverTimeouts.get(itemId));
       hoverTimeouts.delete(itemId);
     }
-    
+
     // Close sub-menu after delay if mouse doesn't return
     hoverTimeout = setTimeout(() => {
       if (openSubMenuId === itemId) {
@@ -314,15 +317,15 @@
   function closeMenu() {
     // Close all sub-menus first
     openSubMenuId = null;
-    
+
     // Clear all hover timeouts
-    hoverTimeouts.forEach(timeout => clearTimeout(timeout));
+    hoverTimeouts.forEach((timeout) => clearTimeout(timeout));
     hoverTimeouts.clear();
     if (hoverTimeout) {
       clearTimeout(hoverTimeout);
       hoverTimeout = null;
     }
-    
+
     isOpen = false;
     restoreBodyScroll();
     dispatch('close');
@@ -338,10 +341,10 @@
   // Handle clicks outside the menu to close it
   function handleClickOutside(event) {
     if (!isOpen) return;
-    
+
     // Check if click is outside this menu and all its sub-menus
     let clickedInsideMenu = menuWrapper.contains(event.target);
-    
+
     // Check all sub-menu wrappers (query for them dynamically)
     if (!clickedInsideMenu) {
       const subMenuWrappers = document.querySelectorAll('.sub-menu-wrapper');
@@ -352,7 +355,7 @@
         }
       }
     }
-    
+
     if (!clickedInsideMenu) {
       closeMenu();
     }
@@ -377,7 +380,7 @@
       document.removeEventListener('dropdown:open', handleOtherDropdownOpen);
     }
     // Clear all timeouts
-    hoverTimeouts.forEach(timeout => clearTimeout(timeout));
+    hoverTimeouts.forEach((timeout) => clearTimeout(timeout));
     hoverTimeouts.clear();
     if (hoverTimeout) {
       clearTimeout(hoverTimeout);
@@ -456,7 +459,7 @@
               openSubMenuId = focusedItemId;
             } else {
               // Select item
-              menuItems.forEach(i => i.selected = false);
+              menuItems.forEach((i) => (i.selected = false));
               item.selected = true;
               updateSelectedAndIds();
               dispatch('select', item);
@@ -471,15 +474,15 @@
   // Focus next menu item
   function focusNextItem() {
     if (!menuList) return;
-    
+
     const items = Array.from(menuList.querySelectorAll('li[id]'));
     if (items.length === 0) return;
-    
+
     let currentIndex = -1;
     if (focusedItemId !== null) {
-      currentIndex = items.findIndex(item => parseInt(item.getAttribute('id')) === focusedItemId);
+      currentIndex = items.findIndex((item) => parseInt(item.getAttribute('id')) === focusedItemId);
     }
-    
+
     const nextIndex = (currentIndex + 1) % items.length;
     const nextItem = items[nextIndex];
     if (nextItem) {
@@ -491,15 +494,15 @@
   // Focus previous menu item
   function focusPreviousItem() {
     if (!menuList) return;
-    
+
     const items = Array.from(menuList.querySelectorAll('li[id]'));
     if (items.length === 0) return;
-    
+
     let currentIndex = -1;
     if (focusedItemId !== null) {
-      currentIndex = items.findIndex(item => parseInt(item.getAttribute('id')) === focusedItemId);
+      currentIndex = items.findIndex((item) => parseInt(item.getAttribute('id')) === focusedItemId);
     }
-    
+
     const prevIndex = currentIndex <= 0 ? items.length - 1 : currentIndex - 1;
     const prevItem = items[prevIndex];
     if (prevItem) {
@@ -523,52 +526,56 @@
 <svelte:window on:keydown={handleKeydown} />
 
 {#if isOpen}
-<div 
-  bind:this={menuWrapper}
-  class="menu-wrapper {className}"
-  style="--menu-min-width: {minWidth || 'auto'}; top: {menuPosition.top}px; left: {menuPosition.left}px; z-index: {50 + nestingLevel};"
->
-  <ul class="menu" bind:this={menuList} role="menu">
-  {#if menuItems && menuItems.length > 0}
-    {#each menuItems as item, i}
-      {#if i === 0}
-        {#if item.group && (item.showHeading ?? showGroupLabels)}
-          <MenuHeading text={item.group} />
-        {/if}
-      {:else if i > 0 && item.group && menuItems[i - 1].group != item.group}
-        {#if item.showHeading ?? showGroupLabels}
-          <MenuDivider />
-          <MenuHeading text={item.group} />
-        {:else}
-          <MenuDivider />
-        {/if}
+  <div
+    bind:this={menuWrapper}
+    class="menu-wrapper {className}"
+    style="--menu-min-width: {minWidth ||
+      'auto'}; top: {menuPosition.top}px; left: {menuPosition.left}px; z-index: {50 +
+      nestingLevel};"
+  >
+    <ul class="menu" bind:this={menuList} role="menu">
+      {#if menuItems && menuItems.length > 0}
+        {#each menuItems as item, i}
+          {#if i === 0}
+            {#if item.group && (item.showHeading ?? showGroupLabels)}
+              <MenuHeading text={item.group} />
+            {/if}
+          {:else if i > 0 && item.group && menuItems[i - 1].group != item.group}
+            {#if item.showHeading ?? showGroupLabels}
+              <MenuDivider />
+              <MenuHeading text={item.group} />
+            {:else}
+              <MenuDivider />
+            {/if}
+          {/if}
+          <MenuItem
+            on:click={menuClick}
+            on:mouseenter={(e) => {
+              removeHighlight(e);
+              const hasSubMenu =
+                item.subMenu && Array.isArray(item.subMenu) && item.subMenu.length > 0;
+              if (hasSubMenu) {
+                handleMenuItemHover(e, item.id);
+              }
+            }}
+            on:mouseleave={(e) => {
+              const hasSubMenu =
+                item.subMenu && Array.isArray(item.subMenu) && item.subMenu.length > 0;
+              if (hasSubMenu) {
+                handleMenuItemLeave(e, item.id);
+              }
+            }}
+            id={item.id}
+            bind:selected={item.selected}
+            variant={itemVariant}
+            hasSubMenu={item.subMenu && Array.isArray(item.subMenu) && item.subMenu.length > 0}
+          >
+            {item.label}
+          </MenuItem>
+        {/each}
       {/if}
-      <MenuItem 
-        on:click={menuClick} 
-        on:mouseenter={(e) => {
-          removeHighlight(e);
-          const hasSubMenu = item.subMenu && Array.isArray(item.subMenu) && item.subMenu.length > 0;
-          if (hasSubMenu) {
-            handleMenuItemHover(e, item.id);
-          }
-        }}
-        on:mouseleave={(e) => {
-          const hasSubMenu = item.subMenu && Array.isArray(item.subMenu) && item.subMenu.length > 0;
-          if (hasSubMenu) {
-            handleMenuItemLeave(e, item.id);
-          }
-        }}
-        id={item.id} 
-        bind:selected={item.selected} 
-        variant={itemVariant}
-        hasSubMenu={item.subMenu && Array.isArray(item.subMenu) && item.subMenu.length > 0}
-      >
-        {item.label}
-      </MenuItem>
-    {/each}
-  {/if}
-  </ul>
-</div>
+    </ul>
+  </div>
 {/if}
 
 {#if isOpen}
@@ -579,10 +586,12 @@
           {@const parentItemEl = menuList.querySelector(`li[id="${item.id}"]`)}
           {#if parentItemEl}
             {@const subMenuPosition = calculateSubMenuPosition(parentItemEl, item.subMenu)}
-            <div 
+            <div
               class="sub-menu-wrapper"
               role="presentation"
-              style="position: fixed; top: {subMenuPosition.top}px; left: {subMenuPosition.left}px; z-index: {50 + nestingLevel + 1};"
+              style="position: fixed; top: {subMenuPosition.top}px; left: {subMenuPosition.left}px; z-index: {50 +
+                nestingLevel +
+                1};"
               on:mouseenter={() => {
                 // Cancel close timeout when mouse enters sub-menu
                 if (hoverTimeout) {
@@ -602,9 +611,9 @@
               <svelte:self
                 isOpen={true}
                 menuItems={item.subMenu}
-                showGroupLabels={showGroupLabels}
+                {showGroupLabels}
                 position="right"
-                itemVariant={itemVariant}
+                {itemVariant}
                 nestingLevel={nestingLevel + 1}
                 anchorElement={null}
                 on:select={(e) => {
@@ -612,7 +621,9 @@
                   // Close menu after selection
                   closeMenu();
                 }}
-                on:close={() => { openSubMenuId = null; }}
+                on:close={() => {
+                  openSubMenuId = null;
+                }}
               />
             </div>
           {/if}
@@ -625,8 +636,8 @@
 <style>
   .menu-wrapper {
     position: fixed;
-    min-width:140px;
-    max-width:300px;
+    min-width: 140px;
+    max-width: 300px;
   }
 
   .sub-menu-wrapper {
@@ -640,11 +651,13 @@
     left: 0 !important;
   }
 
-
   .menu {
     background-color: var(--color-bg-menu); /* #1e1e1e */
     border: 1px solid var(--color-border-menu); /* #383838 */
-    box-shadow: 0px 0px 0.5px 0px rgba(0,0,0,0.12), 0px 10px 16px 0px rgba(0,0,0,0.12), 0px 2px 5px 0px rgba(0,0,0,0.15);
+    box-shadow:
+      0px 0px 0.5px 0px rgba(0, 0, 0, 0.12),
+      0px 10px 16px 0px rgba(0, 0, 0, 0.12),
+      0px 2px 5px 0px rgba(0, 0, 0, 0.15);
     padding: var(--size-xxsmall); /* 8px all sides */
     border-radius: var(--border-radius-large); /* 13px */
     margin: 0;
@@ -654,22 +667,22 @@
     min-width: var(--menu-min-width, auto);
   }
 
-  .menu::-webkit-scrollbar{
-    width:12px;
-    background-color:transparent;
+  .menu::-webkit-scrollbar {
+    width: 12px;
+    background-color: transparent;
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=);
-    background-repeat:repeat;
-    background-size:100% auto
+    background-repeat: repeat;
+    background-size: 100% auto;
   }
-  .menu::-webkit-scrollbar-track{
-    border:solid 3px transparent;
-    -webkit-box-shadow:inset 0 0 10px 10px transparent;
-    box-shadow:inset 0 0 10px 10px transparent;
+  .menu::-webkit-scrollbar-track {
+    border: solid 3px transparent;
+    -webkit-box-shadow: inset 0 0 10px 10px transparent;
+    box-shadow: inset 0 0 10px 10px transparent;
   }
-  .menu::-webkit-scrollbar-thumb{
-    border:solid 3px transparent;
-    border-radius:6px;
-    -webkit-box-shadow:inset 0 0 10px 10px rgba(255,255,255,.4);
-    box-shadow:inset 0 0 10px 10px rgba(255,255,255,.4);
+  .menu::-webkit-scrollbar-thumb {
+    border: solid 3px transparent;
+    border-radius: 6px;
+    -webkit-box-shadow: inset 0 0 10px 10px rgba(255, 255, 255, 0.4);
+    box-shadow: inset 0 0 10px 10px rgba(255, 255, 255, 0.4);
   }
 </style>

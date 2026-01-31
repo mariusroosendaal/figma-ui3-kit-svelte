@@ -27,11 +27,7 @@ export default {
   },
 };
 
-const basicTabs = [
-  { label: 'Tab 1' },
-  { label: 'Tab 2' },
-  { label: 'Tab 3' },
-];
+const basicTabs = [{ label: 'Tab 1' }, { label: 'Tab 2' }, { label: 'Tab 3' }];
 
 export const Default = {
   args: {
@@ -60,4 +56,3 @@ export const ManyTabs = {
     props: { ...args },
   }),
 };
-

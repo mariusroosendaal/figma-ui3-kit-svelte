@@ -12,7 +12,17 @@ export default {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['primary', 'secondary', 'destructive', 'secondary-destructive', 'inverse', 'success', 'link', 'link-danger', 'ghost'],
+      options: [
+        'primary',
+        'secondary',
+        'destructive',
+        'secondary-destructive',
+        'inverse',
+        'success',
+        'link',
+        'link-danger',
+        'ghost',
+      ],
     },
     size: {
       control: 'select',
@@ -33,9 +43,9 @@ export default {
     iconName: {
       control: 'select',
       options: [null, Icon24Plus, Icon24Settings],
-      description: 'SVG icon content (imported SVG file)'
+      description: 'SVG icon content (imported SVG file)',
     },
-    
+
     // Hide internal/advanced props from Storybook controls
     class: {
       table: {

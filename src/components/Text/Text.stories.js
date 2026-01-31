@@ -7,7 +7,17 @@ export default {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['heading-large', 'heading-medium', 'heading-small', 'body-large', 'body-large-strong', 'body-medium', 'body-medium-strong', 'body-small', 'body-small-strong'],
+      options: [
+        'heading-large',
+        'heading-medium',
+        'heading-small',
+        'body-large',
+        'body-large-strong',
+        'body-medium',
+        'body-medium-strong',
+        'body-small',
+        'body-small-strong',
+      ],
       description: 'Text typography variant',
     },
     align: {
@@ -44,4 +54,3 @@ export const Default = {
     text: 'Text content',
   },
 };
-

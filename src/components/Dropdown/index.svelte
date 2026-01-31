@@ -4,7 +4,7 @@
   import Icon from '../Icon/index.svelte';
   import IconChevronDown from './../../icons/24/icon.24.chevron.down.svg';
 
-  export let placeholder = "Please make a selection.";
+  export let placeholder = 'Please make a selection.';
   export let value = null; //stores the current selection, note, the value will be an object from your array
   export let menuItems = []; //pass data in via this prop to generate menu items
   export let showGroupLabels = false; //default prop, true will show option group labels
@@ -17,7 +17,7 @@
   let isOpen = false;
   let menuWrapper, menuButton;
   let triggerWidth = null;
-  
+
   // Unique identifier for this dropdown instance
   const dropdownId = Math.random().toString(36).substr(2, 9);
 
@@ -63,9 +63,11 @@
       if (newIsOpen) {
         // Dispatch event to close other dropdowns
         if (typeof document !== 'undefined') {
-          document.dispatchEvent(new CustomEvent('dropdown:open', {
-            detail: { dropdownId }
-          }));
+          document.dispatchEvent(
+            new CustomEvent('dropdown:open', {
+              detail: { dropdownId },
+            })
+          );
         }
       }
       isOpen = newIsOpen;
@@ -94,18 +96,11 @@
   });
 </script>
 
-<div 
-  bind:this={menuWrapper}
-  {disabled}
-  {placeholder}
-  {showGroupLabels}
-  class="wrapper {className}"
-  >
-
-  <button 
-    bind:this={menuButton} 
-    on:click={handleButtonClick} 
-    disabled={disabled}
+<div bind:this={menuWrapper} {disabled} {placeholder} {showGroupLabels} class="wrapper {className}">
+  <button
+    bind:this={menuButton}
+    on:click={handleButtonClick}
+    {disabled}
     role="combobox"
     aria-expanded={isOpen}
     aria-haspopup="menu"
@@ -113,7 +108,7 @@
     class:selected={isOpen}
   >
     {#if iconName}
-      <span class="icon"><Icon iconName={iconName} color="black3"/></span>
+      <span class="icon"><Icon {iconName} color="black3" /></span>
     {/if}
 
     {#if value}
@@ -130,9 +125,9 @@
   </button>
 
   <Menu
-    bind:isOpen={isOpen}
-    menuItems={menuItems}
-    showGroupLabels={showGroupLabels}
+    bind:isOpen
+    {menuItems}
+    {showGroupLabels}
     anchorElement={menuButton}
     minWidth={triggerWidth ? triggerWidth + 'px' : null}
     itemVariant="checkmark"
@@ -190,7 +185,8 @@
     pointer-events: none;
   }
 
-  .label, .placeholder {
+  .label,
+  .placeholder {
     font-size: var(--body-medium-font-size);
     font-weight: var(--body-medium-font-weight);
     letter-spacing: var(--body-medium-letter-spacing);

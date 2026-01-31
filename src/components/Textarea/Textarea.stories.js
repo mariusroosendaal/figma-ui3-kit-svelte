@@ -47,4 +47,3 @@ export const Default = {
     errorMessage: 'Error message',
   },
 };
-

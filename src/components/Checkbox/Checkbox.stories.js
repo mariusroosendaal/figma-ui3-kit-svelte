@@ -92,4 +92,3 @@ export const Ghost = {
     ghost: true,
   },
 };
-

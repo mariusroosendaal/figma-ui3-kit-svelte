@@ -28,4 +28,3 @@ export const Default = {
     message: 'This is a banner message',
   },
 };
-

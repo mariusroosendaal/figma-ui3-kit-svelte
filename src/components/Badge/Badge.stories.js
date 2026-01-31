@@ -9,7 +9,23 @@ export default {
   argTypes: {
     variant: {
       control: 'select',
-      options: ['default', 'brand', 'component', 'danger', 'success', 'warning', 'invert', 'selected', 'variable', 'variable-selected', 'feedback', 'merged', 'archived', 'menu', 'figjam'],
+      options: [
+        'default',
+        'brand',
+        'component',
+        'danger',
+        'success',
+        'warning',
+        'invert',
+        'selected',
+        'variable',
+        'variable-selected',
+        'feedback',
+        'merged',
+        'archived',
+        'menu',
+        'figjam',
+      ],
       description: 'Badge variant style',
     },
     strong: {
@@ -19,7 +35,8 @@ export default {
     iconName: {
       control: 'select',
       options: [null, Icon16Check, Icon16Warning],
-      description: 'Icon for variants that support icons (variable, variable-selected, feedback, merged, archived)',
+      description:
+        'Icon for variants that support icons (variable, variable-selected, feedback, merged, archived)',
     },
     text: {
       control: 'text',
@@ -41,4 +58,3 @@ export const Default = {
     text: 'Badge',
   },
 };
-

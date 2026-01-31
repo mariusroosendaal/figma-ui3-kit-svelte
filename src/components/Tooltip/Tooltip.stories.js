@@ -20,7 +20,16 @@ export default {
     },
     direction: {
       control: 'select',
-      options: ['Top', 'TopLeft', 'TopRight', 'Bottom', 'BottomLeft', 'BottomRight', 'Left', 'Right'],
+      options: [
+        'Top',
+        'TopLeft',
+        'TopRight',
+        'Bottom',
+        'BottomLeft',
+        'BottomRight',
+        'Left',
+        'Right',
+      ],
       description: 'Tooltip direction relative to trigger',
     },
     disabled: {
@@ -40,7 +49,7 @@ export const Default = {
     label: 'Tooltip text',
     hotkey: false,
     hotkeyText: '⌘V',
-    direction: 'Top', 
+    direction: 'Top',
     disabled: false,
   },
   render: (args) => ({
@@ -62,4 +71,3 @@ export const WithHotkey = {
     props: { ...args },
   }),
 };
-

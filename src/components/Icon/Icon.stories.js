@@ -68,4 +68,3 @@ export const Spinning = {
     size: 24,
   },
 };
-

@@ -5,25 +5,25 @@
 
   export let id;
   export let selected = false;
-  export let variant = "default"; // "default" | "checkmark"
+  export let variant = 'default'; // "default" | "checkmark"
   export let hasSubMenu = false; // Whether this item has a nested sub-menu
 
   let className = '';
   export { className as class };
 </script>
 
-<li 
-  {id} 
-  tabindex={id+1} 
+<li
+  {id}
+  tabindex={id + 1}
   class:highlight={selected}
-  class={className} 
+  class={className}
   role="menuitem"
-  on:mouseenter 
+  on:mouseenter
   on:click
 >
-  {#if variant === "checkmark"}
+  {#if variant === 'checkmark'}
     <div class="lead">
-      <div class="icon" class:selected={selected}>
+      <div class="icon" class:selected>
         <Icon iconName={IconCheck} color="--color-icon-menu" />
       </div>
     </div>
@@ -70,12 +70,14 @@
 
   .label {
     overflow-x: hidden;
-    white-space: nowrap; 
+    white-space: nowrap;
     text-overflow: ellipsis;
     pointer-events: none;
   }
 
-  .highlight, li:hover, li:focus {
+  .highlight,
+  li:hover,
+  li:focus {
     background-color: var(--color-bg-menu-selected); /* #0d99ff */
   }
 
@@ -102,9 +104,8 @@
     align-items: center;
     justify-content: center;
   }
-  
-  .icon.selected {
-    opacity: 1.0;
-  }
 
+  .icon.selected {
+    opacity: 1;
+  }
 </style>
