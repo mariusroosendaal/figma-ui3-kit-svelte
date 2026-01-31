@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
- *.* linguist-language=JavaScript
+* text=auto
+
+# Language detection
+*.svelte linguist-language=Svelte
