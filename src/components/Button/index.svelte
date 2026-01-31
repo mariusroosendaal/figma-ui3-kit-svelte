@@ -11,10 +11,11 @@
 
   let className = '';
   export { className as class };
-  let buttonElement;
+  /** @type {HTMLButtonElement|undefined} */
+  let buttonElement = undefined;
   const dispatch = createEventDispatcher();
 
-  // Export the button element for external binding
+  // Export the button element for external binding (optional - use bind:element if needed)
   export { buttonElement as element };
 
   function handleClick(event) {

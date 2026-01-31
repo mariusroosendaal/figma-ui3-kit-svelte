@@ -11,9 +11,10 @@
 
   let className = '';
   export { className as class };
-  let buttonElement;
+  /** @type {HTMLButtonElement|undefined} */
+  let buttonElement = undefined;
 
-  // Export the button element for external binding
+  // Export the button element for external binding (optional - use bind:element if needed)
   export { buttonElement as element };
 
   // Reactive: Determine the correct icon color based on variant and state
@@ -30,7 +31,7 @@
   on:click
   on:blur
   on:focus
-  onclick="this.blur();"
+  on:click={(e) => e.currentTarget.blur()}
   class="icon-button {className}"
   class:default={variant === 'default'}
   class:secondary={variant === 'secondary'}

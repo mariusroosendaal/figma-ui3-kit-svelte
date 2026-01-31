@@ -19,7 +19,7 @@
     {tabindex}
     id={uniqueId}
     bind:group
-    onclick="this.blur();"
+    on:click={(e) => e.currentTarget.blur()}
     on:change
     on:focus
     on:blur

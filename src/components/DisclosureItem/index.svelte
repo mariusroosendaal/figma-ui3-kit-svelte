@@ -69,7 +69,7 @@
   }
 </script>
 
-<li {open} {title} id={uniqueId} class={className} class:expanded={isExpanded}>
+<li id={uniqueId} class={className} class:expanded={isExpanded} data-open={open} data-title={title}>
   <div
     on:click={handleClick}
     on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClick()}

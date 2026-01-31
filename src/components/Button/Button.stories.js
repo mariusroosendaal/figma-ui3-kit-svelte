@@ -1,6 +1,5 @@
 import Button from './index.svelte';
 import Icon24Check from '../../icons/24/icon.24.check.svg';
-import Icon24Close from '../../icons/24/icon.24.close.svg';
 import Icon24Plus from '../../icons/24/icon.24.plus.svg';
 import Icon24Settings from '../../icons/24/icon.24.settings.svg';
 import WideContainer from '../../../.storybook/WideContainer.svelte';

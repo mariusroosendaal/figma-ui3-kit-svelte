@@ -32,7 +32,6 @@
       {name}
       {disabled}
       {placeholder}
-      {errorMessage}
       class="indent"
       class:invalid
       class:large={size === 'large'}
@@ -57,7 +56,6 @@
       {name}
       {disabled}
       {placeholder}
-      {errorMessage}
       class:invalid
       class:large={size === 'large'}
     />

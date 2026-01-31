@@ -12,6 +12,7 @@
   export { className as class };
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <li
   {id}
   tabindex={id + 1}

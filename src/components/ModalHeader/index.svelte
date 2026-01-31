@@ -4,7 +4,8 @@
   import { createEventDispatcher } from 'svelte';
 
   export let title = 'Title';
-  export let variant = 'default'; // "default", "blank", "tabs", "wide"
+  // svelte-ignore unused-export-let
+  export let variant = 'default'; // Reserved for future header variants: "default", "blank", "tabs", "wide"
   export let icon2 = false;
   export let icon2Name = null;
   export let onIcon2Click = null;

@@ -142,6 +142,8 @@
       class="modal-overlay modal-overlay--{position}"
       style="padding: {overlayPadding}"
       on:click={handleOverlayClick}
+      on:keydown={handleEscapeKey}
+      role="presentation"
     >
       <div
         class="modal-container modal-container--{position} {className}"

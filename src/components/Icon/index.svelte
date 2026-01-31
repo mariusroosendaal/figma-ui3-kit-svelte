@@ -9,15 +9,18 @@
   export { className as class };
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
 <div
   class:spin
   class="icon-component {className}"
   style="width: {size}px; height: {size}px; color: var({color}); fill: var({color})"
   on:click
+  role="img"
 >
   {#if iconText}
     {iconText}
   {:else if iconName}
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -- SVG content is trusted -->
     {@html iconName}
   {/if}
 </div>

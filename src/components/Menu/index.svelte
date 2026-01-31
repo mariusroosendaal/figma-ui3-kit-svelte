@@ -19,7 +19,6 @@
 
   const dispatch = createEventDispatcher();
   let menuWrapper, menuList;
-  let groups = checkGroups();
   let menuPosition = { top: 0, left: 0 };
 
   // Unique identifier for this menu instance
@@ -44,6 +43,7 @@
   }
 
   // Reset focused item when menu opens
+  /* eslint-disable svelte/infinite-reactive-loop */
   $: if (isOpen && menuList) {
     // Focus first item when menu opens
     setTimeout(() => {
@@ -54,6 +54,7 @@
       }
     }, 0);
   }
+  /* eslint-enable svelte/infinite-reactive-loop */
 
   // Dispatch event when this menu opens (only for top-level menus)
   $: if (isOpen && nestingLevel === 0) {
@@ -177,24 +178,6 @@
         item['id'] = index;
       });
     }
-  }
-
-  //determine if option groups are present
-  function checkGroups() {
-    let groupCount = 0;
-    if (menuItems) {
-      menuItems.forEach((item) => {
-        if (item.group != null) {
-          groupCount++;
-        }
-      });
-      if (groupCount === menuItems.length) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-    return false;
   }
 
   //menu highlight function on the selected menu item
@@ -427,6 +410,7 @@
                 for (const subMenuWrapper of allSubMenus) {
                   const menuInstance = subMenuWrapper.querySelector('.menu');
                   if (menuInstance) {
+                    /** @type {HTMLElement|null} */
                     const firstMenuItem = menuInstance.querySelector('li[id]');
                     if (firstMenuItem) {
                       firstMenuItem.focus();
@@ -535,7 +519,7 @@
   >
     <ul class="menu" bind:this={menuList} role="menu">
       {#if menuItems && menuItems.length > 0}
-        {#each menuItems as item, i}
+        {#each menuItems as item, i (item.id ?? i)}
           {#if i === 0}
             {#if item.group && (item.showHeading ?? showGroupLabels)}
               <MenuHeading text={item.group} />

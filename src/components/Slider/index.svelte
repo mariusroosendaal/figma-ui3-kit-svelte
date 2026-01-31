@@ -118,7 +118,7 @@
 
     <!-- Stepper tick marks -->
     {#if variant === 'stepper'}
-      {#each tickPositions as tick}
+      {#each tickPositions as tick, index (index)}
         <div
           class="slider-tick"
           class:active={tick.isActive}

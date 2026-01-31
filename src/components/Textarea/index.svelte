@@ -25,7 +25,6 @@
     {rows}
     {disabled}
     {placeholder}
-    {errorMessage}
     class:invalid
   ></textarea>
   {#if invalid}

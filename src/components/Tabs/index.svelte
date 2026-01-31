@@ -18,7 +18,7 @@
 </script>
 
 <div class="tabs-container {className}">
-  {#each tabs as tab, index}
+  {#each tabs as tab, index (index)}
     <button
       type="button"
       class="tab"

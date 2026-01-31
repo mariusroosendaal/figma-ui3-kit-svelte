@@ -96,7 +96,7 @@
   });
 </script>
 
-<div bind:this={menuWrapper} {disabled} {placeholder} {showGroupLabels} class="wrapper {className}">
+<div bind:this={menuWrapper} class="wrapper {className}" class:disabled>
   <button
     bind:this={menuButton}
     on:click={handleButtonClick}

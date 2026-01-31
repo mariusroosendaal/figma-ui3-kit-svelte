@@ -147,6 +147,7 @@
   on:mouseenter={handleMouseEnter}
   on:mouseleave={handleMouseLeave}
   style="display: inline-block;"
+  role="presentation"
 >
   <slot />
 </div>

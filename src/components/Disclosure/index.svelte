@@ -1,7 +1,7 @@
 <script>
-  import { createEventDispatcher, setContext, onMount } from 'svelte';
+  import { createEventDispatcher, setContext } from 'svelte';
   import { writable } from 'svelte/store';
-  import DisclosureItem, { disclosure } from './../DisclosureItem/index.svelte';
+  import { disclosure } from './../DisclosureItem/index.svelte';
 
   export let multiple = false;
 

@@ -29,9 +29,4 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-
-  /* Future alignment variants */
-  .alignment-toggle {
-    /* Toggle alignment styles can be added here when needed */
-  }
 </style>

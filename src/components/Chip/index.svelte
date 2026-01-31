@@ -149,11 +149,6 @@
 
   .chip-close:hover {
     opacity: 0.75;
-    /* background-color: var(--figma-color-bg-tertiary); */
-  }
-
-  .chip-close:active {
-    /* background-color: var(--figma-color-bg-tertiary); */
   }
 
   /* Focused state */
