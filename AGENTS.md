@@ -8,7 +8,7 @@ This document provides instructions for AI assistants working on the Figma UI3 K
 
 **Tech Stack:**
 - Svelte 4.x
-- Rollup for bundling
+- Storybook for development and documentation
 - Native Figma CSS variables for theming
 - No external UI dependencies
 
@@ -18,7 +18,7 @@ This document provides instructions for AI assistants working on the Figma UI3 K
 - `/src/global.css` - Global typography, spacing, and utility styles
 - `/src/figma-development-theme.css` - Figma's native CSS variables
 - `/src/icons/` - Icon assets (16px and 24px variants)
-- `/playground/App.svelte` - Development playground for testing
+- `/.storybook/` - Storybook configuration
 
 ## Core Principles
 
@@ -99,7 +99,7 @@ This document provides instructions for AI assistants working on the Figma UI3 K
 
 3. **Add to Exports:**
    - Add to `/src/index.js` (maintain alphabetical order)
-   - Add to `/playground/App.svelte` with comprehensive examples
+   - Create a Storybook story in `/src/components/ComponentName/ComponentName.stories.js`
    - Update `README.md` with usage and props table
    - Update `CHANGELOG.md` with the new component
 
@@ -110,7 +110,7 @@ This document provides instructions for AI assistants working on the Figma UI3 K
 - [ ] Test keyboard navigation and focus states
 - [ ] Test with long content/edge cases
 - [ ] Verify in actual Figma plugin context (not just browser)
-- [ ] Leave working examples in playground/App.svelte
+- [ ] Verify component renders correctly in Storybook
 
 ## Code Style & Patterns
 
@@ -287,14 +287,14 @@ import Icon from './../Icon/index.svelte';
 ### Adding a New Variant
 1. Add prop: `export let variant = 'default'; // default, new-variant`
 2. Add CSS: `.component.new-variant { background-color: var(--figma-color-bg-success); }`
-3. Update playground/App.svelte with example
+3. Update Storybook story with example
 4. Update README.md props table
 
 ### Removing Components
 1. Check if used: `grep -r "ComponentName" src/`
 2. **Remove completely** (user preference: complete removal over deprecation)
 3. Remove from `/src/index.js`
-4. Remove from `/playground/App.svelte`
+4. Remove Storybook story file
 5. Remove any related child components
 6. Update `README.md` to remove references
 7. Document in `CHANGELOG.md`
@@ -370,8 +370,8 @@ import { ComponentName } from 'figma-ui3-kit-svelte';
 
 ```bash
 npm install      # Install dependencies
-npm run dev      # Development with hot reload (playground/App.svelte is playground)
-npm run build    # Production build
+npm run dev      # Start Storybook dev server (http://localhost:6006)
+npm run build    # Build Storybook for production
 ```
 
 **File Structure:**
@@ -384,8 +384,9 @@ npm run build    # Production build
   global.css       # Typography, utilities, base styles
   figma-development-theme.css  # Figma CSS variables
   index.js         # Main exports (alphabetized)
-/playground/
-  App.svelte       # Development playground
+/.storybook/
+  main.js          # Storybook configuration
+  preview.js       # Global decorators and parameters
 ```
 
 ## Common Pitfalls
@@ -424,8 +425,8 @@ on:input
 **Solution:** Always test in real Figma plugin environment, not just browser dev server
 
 ### 6. Not Testing in Storybook
-**Problem:** Component works in playground but breaks in Storybook
-**Solution:** Run `npm run storybook` and verify the component renders correctly in isolation.
+**Problem:** Component works in isolation but has issues in Storybook
+**Solution:** Run `npm run dev` and verify the component renders correctly in Storybook.
 
 ## Git Workflow & Version Control
 ## Git Workflow & Version Control
@@ -460,7 +461,7 @@ on:input
 ### Workflow
 
 1. Create branch: `git checkout -b feature/component-name`
-2. Make changes, test in App.svelte, update docs
+2. Make changes, test in Storybook, update docs
 3. Commit with descriptive messages
 4. Before merge: Update CHANGELOG.md, test light/dark themes, verify in Figma plugin
 5. Tag releases: `git tag v0.2.0`
@@ -508,7 +509,7 @@ on:input
 1. **Always use Figma CSS variables** - enables automatic light/dark mode (except menu colors which are intentionally static)
 2. **Use semantic typography tokens** - body-medium-font-size, not raw variables
 3. **24px icons are default**, 16px for compact spaces
-4. **Test in App.svelte** before considering component complete
+4. **Test in Storybook** before considering component complete
 5. **Update README + CHANGELOG** when adding/changing components
 6. **Both dispatch + forward events** for maximum flexibility - especially focus/blur for interactive components
 7. **Class passthrough is mandatory** - `export { className as class };`

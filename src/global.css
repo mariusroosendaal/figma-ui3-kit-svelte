@@ -2,18 +2,6 @@
 :root {
 	/* COLORS */
 
-    /*
-    This has been updated to work with Figma's color tokens.
-    The following variables are included for legacy support, 
-    where they may be referenced in your own custom components.
-
-    All of these variables (where possible) will now map to 
-    Figma's color variables.
-
-    Components part of this package will directly consume
-    Figma's variables to support light and dark mode.
-    */
-
     /* Basic foreground */
     --white: #ffffff;
     --black: #000000;

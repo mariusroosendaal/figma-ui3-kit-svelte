@@ -4,12 +4,9 @@ A lightweight, modern Svelte component library for building Figma plugin interfa
 
 ## Features
 
-✨ **Native Figma Design Language** – Components built to match Figma's UI3 specifications  
-🎨 **Automatic Dark Mode** – Seamless light/dark theme support using Figma's CSS variables  
-🪶 **Lightweight** – Minimal bundle size optimized for plugin environments  
-⚡ **Svelte-First** – Built with Svelte 4.x for maximum performance  
-♿ **Accessible** – Keyboard navigation and ARIA support out of the box  
-🎯 **Zero Config** – Import and use – no theme setup required  
+**Native Figma Design Language** – Components built to match Figma's UI3 specifications  
+**Automatic Dark Mode** – Seamless light/dark theme support using Figma's CSS variables  
+**Svelte-First** – Built with Svelte 4.x 
 
 ## Installation
 
@@ -1171,14 +1168,14 @@ git clone https://github.com/mariusroosendaal/figma-ui3-kit-svelte.git
 # Install dependencies
 npm install
 
-# Run development server
+# Run Storybook development server
 npm run dev
 
-# Build for production
+# Build Storybook for production
 npm run build
 ```
 
-The development server runs `playground/App.svelte` as a playground for testing components.
+The development server runs Storybook at http://localhost:6006 for component documentation and testing.
 
 ---
 
@@ -1186,14 +1183,7 @@ The development server runs `playground/App.svelte` as a playground for testing 
 
 MIT License – feel free to use in your projects.
 
----
-
-## Resources
-
-- [Figma Plugin API Documentation](https://www.figma.com/plugin-docs/)
-- [Figma UI3 Design System](https://www.figma.com/community/file/928108847914589057)
-- [Svelte Documentation](https://svelte.dev/docs)
 
 ---
 
-Built with ❤️ for the Figma plugin community.
+Originally inspired by figma-plugin-ds-svelte by Thomas Lowry, but rebuilt for Figma's UI3 design system. 
