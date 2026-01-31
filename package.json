@@ -1,6 +1,6 @@
 {
   "name": "figma-ui3-kit-svelte",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "type": "module",
   "description": "A collection of Svelte 4 components that match Figma UI3 for building plugins",
   "svelte": "./src/index.js",

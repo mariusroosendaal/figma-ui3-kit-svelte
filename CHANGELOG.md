@@ -7,18 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-01-31
+
 ### Added
+- Storybook for component development and documentation
+  - Interactive component examples with controls
+  - Automatic light/dark theme switching
+  - Accessibility panel (a11y addon)
+  - Deployed to GitHub Pages on push to main
+- ESLint and Prettier for code quality
+- svelte-check for type checking
 - Slider component with variants: delta, range, and stepper
   - Single handle slider for value selection
-  - Delta variant: adjust from a default/reference point with vertical indicator (e.g., for exposure adjustment)
-  - Range variant: fill from start (0%) to handle position
-  - Stepper variant: slider with visible tick marks based on step prop
+  - Delta variant: adjust from a default/reference point with vertical indicator
+  - Range variant: fill from start to handle position
+  - Stepper variant: slider with visible tick marks
   - Support for min, max, step, defaultValue, and disabled props
-  - Focus states with keyboard navigation
-  - Proper event handling (change, input, focus, blur)
+
+### Changed
+- Development workflow now uses Storybook (`npm run dev`) instead of playground
+- Simplified README to essentials, detailed docs now in Storybook
+- Improved accessibility: added ARIA roles to Modal, Tooltip, and interactive components
+- Refactored Button and Checkbox components for better accessibility
 
 ### Removed
-- Section component (use Text component or custom styling instead)
+- Playground (`/playground/`) - replaced by Storybook
+- Rollup build tooling - no longer needed
+- Section component (use Text component instead)
 
 ## [0.3.0] - 2025-01-01
 
