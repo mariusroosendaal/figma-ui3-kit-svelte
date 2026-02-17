@@ -1,0 +1,6 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="icon.16.boolean.intersect">
+<path id="Secondary Fill" fill-rule="evenodd" clip-rule="evenodd" d="M9 7V9H7V7H9Z" fill="black" fill-opacity="0.3"/>
+<path id="Icon" d="M9 3C9.55228 3 10 3.44772 10 4V6H12C12.5523 6 13 6.44772 13 7V12C13 12.5523 12.5523 13 12 13H7C6.44772 13 6 12.5523 6 12V10H4C3.44772 10 3 9.55228 3 9V4C3 3.44772 3.44772 3 4 3H9ZM10 9C10 9.55228 9.55228 10 9 10H7V12H12V7H10V9ZM7 7V9H9V7H7ZM4 9H6V7C6 6.44772 6.44772 6 7 6H9V4H4V9Z" fill="black" fill-opacity="0.9"/>
+</g>
+</svg>

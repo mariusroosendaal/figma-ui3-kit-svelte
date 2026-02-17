@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "target": "ESNext",
+    "module": "ESNext",
+    "checkJs": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "$lib/*": ["src/*"]
+    }
+  },
+  "include": ["src/**/*.js", "src/**/*.svelte", "src/**/*.d.ts"],
+  "exclude": ["node_modules", "storybook-static", ".storybook"]
+}
