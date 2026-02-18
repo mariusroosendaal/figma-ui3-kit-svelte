@@ -38,6 +38,7 @@ import IconPlus from './icons/24/icon.24.plus.svg';
 import IconMinus from './icons/24/icon.24.minus.svg';
 import IconMore from './icons/24/icon.24.more.svg';
 import IconSettings from './icons/24/icon.24.settings.svg';
+import IconSettingsSmall from './icons/24/icon.24.settings.small.svg';
 import IconSearch from './icons/24/icon.24.search.small.svg';
 import IconTrash from './icons/24/icon.24.trash.svg';
 import IconWarning from './icons/24/icon.24.warning.small.svg';
@@ -105,6 +106,7 @@ export {
   IconMinus,
   IconMore,
   IconSettings,
+  IconSettingsSmall,
   IconSearch,
   IconTrash,
   IconWarning,
