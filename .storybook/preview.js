@@ -1,4 +1,5 @@
 import { withThemeByClassName } from '@storybook/addon-themes';
+import './fonts.css';
 import '../src/global.css';
 import '../src/figma-development-theme.css';
 
