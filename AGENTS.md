@@ -24,7 +24,6 @@ Svelte 4.x component library for Figma plugin UIs matching Figma's UI3 design sy
 2. **Always include class passthrough:** `export { className as class };`
 3. **Always forward events** on interactive elements: `on:click`, `on:blur`, `on:focus`
 4. **Test in both light and dark themes**
-5. **Test in actual Figma plugin context**, not just browser
 
 ## Component Template
 
