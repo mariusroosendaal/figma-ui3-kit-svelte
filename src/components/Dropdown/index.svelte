@@ -45,6 +45,15 @@
     }, 0);
   }
 
+  // Sync selected state on menuItems whenever value changes
+  $: if (menuItems && menuItems.length > 0) {
+    menuItems.forEach((item) => {
+      item.selected =
+        item === value ||
+        (value != null && value.value !== undefined && item.value === value.value);
+    });
+  }
+
   // Handle menu selection
   function handleSelect(event) {
     value = event.detail;

@@ -45,12 +45,19 @@
   // Reset focused item when menu opens
   /* eslint-disable svelte/infinite-reactive-loop */
   $: if (isOpen && menuList) {
-    // Focus first item when menu opens
     setTimeout(() => {
-      const firstItem = menuList.querySelector('li[id]');
-      if (firstItem) {
-        firstItem.focus();
-        focusedItemId = parseInt(firstItem.getAttribute('id'));
+      const selectedItem = menuItems.find((item) => item.selected);
+      const targetId = selectedItem != null ? selectedItem.id : null;
+
+      let focusTarget =
+        targetId != null ? menuList.querySelector(`li[id="${targetId}"]`) : null;
+      if (!focusTarget) {
+        focusTarget = menuList.querySelector('li[id]');
+      }
+
+      if (focusTarget) {
+        focusTarget.focus();
+        focusedItemId = parseInt(focusTarget.getAttribute('id'));
       }
     }, 0);
   }

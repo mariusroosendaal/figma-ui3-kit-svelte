@@ -20,6 +20,7 @@
   class={className}
   role="menuitem"
   on:mouseenter
+  on:mouseleave
   on:click
 >
   {#if variant === 'checkmark'}
