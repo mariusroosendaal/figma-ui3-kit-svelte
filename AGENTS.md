@@ -1,4 +1,4 @@
-# AI Assistant Guidelines for Figma UI3 Kit Svelte
+# LLM Assistant Guidelines for Figma UI3 Kit Svelte
 
 Svelte 4.x component library for Figma plugin UIs matching Figma's UI3 design system.
 
@@ -23,7 +23,6 @@ Svelte 4.x component library for Figma plugin UIs matching Figma's UI3 design sy
 1. **Always use Figma CSS variables** - never hardcode colors
 2. **Always include class passthrough:** `export { className as class };`
 3. **Always forward events** on interactive elements: `on:click`, `on:blur`, `on:focus`
-4. **Test in both light and dark themes**
 
 ## Component Template
 
@@ -67,6 +66,7 @@ Svelte 4.x component library for Figma plugin UIs matching Figma's UI3 design sy
 ## Design Tokens
 
 **Colors (use Figma variables):**
+
 - Backgrounds: `--figma-color-bg`, `--figma-color-bg-secondary`, `--figma-color-bg-brand`, `--figma-color-bg-danger`
 - Text: `--figma-color-text`, `--figma-color-text-secondary`, `--figma-color-text-brand`, `--figma-color-text-disabled`
 - Borders: `--figma-color-border`, `--figma-color-border-selected`, `--figma-color-border-danger`
@@ -104,6 +104,7 @@ import Icon16Check from './../../icons/16/icon.16.check.svg';
 ## Removing Components
 
 Remove completely (no deprecation warnings):
+
 1. Delete component directory
 2. Remove from `/src/index.js`
 3. Remove Storybook story
@@ -112,6 +113,7 @@ Remove completely (no deprecation warnings):
 ## Git Conventions
 
 **Commit format:** `<type>: <description>`
+
 - `feat:` new feature/component
 - `fix:` bug fix
 - `refactor:` code restructuring
@@ -140,3 +142,4 @@ npm run build    # Build Storybook
 npm run lint     # Lint
 npm run format   # Format
 ```
+
