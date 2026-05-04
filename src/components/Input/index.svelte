@@ -10,11 +10,20 @@
   export let errorMessage = '';
   export let placeholder = '';
   export let size = 'default'; // 'default' (24px) or 'large' (32px)
+  export let type = 'text';
+  export let ariaLabel = '';
+  export let ariaLabelledBy = '';
 
   let className = '';
   export { className as class };
 
   let errorId = (id || 'input--' + (Math.random() * 10000000).toFixed(0).toString()) + '-error';
+
+  // Svelte disallows dynamic `type` on inputs with bind:value; use an action instead
+  function inputType(node, t) {
+    node.type = t;
+    return { update: (newT) => { node.type = newT; } };
+  }
 </script>
 
 {#if iconName}
@@ -23,7 +32,7 @@
       <Icon {iconName} color="--figma-color-icon" />
     </div>
     <input
-      type="input"
+      use:inputType={type}
       on:input
       on:change
       on:keydown
@@ -34,6 +43,8 @@
       {name}
       {disabled}
       {placeholder}
+      aria-label={ariaLabel || undefined}
+      aria-labelledby={ariaLabelledBy || undefined}
       aria-invalid={invalid || undefined}
       aria-describedby={invalid ? errorId : undefined}
       class="indent"
@@ -49,7 +60,7 @@
 {:else}
   <div class="input {className}">
     <input
-      type="input"
+      use:inputType={type}
       on:input
       on:change
       on:keydown
@@ -60,6 +71,8 @@
       {name}
       {disabled}
       {placeholder}
+      aria-label={ariaLabel || undefined}
+      aria-labelledby={ariaLabelledBy || undefined}
       aria-invalid={invalid || undefined}
       aria-describedby={invalid ? errorId : undefined}
       class:invalid

@@ -64,6 +64,7 @@
   // Handle menu close
   function handleClose() {
     isOpen = false;
+    menuButton?.focus();
   }
 
   // Handle button click
@@ -111,11 +112,10 @@
     bind:this={menuButton}
     on:click={handleButtonClick}
     {disabled}
-    role="combobox"
     aria-expanded={isOpen}
     aria-haspopup="menu"
-    aria-controls="menu-list"
-    aria-label={ariaLabel || undefined}
+    aria-controls="dropdown-{dropdownId}-menu"
+    aria-label={ariaLabel || (value ? undefined : placeholder) || undefined}
     class:selected={isOpen}
   >
     {#if iconName}
@@ -142,6 +142,7 @@
     anchorElement={menuButton}
     minWidth={triggerWidth ? triggerWidth + 'px' : null}
     itemVariant="checkmark"
+    menuListId="dropdown-{dropdownId}-menu"
     on:select={handleSelect}
     on:close={handleClose}
   />

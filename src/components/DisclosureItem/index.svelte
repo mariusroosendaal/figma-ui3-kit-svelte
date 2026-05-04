@@ -70,26 +70,24 @@
 </script>
 
 <li id={uniqueId} class={className} class:expanded={isExpanded} data-open={open} data-title={title}>
-  <div
+  <button
+    type="button"
     on:click={handleClick}
-    on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClick()}
-    role="button"
-    tabindex="0"
     aria-expanded={isExpanded}
     aria-controls="{uniqueId}-content"
     class="header"
     class:section
   >
-    <div class="icon">
+    <div class="icon" aria-hidden="true">
       {#if isExpanded}
         <Icon iconName={ChevronDown} size={16} />
       {:else}
         <Icon iconName={ChevronRight} size={16} />
       {/if}
     </div>
-    <div class="title">{title}</div>
-  </div>
-  <div class="content" id="{uniqueId}-content">
+    <div class="title">{title ?? ''}</div>
+  </button>
+  <div class="content" id="{uniqueId}-content" hidden={!isExpanded}>
     <slot />
   </div>
 </li>
@@ -109,7 +107,9 @@
   .header {
     display: flex;
     align-items: center;
+    width: 100%;
     height: var(--size-small);
+    font-family: var(--font-stack);
     font-size: var(--body-medium-font-size);
     font-weight: var(--body-medium-font-weight);
     letter-spacing: var(--body-medium-letter-spacing);
@@ -117,9 +117,18 @@
     color: var(--figma-color-text);
     border-radius: var(--border-radius-medium);
     border: 1px solid transparent;
+    background: none;
     gap: var(--size-xxsmall);
     padding: 0 var(--size-xxsmall);
     cursor: pointer;
+    text-align: left;
+  }
+  .header:focus-visible {
+    outline: 1px solid var(--figma-color-border-selected);
+    outline-offset: -1px;
+  }
+  .header:focus:not(:focus-visible) {
+    outline: none;
   }
   .header:hover {
     background: var(--figma-color-bg-secondary);
@@ -152,12 +161,5 @@
     line-height: var(--body-medium-line-height);
     color: var(--figma-color-text);
     padding: var(--size-xxsmall) 0 var(--size-xxsmall) var(--size-small);
-    display: none;
-    pointer-events: none;
-  }
-
-  .expanded > .content {
-    display: block;
-    pointer-events: auto;
   }
 </style>

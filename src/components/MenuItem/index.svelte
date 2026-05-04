@@ -16,7 +16,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <li
   {id}
-  tabindex={id + 1}
+  tabindex="-1"
   class:highlight={selected}
   class:disabled
   class={className}

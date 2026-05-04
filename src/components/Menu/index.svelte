@@ -13,6 +13,7 @@
   export let minWidth = null;
   export let itemVariant = 'default'; // "default" | "checkmark"
   export let nestingLevel = 0; // Nesting level for z-index calculation (0 = top-level)
+  export let menuListId = '';
 
   let className = '';
   export { className as class };
@@ -49,15 +50,14 @@
       const selectedItem = menuItems.find((item) => item.selected);
       const targetId = selectedItem != null ? selectedItem.id : null;
 
-      let focusTarget =
+      const focusTarget =
         targetId != null ? menuList.querySelector(`li[id="${targetId}"]`) : null;
-      if (!focusTarget) {
-        focusTarget = menuList.querySelector('li[id]');
-      }
 
       if (focusTarget) {
         focusTarget.focus();
         focusedItemId = parseInt(focusTarget.getAttribute('id'));
+      } else {
+        focusedItemId = null;
       }
     }, 0);
   }
@@ -209,12 +209,13 @@
         return;
       }
 
-      //remove current selection if there is one
-      menuItems.forEach((item) => {
-        item.selected = false;
-      });
-      item.selected = true; //select current item
-      updateSelectedAndIds();
+      // Only persist selection state for checkmark menus (e.g. Dropdown selector).
+      // Plain menus have no selection memory — avoids stale highlight on next open.
+      if (itemVariant === 'checkmark') {
+        menuItems.forEach((i) => { i.selected = false; });
+        item.selected = true;
+        updateSelectedAndIds();
+      }
       dispatch('select', item);
       closeMenu();
     }
@@ -449,10 +450,11 @@
               // Open sub-menu
               openSubMenuId = focusedItemId;
             } else {
-              // Select item
-              menuItems.forEach((i) => (i.selected = false));
-              item.selected = true;
-              updateSelectedAndIds();
+              if (itemVariant === 'checkmark') {
+                menuItems.forEach((i) => (i.selected = false));
+                item.selected = true;
+                updateSelectedAndIds();
+              }
               dispatch('select', item);
               closeMenu();
             }
@@ -502,16 +504,7 @@
     }
   }
 
-  // Add keyboard listener when menu is open
-  $: if (isOpen) {
-    document.addEventListener('keydown', handleKeydown);
-  } else {
-    document.removeEventListener('keydown', handleKeydown);
-  }
-
-  onDestroy(() => {
-    document.removeEventListener('keydown', handleKeydown);
-  });
+  // Keyboard navigation is handled by <svelte:window on:keydown> below
 </script>
 
 <svelte:window on:keydown={handleKeydown} />
@@ -524,7 +517,7 @@
       'auto'}; top: {menuPosition.top}px; left: {menuPosition.left}px; z-index: {50 +
       nestingLevel};"
   >
-    <ul class="menu" bind:this={menuList} role="menu">
+    <ul class="menu" bind:this={menuList} role="menu" id={menuListId || undefined}>
       {#if menuItems && menuItems.length > 0}
         {#each menuItems as item, i (item.id ?? i)}
           {#if i === 0}
