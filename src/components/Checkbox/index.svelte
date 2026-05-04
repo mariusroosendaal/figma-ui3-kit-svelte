@@ -10,6 +10,7 @@
   export let mixed = false; // indeterminate state
   export let muted = false; // secondary styling
   export let ghost = false; // dark background variant
+  export let ariaLabel = '';
 
   let className = '';
   export { className as class };
@@ -41,7 +42,8 @@
     bind:value
     {disabled}
     {tabindex}
-    on:click={(e) => e.currentTarget.blur()}
+    aria-label={ariaLabel || undefined}
+    aria-checked={mixed ? 'mixed' : undefined}
     on:change
     on:focus
     on:blur
@@ -146,8 +148,8 @@
     color: var(--figma-color-text-disabled);
   }
 
-  /* Focus state */
-  input:enabled:focus + .checkbox-label .checkbox-box {
+  /* Focus state — keyboard only */
+  input:enabled:focus-visible + .checkbox-label .checkbox-box {
     border-color: var(--figma-color-bg-brand-hover);
     box-shadow: 0 0 0 1px inset var(--figma-color-bg);
   }
@@ -200,8 +202,8 @@
     color: var(--figma-color-icon-onbrand);
   }
 
-  /* Focus for ghost variant */
-  .checkbox-container.ghost input:enabled:focus + .checkbox-label .checkbox-box {
+  /* Focus for ghost variant — keyboard only */
+  .checkbox-container.ghost input:enabled:focus-visible + .checkbox-label .checkbox-box {
     border-color: var(--figma-color-bg-brand-hover);
     box-shadow: 0 0 0 1px inset var(--figma-color-bg);
   }

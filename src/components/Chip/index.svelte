@@ -16,9 +16,15 @@
 
   function handleClose(event) {
     event.stopPropagation();
-    // Emit close event for parent to handle
-    // This allows the parent to remove the chip from its collection
     dispatch('close', { label });
+  }
+
+  function handleKeydown(event) {
+    if (event.target !== event.currentTarget) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      event.currentTarget.click();
+    }
   }
 
   function getIconColor() {
@@ -40,6 +46,14 @@
   class:disabled
   class:closable
   class:has-icon={iconName}
+  tabindex={disabled ? -1 : 0}
+  role="button"
+  aria-pressed={focused}
+  aria-disabled={disabled}
+  on:click
+  on:keydown={handleKeydown}
+  on:blur
+  on:focus
 >
   {#if iconName}
     <div class="chip-icon">
@@ -72,7 +86,6 @@
     align-items: center;
     height: var(--size-small); /* 24px height */
     border-radius: var(--border-radius-medium); /* 5px */
-    background-color: var(--figma-color-bg-secondary);
     border: 1px solid var(--figma-color-border);
     overflow: hidden;
     max-width: 200px; /* Prevent chips from getting too wide */
@@ -150,6 +163,15 @@
 
   .chip-close:hover {
     opacity: 0.75;
+  }
+
+  .chip:focus-visible {
+    outline: 1px solid var(--figma-color-border-selected);
+    outline-offset: -1px;
+  }
+
+  .chip:focus:not(:focus-visible) {
+    outline: none;
   }
 
   .chip-close:focus-visible {
