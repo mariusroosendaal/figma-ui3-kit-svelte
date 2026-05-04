@@ -9,6 +9,12 @@
   export let tabindex = 0;
   export let iconColor = null; // Optional: override icon color
   export let ariaLabel = '';
+  /** @type {'button' | 'submit' | 'reset'} */
+  export let type = 'button';
+
+  $: if (!ariaLabel && typeof window !== 'undefined') {
+    console.warn('[IconButton] ariaLabel is required for icon-only buttons (WCAG 4.1.2)');
+  }
 
   let className = '';
   export { className as class };
@@ -32,7 +38,7 @@
   on:click
   on:blur
   on:focus
-  on:click={(e) => e.currentTarget.blur()}
+  {type}
   aria-label={ariaLabel || undefined}
   class="icon-button {className}"
   class:default={variant === 'default'}
