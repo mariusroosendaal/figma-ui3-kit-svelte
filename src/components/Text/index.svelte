@@ -4,6 +4,7 @@
   export let block = false;
   export let color = '--figma-color-text';
   export let text = ''; // Text content (falls back to slot content if provided)
+  export let as = 'span';
 
   let className = '';
   export { className as class };
@@ -12,12 +13,13 @@
   $: displayStyle = block ? 'block' : 'inline-block';
 </script>
 
-<span
+<svelte:element
+  this={as}
   class="text {className} {variant} align-{align}"
   style="color: {cssColorVar}; display: {displayStyle};"
 >
   <slot>{text}</slot>
-</span>
+</svelte:element>
 
 <style>
   .text {

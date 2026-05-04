@@ -75,6 +75,8 @@
     on:keydown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClick()}
     role="button"
     tabindex="0"
+    aria-expanded={isExpanded}
+    aria-controls="{uniqueId}-content"
     class="header"
     class:section
   >
@@ -87,7 +89,7 @@
     </div>
     <div class="title">{title}</div>
   </div>
-  <div class="content">
+  <div class="content" id="{uniqueId}-content">
     <slot />
   </div>
 </li>

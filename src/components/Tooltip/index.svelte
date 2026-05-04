@@ -28,6 +28,7 @@
   export { className as class };
   let wrapperElement;
   let tooltipElement;
+  let tooltipId = 'tooltip--' + (Math.random() * 10000000).toFixed(0).toString();
   let showTooltip = false;
   let hoverTimeout;
   let tooltipPosition = { top: 0, left: 0 };
@@ -155,6 +156,8 @@
 {#if showTooltip}
   <div
     bind:this={tooltipElement}
+    id={tooltipId}
+    role="tooltip"
     class="tooltip {direction}"
     style="position: fixed; top: {tooltipPosition.top}px; left: {tooltipPosition.left}px; z-index: 1000;"
   >

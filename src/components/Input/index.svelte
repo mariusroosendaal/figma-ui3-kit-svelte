@@ -13,6 +13,8 @@
 
   let className = '';
   export { className as class };
+
+  let errorId = (id || 'input--' + (Math.random() * 10000000).toFixed(0).toString()) + '-error';
 </script>
 
 {#if iconName}
@@ -32,12 +34,14 @@
       {name}
       {disabled}
       {placeholder}
+      aria-invalid={invalid || undefined}
+      aria-describedby={invalid ? errorId : undefined}
       class="indent"
       class:invalid
       class:large={size === 'large'}
     />
     {#if invalid}
-      <div class="error">
+      <div class="error" id={errorId}>
         {errorMessage}
       </div>
     {/if}
@@ -56,11 +60,13 @@
       {name}
       {disabled}
       {placeholder}
+      aria-invalid={invalid || undefined}
+      aria-describedby={invalid ? errorId : undefined}
       class:invalid
       class:large={size === 'large'}
     />
     {#if invalid}
-      <div class="error">
+      <div class="error" id={errorId}>
         {errorMessage}
       </div>
     {/if}

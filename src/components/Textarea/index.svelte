@@ -10,6 +10,8 @@
 
   let className = '';
   export { className as class };
+
+  let errorId = (id || 'textarea--' + (Math.random() * 10000000).toFixed(0).toString()) + '-error';
 </script>
 
 <div class="textarea {className}">
@@ -25,10 +27,12 @@
     {rows}
     {disabled}
     {placeholder}
+    aria-invalid={invalid || undefined}
+    aria-describedby={invalid ? errorId : undefined}
     class:invalid
   ></textarea>
   {#if invalid}
-    <div class="error">
+    <div class="error" id={errorId}>
       {errorMessage}
     </div>
   {/if}

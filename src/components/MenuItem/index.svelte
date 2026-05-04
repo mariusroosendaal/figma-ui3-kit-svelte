@@ -7,6 +7,7 @@
   export let selected = false;
   export let variant = 'default'; // "default" | "checkmark"
   export let hasSubMenu = false; // Whether this item has a nested sub-menu
+  export let disabled = false;
 
   let className = '';
   export { className as class };
@@ -17,8 +18,10 @@
   {id}
   tabindex={id + 1}
   class:highlight={selected}
+  class:disabled
   class={className}
   role="menuitem"
+  aria-disabled={disabled || undefined}
   on:mouseenter
   on:mouseleave
   on:click
@@ -81,6 +84,12 @@
   li:hover,
   li:focus {
     background-color: var(--color-bg-menu-selected); /* #0d99ff */
+  }
+
+  li.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 
   .lead {

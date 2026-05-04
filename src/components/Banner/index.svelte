@@ -37,7 +37,7 @@
     <Icon iconName={getIcon()} color={getIconColor()} />
   </div>
   <div class="banner-content">
-    <div class="banner-message" role="alert" aria-relevant="all">
+    <div class="banner-message" role="alert">
       <slot>{message}</slot>
     </div>
   </div>

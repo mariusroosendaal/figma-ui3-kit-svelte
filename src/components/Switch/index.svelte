@@ -7,6 +7,7 @@
   export let disabled = false;
   export let tabindex = 0;
   export let mixed = false; // indeterminate state
+  export let ariaLabel = '';
 
   let className = '';
   export { className as class };
@@ -21,6 +22,7 @@
     bind:value
     {disabled}
     {tabindex}
+    aria-label={ariaLabel || undefined}
     on:click={(e) => e.currentTarget.blur()}
     on:change
     on:focus

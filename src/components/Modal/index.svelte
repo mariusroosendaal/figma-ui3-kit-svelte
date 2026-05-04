@@ -25,6 +25,7 @@
   export { className as class };
   let modalElement;
   const dispatch = createEventDispatcher();
+  let modalTitleId = 'modal-title--' + (Math.random() * 10000000).toFixed(0).toString();
 
   // Calculate modal width
   $: modalWidth = (() => {
@@ -152,10 +153,11 @@
         bind:this={modalElement}
         role="dialog"
         aria-modal="true"
-        aria-labelledby="modal-title"
+        aria-labelledby={modalTitleId}
       >
         <ModalHeader
           {title}
+          titleId={modalTitleId}
           variant={headerVariant}
           {icon2}
           {icon2Name}

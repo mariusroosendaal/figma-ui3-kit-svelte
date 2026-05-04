@@ -118,5 +118,6 @@
   /* Focus state */
   input:enabled:focus + .radio-label .radio-button {
     border-color: var(--figma-color-bg-brand-hover);
+    box-shadow: 0 0 0 1px inset var(--figma-color-bg);
   }
 </style>

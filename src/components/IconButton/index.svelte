@@ -8,6 +8,7 @@
   export let spin = false;
   export let tabindex = 0;
   export let iconColor = null; // Optional: override icon color
+  export let ariaLabel = '';
 
   let className = '';
   export { className as class };
@@ -32,6 +33,7 @@
   on:blur
   on:focus
   on:click={(e) => e.currentTarget.blur()}
+  aria-label={ariaLabel || undefined}
   class="icon-button {className}"
   class:default={variant === 'default'}
   class:secondary={variant === 'secondary'}

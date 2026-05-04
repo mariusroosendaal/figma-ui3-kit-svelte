@@ -10,6 +10,7 @@
   export let showGroupLabels = false; //default prop, true will show option group labels
   export let disabled = false;
   export let iconName = null;
+  export let ariaLabel = '';
 
   let className = '';
   export { className as class };
@@ -114,6 +115,7 @@
     aria-expanded={isOpen}
     aria-haspopup="menu"
     aria-controls="menu-list"
+    aria-label={ariaLabel || undefined}
     class:selected={isOpen}
   >
     {#if iconName}

@@ -152,6 +152,15 @@
     opacity: 0.75;
   }
 
+  .chip-close:focus-visible {
+    outline: 1px solid var(--figma-color-border-selected);
+    outline-offset: -1px;
+  }
+
+  .chip-close:focus:not(:focus-visible) {
+    outline: none;
+  }
+
   /* Focused state */
   .chip.focused {
     border-color: var(--figma-color-border-selected);

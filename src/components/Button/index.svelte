@@ -8,6 +8,7 @@
   export let iconName = null; // Icon component to display
   export let iconLead = 'left'; // left, center - Only applies to wide variant
   export let label = ''; // Button label text (falls back to slot content if provided)
+  export let ariaLabel = '';
 
   let className = '';
   export { className as class };
@@ -59,6 +60,7 @@
   on:blur
   on:focus
   {disabled}
+  aria-label={ariaLabel || undefined}
   class="button {variant} {size} {className}"
   class:has-icon={iconName}
   class:wide-icon-left={iconName && iconLead === 'left' && size === 'wide'}

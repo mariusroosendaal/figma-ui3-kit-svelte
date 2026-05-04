@@ -14,6 +14,9 @@
   let className = '';
   export { className as class };
   let uniqueId = 'checkbox--' + (Math.random() * 10000000).toFixed(0).toString();
+  let inputEl;
+
+  $: if (inputEl) inputEl.indeterminate = mixed;
 
   // Function to determine the correct icon color based on state
   function getIconColor() {
@@ -33,6 +36,7 @@
   <input
     type="checkbox"
     id={uniqueId}
+    bind:this={inputEl}
     bind:checked
     bind:value
     {disabled}

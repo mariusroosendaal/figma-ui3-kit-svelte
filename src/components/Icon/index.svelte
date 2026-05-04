@@ -4,6 +4,7 @@
   export let iconText = null;
   export let color = '--figma-color-icon';
   export let size = 24;
+  export let ariaLabel = null;
 
   let className = '';
   export { className as class };
@@ -15,7 +16,9 @@
   class="icon-component {className}"
   style="width: {size}px; height: {size}px; color: var({color}); fill: var({color})"
   on:click
-  role="img"
+  role={ariaLabel ? 'img' : undefined}
+  aria-label={ariaLabel || undefined}
+  aria-hidden={ariaLabel ? undefined : 'true'}
 >
   {#if iconText}
     {iconText}

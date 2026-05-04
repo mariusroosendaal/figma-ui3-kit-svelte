@@ -17,7 +17,7 @@
   $: isSingleTab = tabs.length === 1;
 </script>
 
-<div class="tabs-container {className}">
+<div class="tabs-container {className}" role="tablist">
   {#each tabs as tab, index (index)}
     <button
       type="button"

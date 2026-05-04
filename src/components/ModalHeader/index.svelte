@@ -4,6 +4,7 @@
   import { createEventDispatcher } from 'svelte';
 
   export let title = '';
+  export let titleId = null;
   // svelte-ignore unused-export-let
   export let variant = 'default'; // Reserved for future header variants: "default", "blank", "tabs", "wide"
   export let icon2 = false;
@@ -31,7 +32,7 @@
 </script>
 
 <div class="modal-header {className}">
-  <div class="modal-header-title">
+  <div class="modal-header-title" id={titleId || undefined}>
     {title}
   </div>
 

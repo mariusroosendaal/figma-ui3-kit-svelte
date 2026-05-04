@@ -9,6 +9,7 @@
   export let disabled = false;
   export let tabindex = 0;
   export let defaultValue = null; // For delta variant - the reference/starting point
+  export let ariaLabel = '';
 
   let className = '';
   export { className as class };
@@ -89,6 +90,7 @@
       {step}
       {disabled}
       {tabindex}
+      aria-label={ariaLabel || undefined}
       class="slider-input"
       on:input={handleInput}
       on:change={handleChange}

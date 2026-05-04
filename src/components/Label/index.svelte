@@ -1,11 +1,12 @@
 <script>
   export let size = 'medium'; // medium, small
   export let text = ''; // Label text (falls back to slot content if provided)
+  export let htmlFor = '';
   let className = '';
   export { className as class };
 </script>
 
-<label class="label {size} {className}">
+<label class="label {size} {className}" for={htmlFor || undefined}>
   <slot>{text}</slot>
 </label>
 
