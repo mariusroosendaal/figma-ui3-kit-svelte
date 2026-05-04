@@ -63,7 +63,7 @@
     cursor: pointer;
     outline: none;
     user-select: none;
-    transition: all 0.15s ease;
+    transition: background-color 0.15s ease;
   }
 
   /* DEFAULT VARIANT */

@@ -40,7 +40,7 @@
     {#if icon2 && icon2Name}
       <IconButton iconName={icon2Name} on:click={handleIcon2Click} variant="default" />
     {/if}
-    <IconButton iconName={IconCloseSmall} on:click={handleClose} variant="default" />
+    <IconButton iconName={IconCloseSmall} on:click={handleClose} variant="default" ariaLabel="Close dialog" />
   </div>
 
   <div class="modal-header-border"></div>

@@ -14,6 +14,7 @@ import IconButton from './components/IconButton/index.svelte';
 import Input from './components/Input/index.svelte';
 import Label from './components/Label/index.svelte';
 import Radio from './components/Radio/index.svelte';
+import RadioGroup from './components/RadioGroup/index.svelte';
 import Menu from './components/Menu/index.svelte';
 import MenuItem from './components/MenuItem/index.svelte';
 import MenuDivider from './components/MenuDivider/index.svelte';
@@ -92,6 +93,7 @@ export {
   ModalFooter,
   ModalHeader,
   Radio,
+  RadioGroup,
   Slider,
   Switch,
   Tabs,

@@ -1,7 +1,7 @@
 <script>
   import ModalHeader from '../ModalHeader/index.svelte';
   import ModalFooter from '../ModalFooter/index.svelte';
-  import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+  import { createEventDispatcher, tick } from 'svelte';
 
   export let isOpen = false;
   export let title = '';
@@ -24,6 +24,7 @@
   let className = '';
   export { className as class };
   let modalElement;
+  let previousActiveElement = null;
   const dispatch = createEventDispatcher();
   let modalTitleId = 'modal-title--' + (Math.random() * 10000000).toFixed(0).toString();
 
@@ -89,15 +90,44 @@
     return 'var(--border-radius-large)';
   })();
 
+  function getFocusableElements() {
+    if (!modalElement) return [];
+    return Array.from(
+      modalElement.querySelectorAll(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+    );
+  }
+
   function handleOverlayClick(event) {
     if (closeOnOverlayClick && event.target === event.currentTarget) {
       closeModal();
     }
   }
 
-  function handleEscapeKey(event) {
+  function handleKeydown(event) {
+    if (!isOpen) return;
+
     if (closeOnEscape && event.key === 'Escape') {
       closeModal();
+      return;
+    }
+
+    if (event.key === 'Tab') {
+      const focusable = getFocusableElements();
+      if (!focusable.length) {
+        event.preventDefault();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     }
   }
 
@@ -116,26 +146,32 @@
     isOpen = false;
   }
 
-  // Handle ESC key
-  onMount(() => {
-    if (closeOnEscape) {
-      document.addEventListener('keydown', handleEscapeKey);
+  // Focus management and body scroll lock
+  $: if (typeof document !== 'undefined') {
+    if (isOpen) {
+      previousActiveElement = document.activeElement;
+      document.body.style.overflow = 'hidden';
+      tick().then(() => {
+        if (!isOpen) return;
+        const focusable = getFocusableElements();
+        if (focusable.length) {
+          focusable[0].focus();
+        } else if (modalElement) {
+          modalElement.setAttribute('tabindex', '-1');
+          modalElement.focus();
+        }
+      });
+    } else {
+      document.body.style.overflow = '';
+      if (previousActiveElement) {
+        previousActiveElement.focus();
+        previousActiveElement = null;
+      }
     }
-  });
-
-  onDestroy(() => {
-    if (closeOnEscape) {
-      document.removeEventListener('keydown', handleEscapeKey);
-    }
-  });
-
-  // Body scroll lock when modal is open
-  $: if (isOpen) {
-    document.body.style.overflow = 'hidden';
-  } else {
-    document.body.style.overflow = '';
   }
 </script>
+
+<svelte:window on:keydown={handleKeydown} />
 
 {#if isOpen}
   {#if showOverlay}
@@ -143,7 +179,6 @@
       class="modal-overlay modal-overlay--{position}"
       style="padding: {overlayPadding}"
       on:click={handleOverlayClick}
-      on:keydown={handleEscapeKey}
       role="presentation"
     >
       <div
@@ -192,10 +227,11 @@
       bind:this={modalElement}
       role="dialog"
       aria-modal="true"
-      aria-labelledby="modal-title"
+      aria-labelledby={modalTitleId}
     >
       <ModalHeader
         {title}
+        titleId={modalTitleId}
         variant={headerVariant}
         {icon2}
         {icon2Name}

@@ -1,6 +1,7 @@
 <script>
   export let group = null;
   export let value = null;
+  export let name = '';
   export let disabled = false;
   export let tabindex = 0;
 
@@ -14,12 +15,12 @@
   <input
     type="radio"
     {value}
+    {name}
     {checked}
     {disabled}
     {tabindex}
     id={uniqueId}
     bind:group
-    on:click={(e) => e.currentTarget.blur()}
     on:change
     on:focus
     on:blur
@@ -116,8 +117,11 @@
   }
 
   /* Focus state */
-  input:enabled:focus + .radio-label .radio-button {
+  input:enabled:focus-visible + .radio-label .radio-button {
     border-color: var(--figma-color-bg-brand-hover);
     box-shadow: 0 0 0 1px inset var(--figma-color-bg);
+  }
+  input:enabled:focus:not(:focus-visible) + .radio-label .radio-button {
+    border-color: var(--figma-color-icon);
   }
 </style>

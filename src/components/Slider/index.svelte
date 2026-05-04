@@ -10,6 +10,11 @@
   export let tabindex = 0;
   export let defaultValue = null; // For delta variant - the reference/starting point
   export let ariaLabel = '';
+  export let ariaValueText = '';
+
+  $: if (!ariaLabel && typeof window !== 'undefined') {
+    console.warn('[Slider] ariaLabel is required for accessibility. Provide a descriptive label.');
+  }
 
   let className = '';
   export { className as class };
@@ -91,6 +96,7 @@
       {disabled}
       {tabindex}
       aria-label={ariaLabel || undefined}
+      aria-valuetext={ariaValueText || undefined}
       class="slider-input"
       on:input={handleInput}
       on:change={handleChange}
