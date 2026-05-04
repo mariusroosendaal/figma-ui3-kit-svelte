@@ -10,34 +10,33 @@
   let className = '';
   export { className as class };
 
-  // Function to get the appropriate icon based on variant
-  function getIcon() {
-    switch (variant) {
-      case 'danger':
-        return IconWarning;
-      case 'warning':
-        return IconWarning;
-      case 'info':
-        return IconInfo;
-      case 'success':
-        return IconCheck;
-      default:
-        return IconWarning;
-    }
-  }
+  const variantLabels = {
+    danger: 'Error:',
+    warning: 'Warning:',
+    info: 'Info:',
+    success: 'Success:'
+  };
 
-  // Function to determine the correct icon color based on variant
-  function getIconColor() {
-    return '--figma-color-icon';
-  }
+  /** @type {'alert' | 'status'} */
+  $: liveRole = variant === 'danger' ? 'alert' : 'status';
+  /** @type {'assertive' | 'polite'} */
+  $: livePolite = variant === 'danger' ? 'assertive' : 'polite';
+
+  $: currentIcon = variant === 'info' ? IconInfo : variant === 'success' ? IconCheck : IconWarning;
 </script>
 
-<div class="banner {variant} {className}">
+<div
+  class="banner {variant} {className}"
+  role={liveRole}
+  aria-live={livePolite}
+  aria-atomic="true"
+>
   <div class="banner-icon-container">
-    <Icon iconName={getIcon()} color={getIconColor()} />
+    <Icon iconName={currentIcon} color="--figma-color-icon" />
   </div>
   <div class="banner-content">
-    <div class="banner-message" role="alert">
+    <div class="banner-message">
+      <span class="sr-only">{variantLabels[variant] ?? ''}</span>
       <slot>{message}</slot>
     </div>
   </div>
@@ -57,7 +56,6 @@
     font-weight: var(--body-medium-font-weight);
     line-height: var(--body-medium-line-height);
     letter-spacing: var(--body-medium-letter-spacing);
-    user-select: none;
   }
 
   .banner-icon-container {
@@ -79,6 +77,18 @@
     display: flex;
     flex-direction: column;
     flex: 1;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   /* Danger variant */

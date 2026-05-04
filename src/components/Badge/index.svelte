@@ -6,6 +6,7 @@
   export let strong = false; // true for strong variants (colored backgrounds)
   export let iconName = null; // SVG icon data for variants that support icons
   export let text = ''; // Badge text (falls back to slot content if provided)
+  export let ariaLabel = null; // Use when badge text alone doesn't convey the status type (WCAG 4.1.2)
 
   let className = '';
   export { className as class };
@@ -39,6 +40,7 @@
 
 <div
   class="badge {className}"
+  aria-label={ariaLabel || undefined}
   class:default={variant === 'default'}
   class:brand={variant === 'brand'}
   class:component={variant === 'component'}

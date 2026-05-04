@@ -10,12 +10,10 @@
   export { className as class };
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-noninteractive-element-interactions -->
 <div
   class:spin
   class="icon-component {className}"
   style="width: {size}px; height: {size}px; color: var({color}); fill: var({color})"
-  on:click
   role={ariaLabel ? 'img' : undefined}
   aria-label={ariaLabel || undefined}
   aria-hidden={ariaLabel ? undefined : 'true'}
