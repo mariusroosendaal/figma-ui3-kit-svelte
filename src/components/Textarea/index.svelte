@@ -7,11 +7,17 @@
   export let placeholder = '';
   export let invalid = false;
   export let errorMessage = '';
+  export let ariaLabel = '';
+  export let ariaLabelledBy = '';
 
   let className = '';
   export { className as class };
 
   let errorId = (id || 'textarea--' + (Math.random() * 10000000).toFixed(0).toString()) + '-error';
+
+  $: if (!ariaLabel && !ariaLabelledBy && !id && typeof window !== 'undefined') {
+    console.warn('[Textarea] provide ariaLabel, ariaLabelledBy, or id + external <Label> for accessibility.');
+  }
 </script>
 
 <div class="textarea {className}">
@@ -27,6 +33,8 @@
     {rows}
     {disabled}
     {placeholder}
+    aria-label={ariaLabel || undefined}
+    aria-labelledby={ariaLabelledBy || undefined}
     aria-invalid={invalid || undefined}
     aria-describedby={invalid ? errorId : undefined}
     class:invalid
@@ -82,16 +90,19 @@
     border: 1px solid var(--figma-color-border);
     background-image: none;
   }
-  textarea:focus:placeholder-shown {
+  textarea:focus-visible:placeholder-shown {
     border: 1px solid var(--figma-color-border-selected);
-    /* box-shadow: 0 0 0 2px inset var(--figma-color-bg); */
+    box-shadow: 0 0 0 2px inset var(--figma-color-bg);
   }
 
-  textarea:active,
-  textarea:focus {
+  textarea:focus-visible {
     color: var(--figma-color-text);
     border: 1px solid var(--figma-color-border-selected);
-    /* box-shadow: 0 0 0 2px inset var(--figma-color-bg); */
+    box-shadow: 0 0 0 2px inset var(--figma-color-bg);
+  }
+
+  textarea:focus:not(:focus-visible) {
+    box-shadow: none;
   }
   textarea:disabled {
     position: relative;
@@ -104,10 +115,19 @@
   }
 
   .invalid,
-  .invalid:hover,
-  .invalid:focus {
+  .invalid:hover {
     border: 1px solid var(--figma-color-border-danger-strong);
     outline: none;
+  }
+
+  .invalid:focus-visible {
+    border: 1px solid var(--figma-color-border-danger-strong);
+    box-shadow: 0 0 0 2px inset var(--figma-color-bg);
+    outline: none;
+  }
+
+  .invalid:focus:not(:focus-visible) {
+    box-shadow: none;
   }
 
   .error {

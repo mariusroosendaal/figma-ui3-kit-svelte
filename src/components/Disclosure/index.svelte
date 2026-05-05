@@ -4,6 +4,7 @@
   import { disclosure } from './../DisclosureItem/index.svelte';
 
   export let multiple = false;
+  export let label = '';
 
   let className = '';
   export { className as class };
@@ -31,7 +32,7 @@
   setContext(disclosure, { clickHandler, selected, multiple });
 </script>
 
-<ul class={className} bind:this={disclosureWrapper}>
+<ul class={className} aria-label={label || undefined} bind:this={disclosureWrapper}>
   <slot></slot>
 </ul>
 

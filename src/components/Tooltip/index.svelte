@@ -1,5 +1,5 @@
 <script>
-  import { tick } from 'svelte';
+  import { tick, onMount } from 'svelte';
 
   // Global tooltip state - shared across all Tooltip instances
   // Using window object to ensure true global state across all instances
@@ -80,6 +80,22 @@
     }
   }
 
+  function handleFocusOut(event) {
+    if (wrapperElement?.contains(event.relatedTarget)) return;
+    handleMouseLeave();
+  }
+
+  function handleKeydown(event) {
+    if (showTooltip && event.key === 'Escape') handleMouseLeave();
+  }
+
+  onMount(() => {
+    const trigger = wrapperElement?.querySelector(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if (trigger) trigger.setAttribute('aria-describedby', tooltipId);
+  });
+
   function calculatePosition() {
     if (!wrapperElement || !tooltipElement) return;
 
@@ -142,13 +158,22 @@
   }
 </script>
 
+<svelte:window on:keydown={handleKeydown} />
+
+<!-- Always in DOM so aria-describedby resolves at focus time -->
+<span id={tooltipId} role="tooltip" class="sr-only">
+  {label}{hotkey ? ' ' + hotkeyText : ''}
+</span>
+
 <div
   bind:this={wrapperElement}
   class="tooltip-wrapper {className}"
   on:mouseenter={handleMouseEnter}
   on:mouseleave={handleMouseLeave}
+  on:focusin={handleMouseEnter}
+  on:focusout={handleFocusOut}
   style="display: inline-block;"
-  role="presentation"
+  role="none"
 >
   <slot />
 </div>
@@ -156,9 +181,8 @@
 {#if showTooltip}
   <div
     bind:this={tooltipElement}
-    id={tooltipId}
-    role="tooltip"
     class="tooltip {direction}"
+    aria-hidden="true"
     style="position: fixed; top: {tooltipPosition.top}px; left: {tooltipPosition.left}px; z-index: 1000;"
   >
     <div class="tooltip-content">
@@ -172,9 +196,8 @@
       {/if}
     </div>
 
-    <!-- Arrow -->
-    <div class="tooltip-arrow {direction}">
-      <svg width="12" height="6" viewBox="0 0 12 6" fill="none">
+    <div class="tooltip-arrow {direction}" aria-hidden="true">
+      <svg width="12" height="6" viewBox="0 0 12 6" fill="none" aria-hidden="true">
         <path d={arrowPath} fill="var(--color-bg-tooltip)" />
       </svg>
     </div>
@@ -182,6 +205,18 @@
 {/if}
 
 <style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   .tooltip-wrapper {
     position: relative;
   }
