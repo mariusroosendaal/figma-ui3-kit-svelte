@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-05-05
+
+Comprehensive WCAG 2.2 AA accessibility audit and remediation across all 27 components.
+
+### Added
+- **RadioGroup** component — `<fieldset>`/`<legend>` wrapper for semantically grouping `Radio` buttons; exported from package index
+- `type` prop (`'button' | 'submit' | 'reset'`) to **Button** and **IconButton** — prevents accidental form submission
+- `ariaLabel` prop to **Checkbox**, **IconButton**, **Slider**, **Switch**, **Textarea** — provides accessible names for unlabelled controls
+- `ariaLabelledBy` prop to **Input** and **Textarea** — supports label association via external element ID
+- `ariaValueText` prop to **Slider** — allows human-readable value descriptions (e.g. "Low", "50%")
+- `name` prop to **Radio** — required for AT to group radio buttons correctly
+- `label` prop to **Disclosure** — `aria-label` on the `<ul>` so multiple accordion groups are distinguishable to AT
+- `id` and `panelIds` props to **Tabs** — generates stable tab button IDs; `panelIds` wires `aria-controls` to tabpanel elements
+- Arrow key navigation (Left/Right/Home/End) with roving tabindex to **Tabs**
+- Focus trap (Tab/Shift+Tab cycles within dialog) to **Modal**
+- Initial focus-on-open and focus-return-to-trigger to **Modal**
+- Escape-to-dismiss to **Tooltip**
+- `focusin`/`focusout` handlers to **Tooltip** — tooltip now appears on keyboard focus, not just hover
+- Always-in-DOM `<span role="tooltip">` to **Tooltip** — `aria-describedby` resolves correctly at focus time; `onMount` wires the ID to the first focusable child automatically
+- `role="alert"` / `aria-live="assertive"` for danger **Banner**; `role="status"` / `aria-live="polite"` for all others
+- `aria-checked="mixed"` support to **Checkbox** and **Switch**
+- `role="switch"` to **Switch** (non-mixed state); falls back to `role="checkbox"` when `mixed` is true
+- Dev-mode `console.warn` to **IconButton**, **Label**, **Slider**, **Switch**, and **Textarea** when required accessible name props are absent
+
+### Changed
+- **Text**: heading variants (`heading-large`, `heading-medium`, `heading-small`) now render as `<h2>`, `<h3>`, `<h4>` by default instead of `<span>`; still overridable via the `as` prop
+- **DisclosureItem**: disclosure toggle replaced `<div role="button">` with a native `<button>`; content panel now uses the `hidden` attribute instead of CSS `display:none` for AT-resilient show/hide
+- **Modal**: keyboard handling moved to `<svelte:window>`; fixed no-overlay branch hardcoded `aria-labelledby="modal-title"` — now uses the generated unique ID
+- **Dropdown**: removed incorrect `role="combobox"` (was wrong pattern for a menu button); `aria-controls` now correctly references the menu element by generated ID
+- **Banner**: icon selection converted from a plain function to a reactive declaration — fixes icon not updating when `variant` prop changes in Storybook
+- **IconButton**: `transition: all` narrowed to `transition: background-color` — prevents animated focus-ring flash (black → blue) on keyboard focus
+- Multiple components: `:focus` CSS selectors changed to `:focus-visible` — focus rings now appear for keyboard navigation only, no visual change for mouse users (Button, Checkbox, Chip, DisclosureItem, Dropdown, Input, Radio, Switch, Tabs, Textarea)
+- Multiple components: `on:click` blur anti-pattern removed from **Checkbox**, **Radio**, and **Switch** — keyboard users no longer lose focus position after activating a control; mouse-only blur preserved via `pointerType` detection on Switch
+
+### Fixed
+- **Menu**: removed duplicate `document.addEventListener('keydown')` alongside `<svelte:window on:keydown>` — was causing arrow-key navigation to skip two items per press
+- **Menu**: selection highlight no longer persists across menu opens for non-checkmark menus
+- **MenuItem**: replaced positive `tabindex` values with `tabindex="-1"` — was disrupting document tab order
+- **Modal**: no-overlay branch now passes `titleId` to `ModalHeader` (was previously broken — `aria-labelledby` pointed to a non-existent element)
+- **ModalHeader**: close button now has `ariaLabel="Close dialog"`
+
 ## [0.4.1] - 2026-02-17
 
 ### Changed
