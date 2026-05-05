@@ -9,12 +9,14 @@
   let className = '';
   export { className as class };
 
+  const headingElements = { 'heading-large': 'h2', 'heading-medium': 'h3', 'heading-small': 'h4' };
+  $: resolvedAs = as !== 'span' ? as : (headingElements[variant] ?? 'span');
   $: cssColorVar = color.startsWith('--') ? `var(${color})` : color;
-  $: displayStyle = block ? 'block' : 'inline-block';
+  $: displayStyle = block ? 'block' : resolvedAs in headingElements ? 'block' : 'inline-block';
 </script>
 
 <svelte:element
-  this={as}
+  this={resolvedAs}
   class="text {className} {variant} align-{align}"
   style="color: {cssColorVar}; display: {displayStyle};"
 >

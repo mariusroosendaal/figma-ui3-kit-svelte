@@ -12,6 +12,14 @@
   let className = '';
   export { className as class };
   let uniqueId = 'switch--' + (Math.random() * 10000000).toFixed(0).toString();
+
+  $: if (!ariaLabel && typeof window !== 'undefined') {
+    console.warn('[Switch] provide either slot content or ariaLabel prop for accessibility.');
+  }
+
+  function handleClick(e) {
+    if (/** @type {any} */ (e).pointerType === 'mouse') e.currentTarget.blur();
+  }
 </script>
 
 <div class="switch-container {className}">
@@ -22,8 +30,10 @@
     bind:value
     {disabled}
     {tabindex}
+    role={mixed ? undefined : 'switch'}
     aria-label={ariaLabel || undefined}
-    on:click={(e) => e.currentTarget.blur()}
+    aria-checked={mixed ? 'mixed' : checked}
+    on:click={handleClick}
     on:change
     on:focus
     on:blur
@@ -127,21 +137,24 @@
     color: var(--figma-color-text-disabled);
   }
 
-  /* Focus state */
-  input:enabled:focus + .switch-label .switch-track {
+  /* Focus state - keyboard only */
+  input:enabled:focus-visible + .switch-label .switch-track {
     border: 1px solid var(--figma-color-border-selected);
     box-shadow: 0 0 0 1px inset var(--white);
   }
 
-  /* Focus state - adjust knob size */
-  input:enabled:focus + .switch-label .switch-knob {
-    width: 14px; /* 13px knob when focused */
-    height: 14px; /* 13px knob when focused */
+  input:enabled:focus-visible + .switch-label .switch-knob {
+    width: 14px;
+    height: 14px;
     left: 0;
   }
 
-  /* Adjust knob position when focused and checked */
-  input:enabled:focus + .switch-label .switch-knob.checked {
-    left: 16px; /* 18px from left when checked and focused (32px - 13px - 1px) */
+  input:enabled:focus-visible + .switch-label .switch-knob.checked {
+    left: 16px;
+  }
+
+  input:enabled:focus:not(:focus-visible) + .switch-label .switch-track {
+    border-color: transparent;
+    box-shadow: none;
   }
 </style>

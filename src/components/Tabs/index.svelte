@@ -2,36 +2,49 @@
   export let tabs = [];
   export let selectedTab = 0;
   export let onTabChange = null;
+  export let id = 'tabs--' + (Math.random() * 10000000).toFixed(0).toString();
+  export let panelIds = []; // optional: IDs of tabpanel elements for aria-controls
 
   let className = '';
   export { className as class };
+  let tablistElement;
+
+  $: isSingleTab = tabs.length === 1;
 
   function handleTabClick(index) {
     selectedTab = index;
-    if (onTabChange) {
-      onTabChange(index);
-    }
+    if (onTabChange) onTabChange(index);
   }
 
-  // Check if this is a single tab
-  $: isSingleTab = tabs.length === 1;
+  function handleKeydown(event, index) {
+    let newIndex = null;
+    if (event.key === 'ArrowRight') newIndex = (index + 1) % tabs.length;
+    else if (event.key === 'ArrowLeft') newIndex = (index - 1 + tabs.length) % tabs.length;
+    else if (event.key === 'Home') newIndex = 0;
+    else if (event.key === 'End') newIndex = tabs.length - 1;
+    else return;
+
+    event.preventDefault();
+    handleTabClick(newIndex);
+
+    const buttons = tablistElement?.querySelectorAll('[role="tab"]');
+    if (buttons?.[newIndex]) buttons[newIndex].focus();
+  }
 </script>
 
-<div class="tabs-container {className}" role="tablist">
+<div bind:this={tablistElement} class="tabs-container {className}" role="tablist">
   {#each tabs as tab, index (index)}
     <button
       type="button"
+      id="{id}-tab-{index}"
       class="tab"
       class:selected={index === selectedTab}
       class:single-tab={isSingleTab}
       on:click={() => handleTabClick(index)}
-      on:keydown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleTabClick(index);
-        }
-      }}
+      on:keydown={(e) => handleKeydown(e, index)}
       aria-selected={index === selectedTab}
+      aria-controls={panelIds[index] || undefined}
+      tabindex={index === selectedTab ? 0 : -1}
       role="tab"
     >
       <span class="tab-text">{tab.label || tab}</span>
