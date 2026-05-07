@@ -119,7 +119,7 @@
     class:selected={isOpen}
   >
     {#if iconName}
-      <span class="icon"><Icon {iconName} color="black3" /></span>
+      <span class="icon"><Icon {iconName} color={getIconColor()} /></span>
     {/if}
 
     {#if value}
@@ -128,11 +128,9 @@
       <span class="placeholder">{placeholder}</span>
     {/if}
 
-    {#if !disabled}
-      <span class="caret">
-        <Icon iconName={IconChevronDown} color={getIconColor()} />
-      </span>
-    {/if}
+    <span class="caret">
+      <Icon iconName={IconChevronDown} color={getIconColor()} />
+    </span>
   </button>
 
   <Menu
@@ -185,12 +183,11 @@
     color: var(--figma-color-icon-disabled);
   }
 
-  button:disabled:hover {
-    justify-content: flex-start;
-    border-color: transparent;
+  button:disabled {
+    cursor: not-allowed;
   }
 
-  button:disabled:hover .placeholder {
+  button:disabled .placeholder {
     color: var(--figma-color-icon-disabled);
   }
 

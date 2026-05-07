@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Dropdown** — chevron icon no longer disappears in disabled state; it now renders with `--figma-color-icon-disabled` color
+- **Dropdown** — optional `iconName` icon now uses disabled color instead of hardcoded `black3`
+- **Dropdown** — removed hover styles that incorrectly hid the border on disabled state
+
 ## [0.5.0] - 2026-05-05
 
 Comprehensive WCAG 2.2 AA accessibility audit and remediation across all 27 components.
