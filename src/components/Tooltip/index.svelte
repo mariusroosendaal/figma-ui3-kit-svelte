@@ -46,7 +46,7 @@
     }
 
     // Use shorter delay if user has already seen a tooltip recently
-    const delay = globalTooltipState.hasShownFirstTooltip ? 50 : 500;
+    const delay = globalTooltipState.hasShownFirstTooltip ? 200 : 1000;
 
     hoverTimeout = setTimeout(async () => {
       showTooltip = true;
@@ -76,7 +76,7 @@
       }
       globalTooltipState.resetTimeout = setTimeout(() => {
         globalTooltipState.hasShownFirstTooltip = false;
-      }, 3000);
+      }, 1000);
     }
   }
 
