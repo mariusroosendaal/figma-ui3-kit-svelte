@@ -5,9 +5,6 @@
   let className = '';
   export { className as class };
 
-  $: if (!htmlFor && typeof window !== 'undefined') {
-    console.warn('[Label] htmlFor is empty — label is not associated with any form control.');
-  }
 </script>
 
 <label class="label {size} {className}" for={htmlFor || undefined}>
