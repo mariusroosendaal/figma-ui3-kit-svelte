@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Tooltip** — initial hover delay increased from 500 ms to 1000 ms; subsequent delay increased from 50 ms to 200 ms; idle reset window reduced from 3000 ms to 1000 ms
+
 ### Fixed
 - **Dropdown** — chevron icon no longer disappears in disabled state; it now renders with `--figma-color-icon-disabled` color
 - **Dropdown** — optional `iconName` icon now uses disabled color instead of hardcoded `black3`
