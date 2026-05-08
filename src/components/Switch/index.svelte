@@ -13,10 +13,6 @@
   export { className as class };
   let uniqueId = 'switch--' + (Math.random() * 10000000).toFixed(0).toString();
 
-  $: if (!ariaLabel && typeof window !== 'undefined') {
-    console.warn('[Switch] provide either slot content or ariaLabel prop for accessibility.');
-  }
-
   function handleClick(e) {
     if (/** @type {any} */ (e).pointerType === 'mouse') e.currentTarget.blur();
   }
