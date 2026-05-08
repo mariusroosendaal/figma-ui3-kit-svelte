@@ -32,9 +32,9 @@
 </script>
 
 <div class="modal-header {className}">
-  <div class="modal-header-title" id={titleId || undefined}>
+  <h2 class="modal-header-title" id={titleId || undefined}>
     {title}
-  </div>
+  </h2>
 
   <div class="modal-header-icons">
     {#if icon2 && icon2Name}
@@ -58,6 +58,7 @@
   }
 
   .modal-header-title {
+    margin: 0;
     font-family: var(--font-stack);
     font-size: var(--body-medium-font-size);
     font-weight: var(--font-weight-strong);

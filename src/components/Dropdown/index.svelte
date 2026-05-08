@@ -115,7 +115,7 @@
     aria-expanded={isOpen}
     aria-haspopup="menu"
     aria-controls="dropdown-{dropdownId}-menu"
-    aria-label={ariaLabel || (value ? undefined : placeholder) || undefined}
+    aria-label={ariaLabel || placeholder || undefined}
     class:selected={isOpen}
   >
     {#if iconName}
@@ -128,7 +128,7 @@
       <span class="placeholder">{placeholder}</span>
     {/if}
 
-    <span class="caret">
+    <span class="caret" aria-hidden="true">
       <Icon iconName={IconChevronDown} color={getIconColor()} />
     </span>
   </button>

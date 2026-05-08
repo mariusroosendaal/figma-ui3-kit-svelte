@@ -15,7 +15,7 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <li
-  {id}
+  id="menu-item-{id}"
   tabindex="-1"
   class:highlight={selected}
   class:disabled

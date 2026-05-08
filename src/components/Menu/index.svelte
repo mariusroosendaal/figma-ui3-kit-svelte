@@ -51,11 +51,11 @@
       const targetId = selectedItem != null ? selectedItem.id : null;
 
       const focusTarget =
-        targetId != null ? menuList.querySelector(`li[id="${targetId}"]`) : null;
+        targetId != null ? menuList.querySelector(`li[id="menu-item-${targetId}"]`) : null;
 
       if (focusTarget) {
         focusTarget.focus();
-        focusedItemId = parseInt(focusTarget.getAttribute('id'));
+        focusedItemId = parseInt(focusTarget.getAttribute('id').replace('menu-item-', ''), 10);
       } else {
         focusedItemId = null;
       }
@@ -200,7 +200,7 @@
   function menuClick(event) {
     if (menuList.contains(event.target)) {
       //find selected item in array
-      let itemId = parseInt(event.target.getAttribute('id'));
+      let itemId = parseInt(event.target.getAttribute('id').replace('menu-item-', ''), 10);
       const item = menuItems[itemId];
 
       // If item has sub-menu, don't close menu or dispatch select
@@ -411,7 +411,7 @@
             // Focus first item in sub-menu
             setTimeout(() => {
               // Find the sub-menu wrapper that corresponds to this menu item
-              const focusedItem = menuList?.querySelector(`li[id="${focusedItemId}"]`);
+              const focusedItem = menuList?.querySelector(`li[id="menu-item-${focusedItemId}"]`);
               if (focusedItem) {
                 // Find sub-menu wrapper near the focused item (next sibling or nearby)
                 const allSubMenus = document.querySelectorAll('.sub-menu-wrapper');
@@ -473,14 +473,14 @@
 
     let currentIndex = -1;
     if (focusedItemId !== null) {
-      currentIndex = items.findIndex((item) => parseInt(item.getAttribute('id')) === focusedItemId);
+      currentIndex = items.findIndex((item) => parseInt(item.getAttribute('id').replace('menu-item-', ''), 10) === focusedItemId);
     }
 
     const nextIndex = (currentIndex + 1) % items.length;
     const nextItem = items[nextIndex];
     if (nextItem) {
       nextItem.focus();
-      focusedItemId = parseInt(nextItem.getAttribute('id'));
+      focusedItemId = parseInt(nextItem.getAttribute('id').replace('menu-item-', ''), 10);
     }
   }
 
@@ -493,14 +493,14 @@
 
     let currentIndex = -1;
     if (focusedItemId !== null) {
-      currentIndex = items.findIndex((item) => parseInt(item.getAttribute('id')) === focusedItemId);
+      currentIndex = items.findIndex((item) => parseInt(item.getAttribute('id').replace('menu-item-', ''), 10) === focusedItemId);
     }
 
     const prevIndex = currentIndex <= 0 ? items.length - 1 : currentIndex - 1;
     const prevItem = items[prevIndex];
     if (prevItem) {
       prevItem.focus();
-      focusedItemId = parseInt(prevItem.getAttribute('id'));
+      focusedItemId = parseInt(prevItem.getAttribute('id').replace('menu-item-', ''), 10);
     }
   }
 

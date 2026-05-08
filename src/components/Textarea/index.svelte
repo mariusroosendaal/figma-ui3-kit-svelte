@@ -4,6 +4,7 @@
   export let rows = 2;
   export let name = null;
   export let disabled = false;
+  export let readonly = false;
   export let placeholder = '';
   export let invalid = false;
   export let errorMessage = '';
@@ -32,6 +33,7 @@
     {name}
     {rows}
     {disabled}
+    {readonly}
     {placeholder}
     aria-label={ariaLabel || undefined}
     aria-labelledby={ariaLabelledBy || undefined}
