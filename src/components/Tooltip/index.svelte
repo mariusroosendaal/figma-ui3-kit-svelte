@@ -223,7 +223,7 @@
 
   .tooltip {
     position: fixed;
-    max-width: 200px;
+    max-width: min(200px, calc(100vw - 16px));
     background-color: var(--color-bg-tooltip);
     border-radius: var(--border-radius-medium);
     padding: var(--size-xxxsmall) var(--size-xxsmall);
