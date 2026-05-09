@@ -7,10 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `ariaDisabled` prop to **Button** — keeps the button focusable and in the tab order while blocking clicks and applying disabled styling; use instead of `disabled` when a `<Tooltip>` needs to be keyboard-accessible
+
 ### Changed
 - **Tooltip** — initial hover delay increased from 500 ms to 1000 ms; subsequent delay increased from 50 ms to 200 ms; idle reset window reduced from 3000 ms to 1000 ms
 
 ### Fixed
+- **Tooltip** — no longer overflows the window on narrow plugin panels; `max-width` now clamps to `100vw - 16px` when the viewport is too narrow to fit 200px
 - **Dropdown** — chevron icon no longer disappears in disabled state; it now renders with `--figma-color-icon-disabled` color
 - **Dropdown** — optional `iconName` icon now uses disabled color instead of hardcoded `black3`
 - **Dropdown** — removed hover styles that incorrectly hid the border on disabled state
