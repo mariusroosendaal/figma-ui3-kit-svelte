@@ -5,6 +5,7 @@
   export let variant = 'primary'; // primary, secondary, destructive, secondary-destructive, inverse, success, link, link-danger, ghost
   export let size = 'default'; // default, large, wide
   export let disabled = false;
+  export let ariaDisabled = false;
   export let iconName = null; // Icon component to display
   export let iconLead = 'left'; // left, center - Only applies to wide variant
   export let label = ''; // Button label text (falls back to slot content if provided)
@@ -22,14 +23,14 @@
   export { buttonElement as element };
 
   function handleClick(event) {
-    if (!disabled) {
+    if (!disabled && !ariaDisabled) {
       dispatch('click', event);
     }
   }
 
   // Function to determine the correct icon color based on variant and state
   function getIconColor() {
-    if (disabled) {
+    if (disabled || ariaDisabled) {
       return '--figma-color-icon-ondisabled';
     }
 
@@ -63,6 +64,7 @@
   on:focus
   {type}
   {disabled}
+  aria-disabled={ariaDisabled || undefined}
   aria-label={ariaLabel || undefined}
   class="button {variant} {size} {className}"
   class:has-icon={iconName}
@@ -217,7 +219,7 @@
     color: var(--figma-color-text-onbrand);
   }
 
-  .button.primary:active:not(:disabled) {
+  .button.primary:active:not(:disabled):not([aria-disabled="true"]) {
     background-color: var(--figma-color-bg-brand-pressed);
   }
 
@@ -227,7 +229,8 @@
     box-shadow: 0 0 0 1px inset var(--figma-color-bg);
   }
 
-  .button.primary:disabled {
+  .button.primary:disabled,
+  .button.primary[aria-disabled="true"] {
     background-color: var(--figma-color-bg-disabled);
     color: var(--figma-color-text-disabled);
   }
@@ -239,7 +242,7 @@
     color: var(--figma-color-text);
   }
 
-  .button.secondary:active:not(:disabled) {
+  .button.secondary:active:not(:disabled):not([aria-disabled="true"]) {
     background-color: var(--figma-color-bg-pressed);
   }
 
@@ -248,7 +251,8 @@
     outline-offset: -1px;
   }
 
-  .button.secondary:disabled {
+  .button.secondary:disabled,
+  .button.secondary[aria-disabled="true"] {
     border-color: var(--figma-color-border-disabled);
     color: var(--figma-color-text-disabled);
   }
@@ -259,7 +263,7 @@
     color: var(--figma-color-text-onbrand);
   }
 
-  .button.destructive:active:not(:disabled) {
+  .button.destructive:active:not(:disabled):not([aria-disabled="true"]) {
     background-color: var(--figma-color-bg-danger-pressed);
   }
 
@@ -269,7 +273,8 @@
     box-shadow: 0 0 0 1px inset var(--figma-color-bg);
   }
 
-  .button.destructive:disabled {
+  .button.destructive:disabled,
+  .button.destructive[aria-disabled="true"] {
     background-color: var(--figma-color-bg-disabled);
     color: var(--figma-color-text-disabled);
   }
@@ -281,7 +286,7 @@
     color: var(--figma-color-text-danger);
   }
 
-  .button.secondary-destructive:active:not(:disabled) {
+  .button.secondary-destructive:active:not(:disabled):not([aria-disabled="true"]) {
     background-color: var(--figma-color-bg-pressed);
   }
 
@@ -290,7 +295,8 @@
     outline-offset: -1px;
   }
 
-  .button.secondary-destructive:disabled {
+  .button.secondary-destructive:disabled,
+  .button.secondary-destructive[aria-disabled="true"] {
     border-color: var(--figma-color-border-disabled);
     color: var(--figma-color-text-disabled);
   }
@@ -307,7 +313,8 @@
     box-shadow: 0 0 0 1px inset var(--figma-color-bg);
   }
 
-  .button.inverse:disabled {
+  .button.inverse:disabled,
+  .button.inverse[aria-disabled="true"] {
     background-color: var(--figma-color-bg-disabled);
     color: var(--figma-color-text-disabled);
   }
@@ -318,7 +325,7 @@
     color: var(--figma-color-text-onbrand);
   }
 
-  .button.success:active:not(:disabled) {
+  .button.success:active:not(:disabled):not([aria-disabled="true"]) {
     background-color: var(--figma-color-bg-success-pressed);
   }
 
@@ -328,7 +335,8 @@
     box-shadow: 0 0 0 1px inset var(--figma-color-bg);
   }
 
-  .button.success:disabled {
+  .button.success:disabled,
+  .button.success[aria-disabled="true"] {
     background-color: var(--figma-color-bg-disabled);
     color: var(--figma-color-text-disabled);
   }
@@ -339,7 +347,7 @@
     color: var(--figma-color-text-brand);
   }
 
-  .button.link:active:not(:disabled) {
+  .button.link:active:not(:disabled):not([aria-disabled="true"]) {
     background: var(--figma-color-bg-brand-tertiary);
   }
 
@@ -348,7 +356,8 @@
     outline-offset: -1px;
   }
 
-  .button.link:disabled {
+  .button.link:disabled,
+  .button.link[aria-disabled="true"] {
     color: var(--figma-color-text-disabled);
   }
 
@@ -358,7 +367,7 @@
     color: var(--figma-color-text-danger);
   }
 
-  .button.link-danger:active:not(:disabled) {
+  .button.link-danger:active:not(:disabled):not([aria-disabled="true"]) {
     background: var(--figma-color-bg-danger-tertiary);
   }
 
@@ -367,7 +376,8 @@
     outline-offset: -1px;
   }
 
-  .button.link-danger:disabled {
+  .button.link-danger:disabled,
+  .button.link-danger[aria-disabled="true"] {
     color: var(--figma-color-text-disabled);
   }
 
@@ -377,11 +387,11 @@
     color: var(--figma-color-text);
   }
 
-  .button.ghost:hover:not(:disabled) {
+  .button.ghost:hover:not(:disabled):not([aria-disabled="true"]) {
     background-color: var(--black1);
   }
 
-  .button.ghost:active:not(:disabled) {
+  .button.ghost:active:not(:disabled):not([aria-disabled="true"]) {
     background-color: var(--black15);
   }
 
@@ -390,7 +400,8 @@
     outline-offset: -1px;
   }
 
-  .button.ghost:disabled {
+  .button.ghost:disabled,
+  .button.ghost[aria-disabled="true"] {
     color: var(--figma-color-text-disabled);
   }
 
@@ -400,12 +411,15 @@
   }
 
   /* Disabled state overrides */
-  .button:disabled {
+  .button:disabled,
+  .button[aria-disabled="true"] {
     cursor: not-allowed;
   }
 
   .button:disabled .button-icon-left :global(.icon-component),
-  .button:disabled .button-icon-center :global(.icon-component) {
+  .button:disabled .button-icon-center :global(.icon-component),
+  .button[aria-disabled="true"] .button-icon-left :global(.icon-component),
+  .button[aria-disabled="true"] .button-icon-center :global(.icon-component) {
     color: var(--figma-color-icon-ondisabled);
   }
 </style>

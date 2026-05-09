@@ -44,7 +44,9 @@ figma.showUI(__html__, { themeColors: true, width: 300, height: 400 });
 <Button disabled>Unavailable</Button>
 ```
 
-Props: `variant` (`"primary"` | `"secondary"` | `"destructive"` | `"secondary-destructive"` | `"inverse"` | `"success"` | `"link"` | `"link-danger"` | `"ghost"`), `size` (`"default"` | `"large"` | `"wide"`), `iconName` (SVG import), `iconLead` (`"left"` | `"center"`, wide variant only), `label`, `disabled`.
+Props: `variant` (`"primary"` | `"secondary"` | `"destructive"` | `"secondary-destructive"` | `"inverse"` | `"success"` | `"link"` | `"link-danger"` | `"ghost"`), `size` (`"default"` | `"large"` | `"wide"`), `iconName` (SVG import), `iconLead` (`"left"` | `"center"`, wide variant only), `label`, `disabled`, `ariaDisabled`.
+
+`ariaDisabled` keeps the button in the tab order while blocking clicks and applying disabled styling — use it instead of `disabled` when a `<Tooltip>` needs to be keyboard-accessible (so users can focus the button and read why it's unavailable).
 
 ---
 
