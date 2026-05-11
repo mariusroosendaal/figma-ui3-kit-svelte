@@ -10,10 +10,75 @@ If `$ARGUMENTS` names a specific component, show just that component's usage. Ot
 npm install figma-ui3-kit-svelte
 ```
 
-Import components:
+Import components and icon exports:
 
 ```javascript
-import { Button, Input, Dropdown, Tabs, Text, Modal } from "figma-ui3-kit-svelte";
+import {
+  Badge,
+  Banner,
+  Button,
+  Checkbox,
+  Chip,
+  Disclosure,
+  DisclosureItem,
+  Dropdown,
+  Icon,
+  IconButton,
+  Input,
+  Label,
+  Menu,
+  MenuDivider,
+  MenuHeading,
+  MenuItem,
+  Modal,
+  ModalFooter,
+  ModalHeader,
+  Radio,
+  RadioGroup,
+  Slider,
+  Switch,
+  Tabs,
+  Text,
+  Textarea,
+  Tooltip,
+  IconBack,
+  IconCheck,
+  IconClose,
+  IconCloseSmall,
+  IconPlus,
+  IconMinus,
+  IconMore,
+  IconSettings,
+  IconSettingsSmall,
+  IconExportSmall,
+  IconSearch,
+  IconTrash,
+  IconWarning,
+  IconArrow,
+  IconChevronRight,
+  IconChevronDown,
+  IconChevronUp,
+  IconInstanceSmall,
+  IconBooleanSmall,
+  IconInstanceSwapSmall,
+  IconImageSmall,
+  IconTextSmall,
+  IconShapeTextSmall,
+  IconLinkSmall,
+  IconNumberSmall,
+  IconListView,
+  IconInfoSmall,
+  IconGoSmall,
+  IconInteraction,
+  IconConditional,
+  Icon16Check,
+  Icon16Close,
+  Icon16Plus,
+  Icon16Warning,
+  Icon16Arrow,
+  Icon16ChevronRight,
+  Icon16ChevronDown,
+} from "figma-ui3-kit-svelte";
 ```
 
 Enable Figma theme support in `code.ts`:
@@ -155,6 +220,24 @@ Props: `group`, `value`, `disabled`.
 
 ---
 
+### RadioGroup
+
+```svelte
+<script>
+  let selected = "left";
+</script>
+
+<RadioGroup legend="Alignment">
+  <Radio bind:group={selected} value="left">Left</Radio>
+  <Radio bind:group={selected} value="center">Center</Radio>
+  <Radio bind:group={selected} value="right">Right</Radio>
+</RadioGroup>
+```
+
+Props: `legend`, `class`.
+
+---
+
 ### Switch
 
 ```svelte
@@ -251,6 +334,16 @@ Props: `label`, `direction` (`"Top"` | `"Bottom"` | `"Left"` | `"Right"`), `hotk
   </svelte:fragment>
 </Modal>
 
+<!-- Custom header and footer using the exported helpers -->
+<Modal bind:isOpen>
+  <ModalHeader>Confirm</ModalHeader>
+  <p>Are you sure?</p>
+  <ModalFooter>
+    <Button variant="secondary" on:click={() => (isOpen = false)}>Cancel</Button>
+    <Button variant="destructive" on:click={confirm}>Delete</Button>
+  </ModalFooter>
+</Modal>
+
 <!-- Custom size and position -->
 <Modal bind:isOpen title="Confirm" width="small" position="bottom" footerVariant="split">
   <p>Are you sure?</p>
@@ -295,14 +388,23 @@ Key props: `isOpen`, `title`, `width` (`"small"` 240px | `"medium"` 320px | `"la
 
 ```svelte
 <script>
+  import { Icon, IconBack, IconSettings } from "figma-ui3-kit-svelte";
+</script>
+
+<Icon iconName={IconBack} color="--figma-color-icon" />
+<Icon iconName={IconSettings} color="--figma-color-icon-brand" spin />
+<Icon iconText="W" color="--figma-color-text-brand" />
+```
+
+If you need an icon that is not exported from the root, you can still import it directly:
+
+```svelte
+<script>
   import { Icon } from "figma-ui3-kit-svelte";
   import Icon24Eye from "figma-ui3-kit-svelte/src/icons/24/icon.24.eye.small.svg";
-  import Icon16Check from "figma-ui3-kit-svelte/src/icons/16/icon.16.check.svg";
 </script>
 
 <Icon iconName={Icon24Eye} color="--figma-color-icon" />
-<Icon iconName={Icon24Eye} color="--figma-color-icon-brand" spin />
-<Icon iconText="W" color="--figma-color-text-brand" />
 ```
 
 Props: `iconName` (SVG import), `iconText` (text fallback), `color` (CSS variable name), `spin`.
@@ -315,8 +417,7 @@ Available sizes: `16/` and `24/`. Naming pattern: `icon.{size}.{name}.svg`.
 
 ```svelte
 <script>
-  import { IconButton } from "figma-ui3-kit-svelte";
-  import IconMore from "figma-ui3-kit-svelte/src/icons/16/icon.16.more.svg";
+  import { IconButton, IconMore } from "figma-ui3-kit-svelte";
 </script>
 
 <IconButton iconName={IconMore} on:click={handler} />
