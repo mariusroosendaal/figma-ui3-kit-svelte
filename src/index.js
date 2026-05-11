@@ -1,7 +1,8 @@
-//Global CSS
-import GlobalCSS from './global.css';
+// Side-effect import of shared global CSS.
+// Importing from the package root will load this CSS automatically.
+import './global.css';
 
-//Components
+// Components
 import Badge from './components/Badge/index.svelte';
 import Banner from './components/Banner/index.svelte';
 import Button from './components/Button/index.svelte';
@@ -72,7 +73,6 @@ import Icon16ChevronRight from './icons/16/icon.16.chevron.right.svg';
 import Icon16ChevronDown from './icons/16/icon.16.chevron.down.svg';
 
 export {
-  GlobalCSS,
   Badge,
   Banner,
   Button,

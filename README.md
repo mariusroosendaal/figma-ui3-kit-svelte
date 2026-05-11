@@ -22,9 +22,6 @@ npm install figma-ui3-kit-svelte
 ## Quick Start
 
 ```javascript
-// Import the global CSS (required for design tokens)
-import { GlobalCSS } from 'figma-ui3-kit-svelte';
-
 // Import components
 import { Button, Input, Modal, Text } from 'figma-ui3-kit-svelte';
 ```
@@ -84,7 +81,20 @@ See the [Storybook](https://mariusroosendaal.github.io/figma-ui3-kit-svelte/) fo
 
 ## Icons
 
-The library includes 700+ icons in two sizes. Import them as SVG:
+The library includes 700+ icons in two sizes. You can use either root exports for a small curated set, or import the full icon files directly.
+
+### Root-exported icons
+
+```javascript
+import { Icon, IconBack, IconSettings } from 'figma-ui3-kit-svelte';
+```
+
+```html
+<Icon iconName={IconBack} color="--figma-color-icon" />
+<Icon iconName={IconSettings} color="--figma-color-icon-brand" spin />
+```
+
+### Direct icon imports
 
 ```javascript
 import { Icon } from 'figma-ui3-kit-svelte';
