@@ -27,3 +27,8 @@
     url('https://rsms.me/inter/font-files/Inter-SemiBold.woff2?v=3.7') format('woff2'),
     url('https://rsms.me/inter/font-files/Inter-SemiBold.woff?v=3.7') format('woff');
 }
+
+/* Roboto Mono for code variant in Textarea. 
+TODO: probably embed this since this isn't loaded for plugins in Figma (even though it's there for dev mode). */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');

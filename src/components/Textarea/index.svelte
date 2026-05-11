@@ -10,6 +10,7 @@
   export let errorMessage = '';
   export let ariaLabel = '';
   export let ariaLabelledBy = '';
+  export let variant = 'default';
 
   let className = '';
   export { className as class };
@@ -40,6 +41,7 @@
     aria-invalid={invalid || undefined}
     aria-describedby={invalid ? errorId : undefined}
     class:invalid
+    class:code={variant === 'code'}
   ></textarea>
   {#if invalid}
     <div class="error" id={errorId}>
@@ -101,6 +103,14 @@
     color: var(--figma-color-text);
     border: 1px solid var(--figma-color-border-selected);
     box-shadow: 0 0 0 2px inset var(--figma-color-bg);
+  }
+
+  textarea.code {
+    font-family: var(--font-stack-monospace);
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 16px;
+    color: var(--figma-color-text);
   }
 
   textarea:focus:not(:focus-visible) {

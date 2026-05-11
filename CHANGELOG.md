@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `ariaDisabled` prop to **Button** — keeps the button focusable and in the tab order while blocking clicks and applying disabled styling; use instead of `disabled` when a `<Tooltip>` needs to be keyboard-accessible
+- `code` variant to **Textarea** — provides a monospace font and specific styling for code input
 
 ### Changed
 - **Tooltip** — initial hover delay increased from 500 ms to 1000 ms; subsequent delay increased from 50 ms to 200 ms; idle reset window reduced from 3000 ms to 1000 ms

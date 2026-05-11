@@ -29,6 +29,11 @@ export default {
       control: 'text',
       description: 'Error message to display when invalid',
     },
+    variant: {
+      control: 'select',
+      options: ['default', 'code'],
+      description: 'Textarea variant',
+    },
     class: {
       table: {
         disable: true,
@@ -45,5 +50,16 @@ export const Default = {
     placeholder: 'Input something here...',
     invalid: false,
     errorMessage: 'Error message',
+  },
+};
+
+export const Code = {
+  args: {
+    value: 'const hello = "world";',
+    rows: 2,
+    disabled: false,
+    placeholder: 'Input JSON here...',
+    invalid: false,
+    variant: 'code',
   },
 };
