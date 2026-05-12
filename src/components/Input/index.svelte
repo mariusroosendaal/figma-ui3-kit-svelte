@@ -22,7 +22,11 @@
   // Svelte disallows dynamic `type` on inputs with bind:value; use an action instead
   function inputType(node, t) {
     node.type = t;
-    return { update: (newT) => { node.type = newT; } };
+    return {
+      update: (newT) => {
+        node.type = newT;
+      },
+    };
   }
 </script>
 

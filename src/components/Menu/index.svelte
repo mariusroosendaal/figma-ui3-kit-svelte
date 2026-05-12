@@ -212,7 +212,9 @@
       // Only persist selection state for checkmark menus (e.g. Dropdown selector).
       // Plain menus have no selection memory — avoids stale highlight on next open.
       if (itemVariant === 'checkmark') {
-        menuItems.forEach((i) => { i.selected = false; });
+        menuItems.forEach((i) => {
+          i.selected = false;
+        });
         item.selected = true;
         updateSelectedAndIds();
       }
@@ -473,7 +475,9 @@
 
     let currentIndex = -1;
     if (focusedItemId !== null) {
-      currentIndex = items.findIndex((item) => parseInt(item.getAttribute('id').replace('menu-item-', ''), 10) === focusedItemId);
+      currentIndex = items.findIndex(
+        (item) => parseInt(item.getAttribute('id').replace('menu-item-', ''), 10) === focusedItemId
+      );
     }
 
     const nextIndex = (currentIndex + 1) % items.length;
@@ -493,7 +497,9 @@
 
     let currentIndex = -1;
     if (focusedItemId !== null) {
-      currentIndex = items.findIndex((item) => parseInt(item.getAttribute('id').replace('menu-item-', ''), 10) === focusedItemId);
+      currentIndex = items.findIndex(
+        (item) => parseInt(item.getAttribute('id').replace('menu-item-', ''), 10) === focusedItemId
+      );
     }
 
     const prevIndex = currentIndex <= 0 ? items.length - 1 : currentIndex - 1;

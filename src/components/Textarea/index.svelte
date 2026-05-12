@@ -18,7 +18,9 @@
   let errorId = (id || 'textarea--' + (Math.random() * 10000000).toFixed(0).toString()) + '-error';
 
   $: if (!ariaLabel && !ariaLabelledBy && !id && typeof window !== 'undefined') {
-    console.warn('[Textarea] provide ariaLabel, ariaLabelledBy, or id + external <Label> for accessibility.');
+    console.warn(
+      '[Textarea] provide ariaLabel, ariaLabelledBy, or id + external <Label> for accessibility.'
+    );
   }
 </script>
 

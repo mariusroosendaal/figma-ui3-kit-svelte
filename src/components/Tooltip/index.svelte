@@ -227,7 +227,7 @@
     background-color: var(--color-bg-tooltip);
     border-radius: var(--border-radius-medium);
     padding: var(--size-xxxsmall) var(--size-xxsmall);
-    box-shadow: var(--elevation-300-light);
+    box-shadow: var(--elevation-300-tooltip);
   }
 
   .tooltip-content {

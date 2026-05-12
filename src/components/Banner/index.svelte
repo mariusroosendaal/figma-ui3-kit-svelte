@@ -14,7 +14,7 @@
     danger: 'Error:',
     warning: 'Warning:',
     info: 'Info:',
-    success: 'Success:'
+    success: 'Success:',
   };
 
   /** @type {'alert' | 'status'} */
@@ -25,12 +25,7 @@
   $: currentIcon = variant === 'info' ? IconInfo : variant === 'success' ? IconCheck : IconWarning;
 </script>
 
-<div
-  class="banner {variant} {className}"
-  role={liveRole}
-  aria-live={livePolite}
-  aria-atomic="true"
->
+<div class="banner {variant} {className}" role={liveRole} aria-live={livePolite} aria-atomic="true">
   <div class="banner-icon-container">
     <Icon iconName={currentIcon} color="--figma-color-icon" />
   </div>

@@ -219,7 +219,7 @@
     color: var(--figma-color-text-onbrand);
   }
 
-  .button.primary:active:not(:disabled):not([aria-disabled="true"]) {
+  .button.primary:active:not(:disabled):not([aria-disabled='true']) {
     background-color: var(--figma-color-bg-brand-pressed);
   }
 
@@ -230,7 +230,7 @@
   }
 
   .button.primary:disabled,
-  .button.primary[aria-disabled="true"] {
+  .button.primary[aria-disabled='true'] {
     background-color: var(--figma-color-bg-disabled);
     color: var(--figma-color-text-disabled);
   }
@@ -242,7 +242,7 @@
     color: var(--figma-color-text);
   }
 
-  .button.secondary:active:not(:disabled):not([aria-disabled="true"]) {
+  .button.secondary:active:not(:disabled):not([aria-disabled='true']) {
     background-color: var(--figma-color-bg-pressed);
   }
 
@@ -252,7 +252,7 @@
   }
 
   .button.secondary:disabled,
-  .button.secondary[aria-disabled="true"] {
+  .button.secondary[aria-disabled='true'] {
     border-color: var(--figma-color-border-disabled);
     color: var(--figma-color-text-disabled);
   }
@@ -263,7 +263,7 @@
     color: var(--figma-color-text-onbrand);
   }
 
-  .button.destructive:active:not(:disabled):not([aria-disabled="true"]) {
+  .button.destructive:active:not(:disabled):not([aria-disabled='true']) {
     background-color: var(--figma-color-bg-danger-pressed);
   }
 
@@ -274,7 +274,7 @@
   }
 
   .button.destructive:disabled,
-  .button.destructive[aria-disabled="true"] {
+  .button.destructive[aria-disabled='true'] {
     background-color: var(--figma-color-bg-disabled);
     color: var(--figma-color-text-disabled);
   }
@@ -286,7 +286,7 @@
     color: var(--figma-color-text-danger);
   }
 
-  .button.secondary-destructive:active:not(:disabled):not([aria-disabled="true"]) {
+  .button.secondary-destructive:active:not(:disabled):not([aria-disabled='true']) {
     background-color: var(--figma-color-bg-pressed);
   }
 
@@ -296,7 +296,7 @@
   }
 
   .button.secondary-destructive:disabled,
-  .button.secondary-destructive[aria-disabled="true"] {
+  .button.secondary-destructive[aria-disabled='true'] {
     border-color: var(--figma-color-border-disabled);
     color: var(--figma-color-text-disabled);
   }
@@ -314,7 +314,7 @@
   }
 
   .button.inverse:disabled,
-  .button.inverse[aria-disabled="true"] {
+  .button.inverse[aria-disabled='true'] {
     background-color: var(--figma-color-bg-disabled);
     color: var(--figma-color-text-disabled);
   }
@@ -325,7 +325,7 @@
     color: var(--figma-color-text-onbrand);
   }
 
-  .button.success:active:not(:disabled):not([aria-disabled="true"]) {
+  .button.success:active:not(:disabled):not([aria-disabled='true']) {
     background-color: var(--figma-color-bg-success-pressed);
   }
 
@@ -336,7 +336,7 @@
   }
 
   .button.success:disabled,
-  .button.success[aria-disabled="true"] {
+  .button.success[aria-disabled='true'] {
     background-color: var(--figma-color-bg-disabled);
     color: var(--figma-color-text-disabled);
   }
@@ -347,7 +347,7 @@
     color: var(--figma-color-text-brand);
   }
 
-  .button.link:active:not(:disabled):not([aria-disabled="true"]) {
+  .button.link:active:not(:disabled):not([aria-disabled='true']) {
     background: var(--figma-color-bg-brand-tertiary);
   }
 
@@ -357,7 +357,7 @@
   }
 
   .button.link:disabled,
-  .button.link[aria-disabled="true"] {
+  .button.link[aria-disabled='true'] {
     color: var(--figma-color-text-disabled);
   }
 
@@ -367,7 +367,7 @@
     color: var(--figma-color-text-danger);
   }
 
-  .button.link-danger:active:not(:disabled):not([aria-disabled="true"]) {
+  .button.link-danger:active:not(:disabled):not([aria-disabled='true']) {
     background: var(--figma-color-bg-danger-tertiary);
   }
 
@@ -377,7 +377,7 @@
   }
 
   .button.link-danger:disabled,
-  .button.link-danger[aria-disabled="true"] {
+  .button.link-danger[aria-disabled='true'] {
     color: var(--figma-color-text-disabled);
   }
 
@@ -387,11 +387,11 @@
     color: var(--figma-color-text);
   }
 
-  .button.ghost:hover:not(:disabled):not([aria-disabled="true"]) {
+  .button.ghost:hover:not(:disabled):not([aria-disabled='true']) {
     background-color: var(--black1);
   }
 
-  .button.ghost:active:not(:disabled):not([aria-disabled="true"]) {
+  .button.ghost:active:not(:disabled):not([aria-disabled='true']) {
     background-color: var(--black15);
   }
 
@@ -401,7 +401,7 @@
   }
 
   .button.ghost:disabled,
-  .button.ghost[aria-disabled="true"] {
+  .button.ghost[aria-disabled='true'] {
     color: var(--figma-color-text-disabled);
   }
 
@@ -412,14 +412,14 @@
 
   /* Disabled state overrides */
   .button:disabled,
-  .button[aria-disabled="true"] {
+  .button[aria-disabled='true'] {
     cursor: not-allowed;
   }
 
   .button:disabled .button-icon-left :global(.icon-component),
   .button:disabled .button-icon-center :global(.icon-component),
-  .button[aria-disabled="true"] .button-icon-left :global(.icon-component),
-  .button[aria-disabled="true"] .button-icon-center :global(.icon-component) {
+  .button[aria-disabled='true'] .button-icon-left :global(.icon-component),
+  .button[aria-disabled='true'] .button-icon-center :global(.icon-component) {
     color: var(--figma-color-icon-ondisabled);
   }
 </style>

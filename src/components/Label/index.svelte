@@ -4,7 +4,6 @@
   export let htmlFor = '';
   let className = '';
   export { className as class };
-
 </script>
 
 <label class="label {size} {className}" for={htmlFor || undefined}>
@@ -29,7 +28,7 @@
   }
 
   .label.small {
-    color: var(--figma-color-text-secondary); 
+    color: var(--figma-color-text-secondary);
     font-size: var(--body-small-font-size);
     line-height: var(--body-small-line-height);
     letter-spacing: var(--body-small-letter-spacing);
