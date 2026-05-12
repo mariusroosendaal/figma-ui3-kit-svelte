@@ -187,11 +187,41 @@ body {
   --figma-color-text-warning-secondary: #b86200;
   --figma-color-text-warning-tertiary: #b86200;
 
-  --elevation-100: 0 1px 3px 0 #0006, inset 0 0 .5px 0 #ffffff4d, inset 0 .5px 0 0 #ffffff1a, 0 0 .5px 0 #00000080;
-  --elevation-200: 0 1px 3px 0 #00000080, inset 0 0 .5px 0 #ffffff4d, 0 3px 8px 0 #00000059, inset 0 .5px 0 0 #ffffff14;
-  --elevation-300: 0 1px 3px 0 #00000080, inset 0 0 .5px 0 #ffffff4d, 0 5px 12px 0 #00000059, inset 0 .5px 0 0 #ffffff14;
-  --elevation-400: 0 2px 5px 0 #00000059, inset 0 0 .5px 0 #ffffff59, 0 10px 16px 0 #00000059, inset 0 .5px 0 0 #ffffff14;
-  --elevation-500: 0 3px 5px 0 #00000059, inset 0 0 .5px 0 #ffffff59, 0 10px 24px 0 #00000073, inset 0 .5px 0 0 #ffffff14;
+  --elevation-100:
+    0 1px 3px 0 #0006, inset 0 0 0.5px 0 #ffffff4d, inset 0 0.5px 0 0 #ffffff1a,
+    0 0 0.5px 0 #00000080;
+  --elevation-200:
+    0 1px 3px 0 #00000080, inset 0 0 0.5px 0 #ffffff4d, 0 3px 8px 0 #00000059,
+    inset 0 0.5px 0 0 #ffffff14;
+  --elevation-300:
+    0 1px 3px 0 #00000080, inset 0 0 0.5px 0 #ffffff4d, 0 5px 12px 0 #00000059,
+    inset 0 0.5px 0 0 #ffffff14;
+  --elevation-400:
+    0 2px 5px 0 #00000059, inset 0 0 0.5px 0 #ffffff59, 0 10px 16px 0 #00000059,
+    inset 0 0.5px 0 0 #ffffff14;
+  --elevation-500:
+    0 3px 5px 0 #00000059, inset 0 0 0.5px 0 #ffffff59, 0 10px 24px 0 #00000073,
+    inset 0 0.5px 0 0 #ffffff14;
+
+  --elevation-100-canvas: 0px 0px 0.5px rgba(0, 0, 0, 0.3), 0px 1px 3px rgba(0, 0, 0, 0.15);
+  --elevation-100-canvas-drop-shadow: drop-shadow(0px 0px 0.5px rgba(0, 0, 0, 0.3))
+    drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.15));
+  --elevation-200-canvas:
+    0px 0px 0.5px rgba(0, 0, 0, 0.18), 0px 3px 8px rgba(0, 0, 0, 0.1),
+    0px 1px 3px rgba(0, 0, 0, 0.1);
+  --elevation-200-canvas-drop-shadow: drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.1))
+    drop-shadow(0px 3px 8px rgba(0, 0, 0, 0.1)) drop-shadow(0px 0px 0.5px rgba(0, 0, 0, 0.18));
+  --elevation-300-tooltip:
+    0px 0px 0.5px rgba(0, 0, 0, 0.15), 0px 5px 12px rgba(0, 0, 0, 0.13),
+    0px 1px 3px rgba(0, 0, 0, 0.1);
+  --elevation-300-tooltip-drop-shadow: drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.1))
+    drop-shadow(0px 5px 12px rgba(0, 0, 0, 0.13)) drop-shadow(0px 0px 0.5px rgba(0, 0, 0, 0.15));
+  --elevation-400-menu-panel:
+    0px 0px 0.5px rgba(0, 0, 0, 0.12), 0px 10px 16px rgba(0, 0, 0, 0.12),
+    0px 2px 5px rgba(0, 0, 0, 0.15);
+  --elevation-500-modal-window:
+    0px 0px 0.5px rgba(0, 0, 0, 0.08), 0px 10px 24px rgba(0, 0, 0, 0.18),
+    0px 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 .figma-dark {
@@ -368,9 +398,47 @@ body {
   --figma-color-text-warning-secondary: #f7d15f;
   --figma-color-text-warning-tertiary: #f7d15f;
 
-  --elevation-100: 0 1px 3px 0 #0006, inset 0 0 .5px 0 #ffffff4d, inset 0 .5px 0 0 #ffffff1a, 0 0 .5px 0 #00000080;
-  --elevation-200: 0 1px 3px 0 #00000080, inset 0 0 .5px 0 #ffffff4d, 0 3px 8px 0 #00000059, inset 0 .5px 0 0 #ffffff14;
-  --elevation-300: 0 1px 3px 0 #00000080, inset 0 0 .5px 0 #ffffff4d, 0 5px 12px 0 #00000059, inset 0 .5px 0 0 #ffffff14;
-  --elevation-400: 0 2px 5px 0 #00000059, inset 0 0 .5px 0 #ffffff59, 0 10px 16px 0 #00000059, inset 0 .5px 0 0 #ffffff14;
-  --elevation-500: 0 3px 5px 0 #00000059, inset 0 0 .5px 0 #ffffff59, 0 10px 24px 0 #00000073, inset 0 .5px 0 0 #ffffff14;
+  --elevation-100:
+    0 1px 3px 0 #0006, inset 0 0 0.5px 0 #ffffff4d, inset 0 0.5px 0 0 #ffffff1a,
+    0 0 0.5px 0 #00000080;
+  --elevation-200:
+    0 1px 3px 0 #00000080, inset 0 0 0.5px 0 #ffffff4d, 0 3px 8px 0 #00000059,
+    inset 0 0.5px 0 0 #ffffff14;
+  --elevation-300:
+    0 1px 3px 0 #00000080, inset 0 0 0.5px 0 #ffffff4d, 0 5px 12px 0 #00000059,
+    inset 0 0.5px 0 0 #ffffff14;
+  --elevation-400:
+    0 2px 5px 0 #00000059, inset 0 0 0.5px 0 #ffffff59, 0 10px 16px 0 #00000059,
+    inset 0 0.5px 0 0 #ffffff14;
+  --elevation-500:
+    0 3px 5px 0 #00000059, inset 0 0 0.5px 0 #ffffff59, 0 10px 24px 0 #00000073,
+    inset 0 0.5px 0 0 #ffffff14;
+
+  --elevation-100-canvas:
+    0px 0px 0.5px rgba(0, 0, 0, 0.5), 0px 1px 3px rgba(0, 0, 0, 0.4),
+    inset 0px 0.5px 0px rgba(255, 255, 255, 0.1), inset 0px 0px 0.5px rgba(255, 255, 255, 0.3);
+  --elevation-100-canvas-drop-shadow: drop-shadow(0px 0px 0.5px rgba(0, 0, 0, 0.5))
+    drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.4))
+    drop-shadow(inset 0px 0.5px 0px rgba(255, 255, 255, 0.1))
+    drop-shadow(inset 0px 0px 0.5px rgba(255, 255, 255, 0.3));
+  --elevation-200-canvas:
+    0px 3px 8px rgba(0, 0, 0, 0.35), 0px 1px 3px rgba(0, 0, 0, 0.5),
+    inset 0px 0.5px 0px rgba(255, 255, 255, 0.08), inset 0px 0px 0.5px rgba(255, 255, 255, 0.3);
+  --elevation-200-canvas-drop-shadow: drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.5))
+    drop-shadow(inset 0px 0px 0.5px rgba(255, 255, 255, 0.3))
+    drop-shadow(0px 3px 8px rgba(0, 0, 0, 0.35))
+    drop-shadow(inset 0px 0.5px 0px rgba(255, 255, 255, 0.08));
+  --elevation-300-tooltip:
+    0px 5px 12px rgba(0, 0, 0, 0.35), 0px 1px 3px rgba(0, 0, 0, 0.5),
+    inset 0px 0.5px 0px rgba(255, 255, 255, 0.08), inset 0px 0px 0.5px rgba(255, 255, 255, 0.3);
+  --elevation-300-tooltip-drop-shadow: drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.5))
+    drop-shadow(inset 0px 0px 0.5px rgba(255, 255, 255, 0.3))
+    drop-shadow(0px 5px 12px rgba(0, 0, 0, 0.35))
+    drop-shadow(inset 0px 0.5px 0px rgba(255, 255, 255, 0.08));
+  --elevation-400-menu-panel:
+    0px 10px 16px rgba(0, 0, 0, 0.35), 0px 2px 5px rgba(0, 0, 0, 0.35),
+    inset 0px 0.5px 0px rgba(255, 255, 255, 0.08), inset 0px 0px 0.5px rgba(255, 255, 255, 0.35);
+  --elevation-500-modal-window:
+    0px 10px 24px rgba(0, 0, 0, 0.45), 0px 3px 5px rgba(0, 0, 0, 0.35),
+    inset 0px 0.5px 0px rgba(255, 255, 255, 0.08), inset 0px 0px 0.5px rgba(255, 255, 255, 0.35);
 }

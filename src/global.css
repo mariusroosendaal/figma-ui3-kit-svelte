@@ -38,7 +38,7 @@
 
   /* Font stack */
   --font-stack: 'Inter', sans-serif;
-  --font-stack-monospace: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  --font-stack-monospace: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 
   /* Primitive Font Sizes */
   --font-size-9: 0.5625rem; /* 9px */
@@ -133,7 +133,6 @@
   --size-xlarge: 48px;
   --size-xxlarge: 64px;
   --size-huge: 80px;
-
 }
 
 /* Global styles */
