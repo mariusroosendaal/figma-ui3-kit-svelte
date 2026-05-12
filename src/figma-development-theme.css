@@ -186,6 +186,12 @@ body {
   --figma-color-text-warning: #b86200;
   --figma-color-text-warning-secondary: #b86200;
   --figma-color-text-warning-tertiary: #b86200;
+
+  --elevation-100: 0 1px 3px 0 #0006, inset 0 0 .5px 0 #ffffff4d, inset 0 .5px 0 0 #ffffff1a, 0 0 .5px 0 #00000080;
+  --elevation-200: 0 1px 3px 0 #00000080, inset 0 0 .5px 0 #ffffff4d, 0 3px 8px 0 #00000059, inset 0 .5px 0 0 #ffffff14;
+  --elevation-300: 0 1px 3px 0 #00000080, inset 0 0 .5px 0 #ffffff4d, 0 5px 12px 0 #00000059, inset 0 .5px 0 0 #ffffff14;
+  --elevation-400: 0 2px 5px 0 #00000059, inset 0 0 .5px 0 #ffffff59, 0 10px 16px 0 #00000059, inset 0 .5px 0 0 #ffffff14;
+  --elevation-500: 0 3px 5px 0 #00000059, inset 0 0 .5px 0 #ffffff59, 0 10px 24px 0 #00000073, inset 0 .5px 0 0 #ffffff14;
 }
 
 .figma-dark {
@@ -361,4 +367,10 @@ body {
   --figma-color-text-warning: #f7d15f;
   --figma-color-text-warning-secondary: #f7d15f;
   --figma-color-text-warning-tertiary: #f7d15f;
+
+  --elevation-100: 0 1px 3px 0 #0006, inset 0 0 .5px 0 #ffffff4d, inset 0 .5px 0 0 #ffffff1a, 0 0 .5px 0 #00000080;
+  --elevation-200: 0 1px 3px 0 #00000080, inset 0 0 .5px 0 #ffffff4d, 0 3px 8px 0 #00000059, inset 0 .5px 0 0 #ffffff14;
+  --elevation-300: 0 1px 3px 0 #00000080, inset 0 0 .5px 0 #ffffff4d, 0 5px 12px 0 #00000059, inset 0 .5px 0 0 #ffffff14;
+  --elevation-400: 0 2px 5px 0 #00000059, inset 0 0 .5px 0 #ffffff59, 0 10px 16px 0 #00000059, inset 0 .5px 0 0 #ffffff14;
+  --elevation-500: 0 3px 5px 0 #00000059, inset 0 0 .5px 0 #ffffff59, 0 10px 24px 0 #00000073, inset 0 .5px 0 0 #ffffff14;
 }
