@@ -6,6 +6,7 @@
   "svelte": "./src/index.js",
   "exports": {
     ".": "./src/index.js",
+    "./icons": "./src/icons.js",
     "./package.json": "./package.json",
     "./src/*": "./src/*"
   },
@@ -17,6 +18,10 @@
   "engines": {
     "node": ">=16.0.0"
   },
+  "sideEffects": [
+    "./src/index.js",
+    "./src/global.css"
+  ],
   "dependencies": {
     "svelte-click-outside": "^1.0.0"
   },

@@ -1,0 +1,40 @@
+//UI3 Icons (24px default)
+export { default as IconBack } from './icons/24/icon.24.navigate.back.svg';
+export { default as IconCheck } from './icons/24/icon.24.check.svg';
+export { default as IconClose } from './icons/24/icon.24.close.svg';
+export { default as IconCloseSmall } from './icons/24/icon.24.close.small.svg';
+export { default as IconPlus } from './icons/24/icon.24.plus.svg';
+export { default as IconMinus } from './icons/24/icon.24.minus.svg';
+export { default as IconMore } from './icons/24/icon.24.more.svg';
+export { default as IconSettings } from './icons/24/icon.24.settings.svg';
+export { default as IconSettingsSmall } from './icons/24/icon.24.settings.small.svg';
+export { default as IconExportSmall } from './icons/24/icon.24.export.small.svg';
+export { default as IconSearch } from './icons/24/icon.24.search.small.svg';
+export { default as IconTrash } from './icons/24/icon.24.trash.svg';
+export { default as IconWarning } from './icons/24/icon.24.warning.small.svg';
+export { default as IconArrow } from './icons/24/icon.24.arrow.svg';
+export { default as IconChevronRight } from './icons/24/icon.24.chevron.right.svg';
+export { default as IconChevronDown } from './icons/24/icon.24.chevron.down.svg';
+export { default as IconChevronUp } from './icons/24/icon.24.chevron.up.svg';
+export { default as IconInstanceSmall } from './icons/24/icon.24.instance.small.svg';
+export { default as IconBooleanSmall } from './icons/24/icon.24.boolean.small.svg';
+export { default as IconInstanceSwapSmall } from './icons/24/icon.24.instance.swap.small.svg';
+export { default as IconImageSmall } from './icons/24/icon.24.image.small.svg';
+export { default as IconTextSmall } from './icons/24/icon.24.text.small.svg';
+export { default as IconShapeTextSmall } from './icons/24/icon.24.shape.text.small.svg';
+export { default as IconLinkSmall } from './icons/24/icon.24.link.small.svg';
+export { default as IconNumberSmall } from './icons/24/icon.24.number.small.svg';
+export { default as IconListView } from './icons/24/icon.24.list-view.svg';
+export { default as IconInfoSmall } from './icons/24/icon.24.info.small.svg';
+export { default as IconGoSmall } from './icons/24/icon.24.action.go.small.svg';
+export { default as IconInteraction } from './icons/24/icon.24.interaction.default.small.svg';
+export { default as IconConditional } from './icons/24/icon.24.action.conditional.small.svg';
+
+//16px alternatives (for compact layouts)
+export { default as Icon16Check } from './icons/16/icon.16.check.svg';
+export { default as Icon16Close } from './icons/16/icon.16.close.svg';
+export { default as Icon16Plus } from './icons/16/icon.16.plus.svg';
+export { default as Icon16Warning } from './icons/16/icon.16.warning.svg';
+export { default as Icon16Arrow } from './icons/16/icon.16.arrow.svg';
+export { default as Icon16ChevronRight } from './icons/16/icon.16.chevron.right.svg';
+export { default as Icon16ChevronDown } from './icons/16/icon.16.chevron.down.svg';
