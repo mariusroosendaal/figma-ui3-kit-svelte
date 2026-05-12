@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-05-12
+
 ### Added
 - `ariaDisabled` prop to **Button** — keeps the button focusable and in the tab order while blocking clicks and applying disabled styling; use instead of `disabled` when a `<Tooltip>` needs to be keyboard-accessible
 - `code` variant to **Textarea** — provides a monospace font and specific styling for code input
