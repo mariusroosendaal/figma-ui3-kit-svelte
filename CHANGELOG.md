@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-05-13
+
+### Changed
+- Icon exports were moved from the package root to the dedicated `./icons` entrypoint. Use `import { IconBack } from "figma-ui3-kit-svelte/icons";` instead of importing named icons from the package root.
+- Added `sideEffects: ["./src/index.js", "./src/global.css"]` to `package.json` so importing from the package root automatically includes shared UI3 CSS.
+- Trimmed `src/global.css` to remove utility classes and keep only the shared UI3 design-system styles required by the package.
+
 ## [0.5.1] - 2026-05-12
 
 ### Added

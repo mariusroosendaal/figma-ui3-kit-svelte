@@ -10,7 +10,9 @@ If `$ARGUMENTS` names a specific component, show just that component's usage. Ot
 npm install figma-ui3-kit-svelte
 ```
 
-Import components and icon exports:
+Importing from the package root now automatically loads shared UI3 CSS via the package `sideEffects` field.
+
+Import components from the package root and named icon exports from the dedicated icons entrypoint:
 
 ```javascript
 import {
@@ -41,6 +43,9 @@ import {
   Text,
   Textarea,
   Tooltip,
+} from "figma-ui3-kit-svelte";
+
+import {
   IconBack,
   IconCheck,
   IconClose,
@@ -78,7 +83,7 @@ import {
   Icon16Arrow,
   Icon16ChevronRight,
   Icon16ChevronDown,
-} from "figma-ui3-kit-svelte";
+} from "figma-ui3-kit-svelte/icons";
 ```
 
 Enable Figma theme support in `code.ts`:

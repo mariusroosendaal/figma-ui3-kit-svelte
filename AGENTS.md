@@ -9,7 +9,8 @@ Svelte 4.x component library for Figma plugin UIs matching Figma's UI3 design sy
   components/       # One component per directory (PascalCase/index.svelte)
   icons/16/         # 16px icons (compact spaces)
   icons/24/         # 24px icons (default)
-  global.css        # Typography, spacing, utilities
+  icons.js          # named icon export entrypoint
+  global.css        # Typography, spacing, shared UI3 styles only
   figma-development-theme.css  # Figma CSS variables
   index.js          # Exports (alphabetized)
 /.storybook/
@@ -83,14 +84,26 @@ Svelte 4.x component library for Figma plugin UIs matching Figma's UI3 design sy
 
 ## Icons
 
+Named icons are exported from `src/icons.js` and exposed through the package's dedicated `./icons` entrypoint.
+
+### Named icon exports
+
 ```javascript
-// 24px (default)
+import { Icon } from 'figma-ui3-kit-svelte';
+import { IconBack, IconSettings } from 'figma-ui3-kit-svelte/icons';
+```
+
+### Direct icon imports
+
+```javascript
+import { Icon } from 'figma-ui3-kit-svelte';
 import IconClose from './../../icons/24/icon.24.close.svg';
-
-// 16px (compact)
 import Icon16Check from './../../icons/16/icon.16.check.svg';
+```
 
-// Usage
+If you add a new icon, export it from `src/icons.js` rather than adding it to `src/index.js`.
+
+```svelte
 <Icon iconName={IconClose} color="--figma-color-icon" />
 ```
 

@@ -19,6 +19,8 @@ A lightweight, modern Svelte component library for building Figma plugin interfa
 npm install figma-ui3-kit-svelte
 ```
 
+Importing from the package root now automatically loads the shared UI3 CSS via the package `sideEffects` field.
+
 ## Quick Start
 
 ```javascript
@@ -81,12 +83,13 @@ See the [Storybook](https://mariusroosendaal.github.io/figma-ui3-kit-svelte/) fo
 
 ## Icons
 
-The library includes 700+ icons in two sizes. You can use either root exports for a small curated set, or import the full icon files directly.
+The library includes 700+ icons in two sizes. The package root exports only the `Icon` and `IconButton` components; named icons are now available from the dedicated `./icons` entrypoint.
 
-### Root-exported icons
+### Named icon exports
 
 ```javascript
-import { Icon, IconBack, IconSettings } from 'figma-ui3-kit-svelte';
+import { Icon } from 'figma-ui3-kit-svelte';
+import { IconBack, IconSettings } from 'figma-ui3-kit-svelte/icons';
 ```
 
 ```html
