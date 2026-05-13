@@ -10,8 +10,6 @@ If `$ARGUMENTS` names a specific component, show just that component's usage. Ot
 npm install figma-ui3-kit-svelte
 ```
 
-Importing from the package root now automatically loads shared UI3 CSS via the package `sideEffects` field.
-
 Import components from the package root and named icon exports from the dedicated icons entrypoint:
 
 ```javascript
@@ -393,7 +391,8 @@ Key props: `isOpen`, `title`, `width` (`"small"` 240px | `"medium"` 320px | `"la
 
 ```svelte
 <script>
-  import { Icon, IconBack, IconSettings } from "figma-ui3-kit-svelte";
+  import { Icon } from "figma-ui3-kit-svelte";
+  import { IconBack, IconSettings } from "figma-ui3-kit-svelte/icons";
 </script>
 
 <Icon iconName={IconBack} color="--figma-color-icon" />
