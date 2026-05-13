@@ -51,8 +51,7 @@
     "build": "storybook build",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
-    "format": "prettier --write \"src/**/*.{js,svelte,css}\"",
-    "format:check": "prettier --check \"src/**/*.{js,svelte,css}\"",
+    "prettier": "npx prettier --write \"src/**/*.{js,ts,svelte,html,css}\"",  
     "check": "svelte-check --tsconfig ./jsconfig.json"
   },
   "repository": {
