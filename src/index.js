@@ -3,6 +3,7 @@
 import './global.css';
 
 // Components
+import Avatar from './components/Avatar/index.svelte';
 import Badge from './components/Badge/index.svelte';
 import Banner from './components/Banner/index.svelte';
 import Button from './components/Button/index.svelte';
@@ -26,6 +27,7 @@ import Modal from './components/Modal/index.svelte';
 import ModalFooter from './components/ModalFooter/index.svelte';
 import ModalHeader from './components/ModalHeader/index.svelte';
 import NumericInput from './components/NumericInput/index.svelte';
+import NumericInputMulti from './components/NumericInputMulti/index.svelte';
 import Radio from './components/Radio/index.svelte';
 import RadioGroup from './components/RadioGroup/index.svelte';
 import Segment from './components/Segment/index.svelte';
@@ -37,8 +39,11 @@ import Tabs from './components/Tabs/index.svelte';
 import Text from './components/Text/index.svelte';
 import Textarea from './components/Textarea/index.svelte';
 import Tooltip from './components/Tooltip/index.svelte';
+import Tree from './components/Tree/index.svelte';
+import VariablePill from './components/VariablePill/index.svelte';
 
 export {
+  Avatar,
   Badge,
   Banner,
   Button,
@@ -62,6 +67,7 @@ export {
   ModalFooter,
   ModalHeader,
   NumericInput,
+  NumericInputMulti,
   Radio,
   RadioGroup,
   Segment,
@@ -73,4 +79,6 @@ export {
   Text,
   Textarea,
   Tooltip,
+  Tree,
+  VariablePill,
 };

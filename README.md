@@ -58,6 +58,7 @@ This enables Figma's native CSS variables that automatically adapt to the user's
 
 All components accept a `class` prop for custom styling.
 
+- Avatar
 - Badge
 - Banner
 - Button
@@ -74,7 +75,7 @@ All components accept a `class` prop for custom styling.
 - Label
 - Menu / MenuItem / MenuDivider / MenuHeading
 - Modal
-- NumericInput
+- NumericInput / NumericInputMulti
 - Radio / RadioGroup
 - SegmentedControl / Segment
 - Slider
@@ -84,6 +85,8 @@ All components accept a `class` prop for custom styling.
 - Text
 - Textarea
 - Tooltip
+- Tree
+- VariablePill
 
 See the [Storybook](https://mariusroosendaal.github.io/figma-ui3-kit-svelte/) for detailed props, examples, and interactive demos.
 

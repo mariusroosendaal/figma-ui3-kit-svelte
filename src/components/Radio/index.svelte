@@ -4,6 +4,8 @@
   export let name = '';
   export let disabled = false;
   export let tabindex = 0;
+  /** @type {'input' | 'button'} button: the label in a box that fills when selected (UI3's radio "Button" variant) */
+  export let variant = 'input';
 
   let className = '';
   export { className as class };
@@ -11,7 +13,7 @@
   $: checked = group === value;
 </script>
 
-<div class="radio-container {className}">
+<div class="radio-container {className}" class:button-variant={variant === 'button'}>
   <input
     type="radio"
     {value}
@@ -25,19 +27,70 @@
     on:focus
     on:blur
   />
-  <label for={uniqueId} class="radio-label">
-    <div class="radio-button" class:checked class:disabled>
-      {#if checked}
-        <div class="radio-dot"></div>
-      {/if}
-    </div>
-    <span class="radio-text">
-      <slot />
-    </span>
-  </label>
+  {#if variant === 'button'}
+    <label for={uniqueId} class="radio-box" class:checked class:disabled>
+      <span class="radio-text"><slot /></span>
+    </label>
+  {:else}
+    <label for={uniqueId} class="radio-label">
+      <div class="radio-button" class:checked class:disabled>
+        {#if checked}
+          <div class="radio-dot"></div>
+        {/if}
+      </div>
+      <span class="radio-text">
+        <slot />
+      </span>
+    </label>
+  {/if}
 </div>
 
 <style>
+  /* BUTTON VARIANT — fills its row, so a RadioGroup of them reads as a set */
+  .radio-container.button-variant {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0;
+  }
+
+  .radio-box {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 0;
+    height: var(--size-small); /* 24px */
+    padding: 0 var(--size-xxsmall);
+    border: 1px solid var(--figma-color-bordertranslucent, var(--color-border-transparent));
+    border-radius: var(--border-radius-medium);
+    cursor: default;
+    user-select: none;
+  }
+
+  .radio-box .radio-text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .radio-box.checked {
+    border-color: var(--figma-color-border-brand);
+    background-color: var(--figma-color-bg-selected);
+  }
+
+  input:focus-visible + .radio-box {
+    border-color: var(--figma-color-border-selected);
+  }
+
+  .radio-box.disabled {
+    border-color: var(--figma-color-border-disabled);
+  }
+
+  .radio-box.disabled .radio-text {
+    color: var(--figma-color-text-disabled);
+  }
+
   /* Container */
   .radio-container {
     display: flex;

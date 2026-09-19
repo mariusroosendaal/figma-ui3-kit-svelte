@@ -126,3 +126,30 @@ export const CustomRange = {
     },
   }),
 };
+
+// UI3's "Color Range": a hue slider
+export const Hue = {
+  args: { variant: 'hue', value: 270, min: 0, max: 360, ariaLabel: 'Hue' },
+  render: (args) => ({
+    Component: WideContainer,
+    props: { childComponent: Slider, childProps: args },
+  }),
+};
+
+// UI3's "Fill": opacity of a colour over the checkerboard
+export const Opacity = {
+  args: { variant: 'opacity', color: '#9747ff', value: 80, ariaLabel: 'Opacity' },
+  render: (args) => ({
+    Component: WideContainer,
+    props: { childComponent: Slider, childProps: args },
+  }),
+};
+
+// UI3's "Corner Radius": a range slider with a marker at a reference value
+export const WithMarker = {
+  args: { variant: 'range', value: 30, defaultValue: 70, ariaLabel: 'Corner radius' },
+  render: (args) => ({
+    Component: WideContainer,
+    props: { childComponent: Slider, childProps: args },
+  }),
+};

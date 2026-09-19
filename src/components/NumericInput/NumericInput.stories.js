@@ -35,3 +35,8 @@ export const WithPresets = {
 export const Disabled = {
   args: { value: 24, label: 'X', disabled: true, ariaLabel: 'X position' },
 };
+
+// UI3's "Var pill": the value is bound to a variable; hover to detach
+export const Variable = {
+  args: { value: 8, label: 'W', variable: 'spacing/8', ariaLabel: 'Width' },
+};

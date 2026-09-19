@@ -1,4 +1,5 @@
 <script>
+  import Avatar from '../Avatar/index.svelte';
   import Badge from '../Badge/index.svelte';
   import Chit from '../Chit/index.svelte';
   import Icon from '../Icon/index.svelte';
@@ -23,6 +24,9 @@
   export let iconName = null;
   /** @type {string | string[] | null} */
   export let chit = null;
+  /** Avatar props for a person or team lead, e.g. `{ name: 'Team A', color: 'yellow' }` */
+  /** @type {Record<string, any> | null} */
+  export let avatar = null;
   /** Right-aligned secondary text: a shortcut, a count, a value. */
   export let detail = '';
   /** Right-aligned badge text. */
@@ -63,7 +67,9 @@
       ><span class="knob"></span></span
     >
   {/if}
-  {#if chit}
+  {#if avatar}
+    <span class="lead"><Avatar size="small" {...avatar} /></span>
+  {:else if chit}
     <span class="lead"><Chit color={chit} /></span>
   {:else if iconName}
     <span class="lead"><Icon {iconName} color="--color-icon-menu" /></span>

@@ -1,4 +1,5 @@
 import Checkbox from './index.svelte';
+import LabelledWrapper from '../../../.storybook/LabelledWrapper.svelte';
 
 export default {
   title: 'Components/Checkbox',
@@ -91,4 +92,15 @@ export const Ghost = {
     muted: false,
     ghost: true,
   },
+};
+
+export const WithDescription = {
+  args: {
+    checked: true,
+    description: 'Helpful description of the setting, e.g. a side effect or a condition.',
+  },
+  render: (args) => ({
+    Component: LabelledWrapper,
+    props: { component: Checkbox, label: 'Rename layers', props: args },
+  }),
 };

@@ -27,11 +27,23 @@
   /* Select Menu Colors */
   --color-bg-menu: #1e1e1e; /* to update */
   --color-bg-menu-selected: #0d99ff;
+  --color-bg-menu-hover: #2c2c2c;
   --color-text-menu: #ffffff;
   --color-text-menu-secondary: rgba(255, 255, 255, 0.7);
   --color-text-menu-tertiary: rgba(255, 255, 255, 0.4);
   --color-border-menu: #383838;
   --color-icon-menu: #ffffff;
+
+  /* Multiplayer Colors — static, as Figma uses them for people in both themes (Avatar) */
+  --color-multiplayer-purple: #9747ff;
+  --color-multiplayer-blue: #007be5;
+  --color-multiplayer-pink: #ff24bd;
+  --color-multiplayer-red: #f24822;
+  --color-multiplayer-yellow: #ffcd29;
+  --color-multiplayer-green: #14ae5c;
+  --color-multiplayer-grey: #667799;
+  --color-text-on-multiplayer: #ffffff;
+  --color-text-on-multiplayer-yellow: rgba(0, 0, 0, 0.9);
 
   /* TYPOGRAPHY */
   /* UI3 Typography System - Two-tier token system matching Figma */

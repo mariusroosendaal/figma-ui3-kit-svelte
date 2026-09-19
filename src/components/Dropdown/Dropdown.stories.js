@@ -60,3 +60,22 @@ export const Default = {
     iconName: null,
   },
 };
+
+// UI3's Stroke=False: no border until hovered
+export const Borderless = {
+  args: { menuItems: dropdownMenuItems, placeholder: 'Select size', stroke: false },
+};
+
+export const Large = {
+  args: { menuItems: dropdownMenuItems, placeholder: 'Select size', size: 'large' },
+};
+
+// The chosen item's chit (or icon) shows in the button
+const colorItems = [
+  { value: 'brand', label: 'bg-brand', chit: '#0d99ff' },
+  { value: 'danger', label: 'bg-danger', chit: '#f24822' },
+  { value: 'success', label: 'bg-success', chit: '#14ae5c' },
+];
+export const WithChits = {
+  args: { menuItems: colorItems, value: colorItems[0], placeholder: 'Choose a color' },
+};

@@ -154,6 +154,40 @@ Props: `value` (number, or `null` for the placeholder), `min`, `max`, `step`, `p
 
 Dragging the lead scrubs the value; ArrowUp/ArrowDown step it (Shift ×10); Enter commits, Escape reverts. Typed arithmetic works (`24*2`); anything unreadable reverts. Values commit on Enter, blur or a step — not on every keystroke.
 
+A value bound to a variable shows as a pill with a detach button, as in UI3:
+
+```svelte
+<NumericInput value={8} label="W" variable={boundTo} on:detach={() => (boundTo = null)} ariaLabel="Width" />
+```
+
+---
+
+### NumericInputMulti
+
+```svelte
+<script>
+  import { NumericInputMulti } from "figma-ui3-kit-svelte";
+  import IconRadius from "figma-ui3-kit-svelte/src/icons/24/icon.24.radius.top.left.svg";
+  let radii = [8, 8, 0, 0];
+</script>
+
+<NumericInputMulti bind:values={radii} iconName={IconRadius} min={0}
+  ariaLabels={["Top left", "Top right", "Bottom right", "Bottom left"]} />
+```
+
+Props: `values`, `min`, `max`, `step`, `precision`, `iconName` or `label` (lead), `ariaLabels`, `placeholder`, `disabled` (one flag, or one per cell). Events: `change` and `input` with `{ values, index }` (`index` is -1 when the lead scrubs every cell).
+
+---
+
+### VariablePill
+
+```svelte
+<VariablePill label="spacing/8" />
+<VariablePill label="spacing/8" selected />
+```
+
+Props: `label`, `selected`, `onSelected` (inside a selected field or row), `muted` (soft-deleted, or the value isn't rendered), `disabled`. Display only; wrap it in a button to make it act.
+
 ---
 
 ### ColorInput
@@ -200,7 +234,7 @@ A 24px cell like an icon, holding UI3's 14px square (or 16px circle). A transluc
 <Dropdown menuItems={options} bind:value={selected} placeholder="Select size" />
 ```
 
-Props: `menuItems` (array of `{ label, value }`; takes Menu's item fields), `value`, `placeholder`, `disabled`, `iconName`, `showGroupLabels`, `searchable`, `searchPlaceholder`, `ariaLabel`.
+Props: `menuItems` (array of `{ label, value }`; takes Menu's item fields — a chosen item's `iconName` or `chit` shows in the button), `value`, `placeholder`, `disabled`, `iconName`, `size` (`"default"` | `"large"`), `stroke` (`false`: no border until hovered), `showGroupLabels`, `searchable`, `searchPlaceholder`, `ariaLabel`.
 
 ---
 
@@ -208,20 +242,18 @@ Props: `menuItems` (array of `{ label, value }`; takes Menu's item fields), `val
 
 ```svelte
 <script>
-  const tabs = [{ label: "Settings" }, { label: "Preview" }, { label: "Export" }];
+  const tabs = [{ label: "Local", badge: 3 }, { label: "Libraries", badge: 21 }, { label: "Export" }];
   let selectedTab = 0;
 </script>
 
 <Tabs {tabs} bind:selectedTab />
 
 {#if selectedTab === 0}
-  <!-- Settings panel -->
-{:else if selectedTab === 1}
-  <!-- Preview panel -->
+  <!-- Local panel -->
 {/if}
 ```
 
-Props: `tabs` (array of `{ label }`), `selectedTab` (0-based index).
+Props: `tabs` (strings or `{ label, badge? }`; a badge is a count beside the label), `selectedTab` (0-based index), `onTabChange`, `panelIds` (for `aria-controls`).
 
 ---
 
@@ -245,10 +277,11 @@ Props: `variant` (see above), `color` (`"primary"` | `"secondary"` | `"brand"` |
 
 ```svelte
 <Checkbox bind:checked={isEnabled}>Enable feature</Checkbox>
+<Checkbox bind:checked={rename} description="Also renames the instances.">Rename layers</Checkbox>
 <Checkbox bind:checked={val} disabled>Unavailable</Checkbox>
 ```
 
-Props: `checked`, `disabled`.
+Props: `checked`, `mixed`, `disabled`, `muted`, `ghost`, `description` (secondary line under the label, linked with `aria-describedby`), `ariaLabel`.
 
 ---
 
@@ -261,10 +294,15 @@ Props: `checked`, `disabled`.
 
 <Radio bind:group={selected} value="left">Left</Radio>
 <Radio bind:group={selected} value="center">Center</Radio>
-<Radio bind:group={selected} value="right">Right</Radio>
+
+<!-- UI3's button radios: boxed labels that fill when chosen -->
+<RadioGroup legend="Export as" direction="horizontal">
+  <Radio bind:group={format} value="png" variant="button">PNG</Radio>
+  <Radio bind:group={format} value="svg" variant="button">SVG</Radio>
+</RadioGroup>
 ```
 
-Props: `group`, `value`, `disabled`.
+Props: `group`, `value`, `name`, `disabled`, `variant` (`"input"` | `"button"`).
 
 ---
 
@@ -282,7 +320,7 @@ Props: `group`, `value`, `disabled`.
 </RadioGroup>
 ```
 
-Props: `legend`, `class`.
+Props: `legend`, `direction` (`"vertical"` | `"horizontal"`; horizontal lays button radios out as one row), `class`.
 
 ---
 
@@ -326,19 +364,25 @@ The control fills its parent — set width on a wrapper. Each segment is a tab s
 
 ```svelte
 <Switch bind:checked={isOn}>Dark mode</Switch>
+<Switch bind:checked={sync} description="Keeps layers in sync.">Live sync</Switch>
 ```
 
-Props: `checked`, `disabled`.
+Props: `checked`, `mixed`, `disabled`, `description`, `ariaLabel`.
 
 ---
 
 ### Slider
 
 ```svelte
-<Slider bind:value={opacity} min={0} max={100} step={1} />
+<Slider bind:value={opacity} min={0} max={100} step={1} ariaLabel="Opacity" />
+<Slider bind:value={offset} variant="delta" defaultValue={0} min={-50} max={50} ariaLabel="Offset" />
+<Slider bind:value={level} variant="stepper" step={25} ariaLabel="Level" />
+<Slider bind:value={radius} defaultValue={8} max={32} ariaLabel="Corner radius" />
+<Slider bind:value={hue} variant="hue" max={360} ariaLabel="Hue" />
+<Slider bind:value={alpha} variant="opacity" color="#9747ff" ariaLabel="Opacity" />
 ```
 
-Props: `value`, `min`, `max`, `step`, `disabled`.
+Props: `value`, `min`, `max`, `step`, `variant` (`"range"` | `"delta"` | `"stepper"` | `"hue"` | `"opacity"`), `defaultValue` (delta's reference point; on a range slider, a marker dot there), `color` (opacity variant), `disabled`, `ariaLabel` (required), `ariaValueText`.
 
 ---
 
@@ -347,9 +391,13 @@ Props: `value`, `min`, `max`, `step`, `disabled`.
 ```svelte
 <Badge>New</Badge>
 <Badge variant="warning">Beta</Badge>
+<Badge variant="count" text="21" />          <!-- a count on the selected tab or row -->
+<Badge variant="count-inactive" text="21" />
+<Badge size="large" strong text="Draft" />
+<Badge dot ariaLabel="Unread" />
 ```
 
-Props: `variant` (`"default"` | `"success"` | `"warning"` | `"danger"`).
+Props: `variant` (`"default"` | `"brand"` | `"component"` | `"danger"` | `"success"` | `"warning"` | `"invert"` | `"selected"` | `"variable"` | `"variable-selected"` | `"feedback"` | `"merged"` | `"archived"` | `"menu"` | `"figjam"` | `"count"` | `"count-inactive"`), `strong`, `size` (`"small"` | `"large"`), `dot`, `text`, `iconName`, `ariaLabel`.
 
 ---
 
@@ -413,32 +461,22 @@ Props: `label`, `direction` (`"Top"` | `"Bottom"` | `"Left"` | `"Right"`), `hotk
 
 <Modal bind:isOpen title="Settings">
   <!-- Modal content -->
-  <svelte:fragment slot="footer">
-    <Button variant="primary" on:click={() => (isOpen = false)}>Save</Button>
-  </svelte:fragment>
+  <Button slot="footer-left" variant="secondary" on:click={() => (isOpen = false)}>Cancel</Button>
+  <Button slot="footer-right" on:click={save}>Save</Button>
 </Modal>
 
-<!-- Custom header and footer using the exported helpers -->
-<Modal bind:isOpen>
-  <ModalHeader>Confirm</ModalHeader>
-  <p>Are you sure?</p>
-  <ModalFooter>
-    <Button variant="secondary" on:click={() => (isOpen = false)}>Cancel</Button>
-    <Button variant="destructive" on:click={confirm}>Delete</Button>
-  </ModalFooter>
-</Modal>
-
-<!-- Custom size and position -->
-<Modal bind:isOpen title="Confirm" width="small" position="bottom" footerVariant="split">
-  <p>Are you sure?</p>
-  <svelte:fragment slot="footer">
-    <Button variant="secondary" on:click={() => (isOpen = false)}>Cancel</Button>
-    <Button variant="destructive" on:click={confirm}>Delete</Button>
+<!-- UI3 header variants -->
+<Modal bind:isOpen title="Export settings" headerVariant="navigation" onBack={goBack}>…</Modal>
+<Modal bind:isOpen title="Libraries" headerVariant="tabs" headerTabs={["Updates", "Libraries"]} bind:selectedTab>…</Modal>
+<Modal bind:isOpen title="Library">
+  <svelte:fragment slot="header">
+    <Dropdown menuItems={libraries} bind:value={library} ariaLabel="Library" />
   </svelte:fragment>
+  …
 </Modal>
 ```
 
-Key props: `isOpen`, `title`, `width` (`"small"` 240px | `"medium"` 320px | `"large"` 480px | custom string), `height` (`"auto"` | `"50vh"` | `"80vh"` | custom string), `position` (`"center"` | `"left"` | `"right"` | `"bottom"`), `headerVariant`, `footerVariant`, `footerBorder`, `showOverlay`, `closeOnOverlayClick`, `closeOnEscape`, `onClose`, `contentPadding`.
+Key props: `isOpen`, `title` (also names the dialog when tabs or a header slot replace it), `width` (`"small"` 240px | `"medium"` 320px | `"large"` 480px | custom string), `height` (`"auto"` | `"50vh"` | `"80vh"` | custom string), `position` (`"center"` | `"left"` | `"right"` | `"bottom"`), `headerVariant` (`"default"` | `"navigation"` | `"tabs"`), `onBack`, `headerTabs`, `selectedTab` (bindable), `panelIds`, `icon2`, `icon2Name`, `footerVariant`, `footerBorder`, `showOverlay`, `closeOnOverlayClick`, `closeOnEscape`, `onClose`, `contentPadding`. Slots: default, `header`, `footer-left`, `footer-right`, `footer-full`. Events: `close`, `back`, `tabChange`, `icon2Click`.
 
 ---
 
@@ -475,13 +513,15 @@ Menu is data-driven: pass `menuItems` and anchor it to its trigger.
 <Menu bind:isOpen bind:menuItems anchorElement={trigger} on:select={(e) => run(e.detail.value)} />
 ```
 
-Item fields: `label`, `value`, `group` (a change draws a divider), `showHeading` (label the group), `section` (dividers by section instead of group), `disabled`, `iconName` or `chit` (lead), `detail` (right-aligned shortcut or count), `badge`, `subMenu`, and:
+Item fields: `label`, `value`, `group` (a change draws a divider), `showHeading` (label the group), `section` (dividers by section instead of group), `disabled`, `iconName`, `chit` or `avatar` (lead), `detail` (right-aligned shortcut or count), `badge`, `subMenu`, and:
 
 - `type: "check"` — leading checkmark, flips `checked` (`"mixed"` draws a dot) and closes the menu.
 - `type: "checkbox"` / `"toggle"` — trailing checkbox / leading switch, flips `checked` and keeps the menu open.
 - no type — an action. With `itemVariant="checkmark"` the rows are a single choice marked by `selected` (how Dropdown uses it).
 
-Props: `isOpen`, `menuItems`, `anchorElement`, `position` (`bottom-left` | `bottom-right` | `top-left` | `top-right`), `minWidth`, `itemVariant`, `showGroupLabels`, `searchable`, `searchPlaceholder`, `footerLabel`. Events: `select` (the item, after `checked` flips), `close`, `footer`.
+Props: `isOpen`, `menuItems`, `anchorElement`, `position` (`bottom-left` | `bottom-right` | `top-left` | `top-right`), `minWidth`, `itemVariant`, `showGroupLabels`, `searchable`, `searchPlaceholder`, `footerLabel`, `footerVariant` (`"button"` | `"row"`: a centred "+ label" row), `footerIconName`. Events: `select` (the item, after `checked` flips), `close`, `footer`.
+
+A menu taller than the window scrolls with UI3's overflow arrows: hovering the chevron row at either end scrolls it (there's no scrollbar).
 
 Multi-select, as in UI3's filter menus:
 
@@ -494,6 +534,42 @@ Multi-select, as in UI3's filter menus:
 Keyboard: arrows, Home/End, Enter/Space, ArrowRight/ArrowLeft for sub-menus, Escape. The highlight follows the pointer and the keys alike. With `searchable` the field keeps focus while the arrows move through the matches. The menu closes when anything behind it scrolls.
 
 `MenuItem`, `MenuHeading` and `MenuDivider` are the rows Menu draws. `MenuItem` can be used alone: `variant` (`default` | `checkmark` | `checkbox` | `toggle`), `selected` (check state, `"mixed"` allowed), `iconName`, `chit`, `detail`, `badge`, `hasSubMenu`, `disabled`; `lead` and `trail` slots.
+
+---
+
+### Avatar
+
+```svelte
+<Avatar name="Lizzy Lasagna" />
+<Avatar name="Team A" color="yellow" size="large" shape="square" />
+<Avatar name={user.name} src={user.photoUrl} size="small" />
+<Avatar count={3} unread />
+```
+
+Props: `name` (initial and label; also picks a stable colour), `src` (photo or org image; falls back to the initial if it fails), `color` (`"purple"` | `"blue"` | `"pink"` | `"red"` | `"yellow"` | `"green"` | `"grey"`), `size` (`"small"` 16 | `"default"` 24 | `"large"` 32), `shape` (`"circle"` | `"square"`), `count` (overflow "+N"), `unread`, `disabled`, `ariaLabel`. Menu items take `avatar: { name, color, src }`.
+
+---
+
+### Tree
+
+```svelte
+<script>
+  const pages = [
+    { id: "foundations", label: "Foundations", detail: "2 pages", children: [
+      { id: "color", label: "Color" },
+      { id: "type", label: "Typography" },
+    ] },
+    { id: "cover", label: "Cover" },
+  ];
+  let checked = ["color"];
+</script>
+
+<Tree nodes={pages} mode="check" bind:checked ariaLabel="Pages to scan" />
+<Tree nodes={pages} mode="single" bind:selected ariaLabel="Page" />
+<Tree nodes={json} expanded={["user"]} ariaLabel="Preview" />
+```
+
+Props: `nodes` (`{ id, label, iconName?, detail?, disabled?, children? }`), `mode` (`"none"` browse | `"single"` pick one | `"check"` tick leaves; parents show all/some/none and tick their leaves), `expanded` (open parent ids; `null` opens all), `selected`, `checked`, `disabled`, `ariaLabel`. Events: `toggle`, `select`, `change`. Keyboard: arrows, Right/Left open, close and step in or out, Home/End, Enter/Space.
 
 ---
 
@@ -620,3 +696,5 @@ All tokens are CSS custom properties injected by Figma (requires `themeColors: t
 --figma-color-icon-brand
 --figma-color-icon-danger
 ```
+
+The kit adds static tokens Figma doesn't inject, in `global.css`: the menu's (`--color-bg-menu`, `--color-bg-menu-selected`, `--color-bg-menu-hover`, `--color-text-menu*`, `--color-border-menu`) and the multiplayer colours avatars use (`--color-multiplayer-purple` … `-grey`, `--color-text-on-multiplayer`, `--color-text-on-multiplayer-yellow`).

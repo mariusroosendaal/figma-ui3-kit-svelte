@@ -5,7 +5,11 @@
 
   export let isOpen = false;
   export let title = '';
-  export let headerVariant = 'default';
+  export let headerVariant = 'default'; // 'default' | 'navigation' | 'tabs'
+  export let onBack = null; // navigation header's back arrow; also fires `back`
+  export let headerTabs = []; // tabs header: as Tabs' `tabs`
+  export let selectedTab = 0; // tabs header: bindable
+  export let panelIds = []; // tabs header: ids of the panels, for aria-controls
   export let icon2 = false;
   export let icon2Name = null;
   export let onIcon2Click = null;
@@ -138,6 +142,16 @@
     dispatch('icon2Click', event);
   }
 
+  function handleBack(event) {
+    if (onBack) onBack(event);
+    dispatch('back', event);
+  }
+
+  function handleTabChange(event) {
+    selectedTab = event.detail;
+    dispatch('tabChange', selectedTab);
+  }
+
   function closeModal() {
     if (onClose) {
       onClose();
@@ -174,52 +188,13 @@
 <svelte:window on:keydown={handleKeydown} />
 
 {#if isOpen}
-  {#if showOverlay}
-    <div
-      class="modal-overlay modal-overlay--{position}"
-      style="padding: {overlayPadding}"
-      on:click={handleOverlayClick}
-      role="presentation"
-    >
-      <div
-        class="modal-container modal-container--{position} {className}"
-        style="width: {modalWidth}; height: {modalHeight ||
-          'auto'}; max-height: {modalMaxHeight}; border-radius: {modalBorderRadius}"
-        bind:this={modalElement}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={modalTitleId}
-      >
-        <ModalHeader
-          {title}
-          titleId={modalTitleId}
-          variant={headerVariant}
-          {icon2}
-          {icon2Name}
-          onIcon2Click={handleIcon2Click}
-          onClose={closeModal}
-        />
-
-        <div class="modal-content" class:no-padding={!contentPadding}>
-          <slot />
-        </div>
-
-        {#if $$slots['footer-left'] || $$slots['footer-right'] || $$slots['footer-full']}
-          <ModalFooter
-            variant={footerVariant}
-            border={footerBorder}
-            useFullLayout={$$slots['footer-full'] &&
-              !$$slots['footer-left'] &&
-              !$$slots['footer-right']}
-          >
-            <slot name="footer-left" slot="left" />
-            <slot name="footer-right" slot="right" />
-            <slot name="footer-full" slot="full" />
-          </ModalFooter>
-        {/if}
-      </div>
-    </div>
-  {:else}
+  <!-- Without an overlay the wrapper takes no box (display: contents). -->
+  <div
+    class={showOverlay ? `modal-overlay modal-overlay--${position}` : 'modal-bare'}
+    style={showOverlay ? `padding: ${overlayPadding}` : undefined}
+    on:click={showOverlay ? handleOverlayClick : undefined}
+    role="presentation"
+  >
     <div
       class="modal-container modal-container--{position} {className}"
       style="width: {modalWidth}; height: {modalHeight ||
@@ -229,15 +204,35 @@
       aria-modal="true"
       aria-labelledby={modalTitleId}
     >
-      <ModalHeader
-        {title}
-        titleId={modalTitleId}
-        variant={headerVariant}
-        {icon2}
-        {icon2Name}
-        onIcon2Click={handleIcon2Click}
-        onClose={closeModal}
-      />
+      {#if $$slots.header}
+        <ModalHeader
+          {title}
+          titleId={modalTitleId}
+          variant={headerVariant}
+          {icon2}
+          {icon2Name}
+          onIcon2Click={handleIcon2Click}
+          onClose={closeModal}
+          onBack={handleBack}
+        >
+          <slot name="header" slot="title" />
+        </ModalHeader>
+      {:else}
+        <ModalHeader
+          {title}
+          titleId={modalTitleId}
+          variant={headerVariant}
+          {icon2}
+          {icon2Name}
+          onIcon2Click={handleIcon2Click}
+          onClose={closeModal}
+          onBack={handleBack}
+          tabs={headerTabs}
+          {selectedTab}
+          {panelIds}
+          on:tabChange={handleTabChange}
+        />
+      {/if}
 
       <div class="modal-content" class:no-padding={!contentPadding}>
         <slot />
@@ -257,7 +252,7 @@
         </ModalFooter>
       {/if}
     </div>
-  {/if}
+  </div>
 {/if}
 
 <style>
@@ -293,6 +288,10 @@
   .modal-overlay--bottom {
     align-items: flex-end;
     justify-content: center;
+  }
+
+  .modal-bare {
+    display: contents;
   }
 
   .modal-container {

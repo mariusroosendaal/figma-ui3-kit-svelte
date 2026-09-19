@@ -11,10 +11,13 @@
   export let muted = false; // secondary styling
   export let ghost = false; // dark background variant
   export let ariaLabel = '';
+  /** Secondary line under the label, e.g. a side effect of the setting. */
+  export let description = '';
 
   let className = '';
   export { className as class };
   let uniqueId = 'checkbox--' + (Math.random() * 10000000).toFixed(0).toString();
+  $: descriptionId = description ? `${uniqueId}-description` : undefined;
   let inputEl;
 
   $: if (inputEl) inputEl.indeterminate = mixed;
@@ -33,7 +36,12 @@
   }
 </script>
 
-<div class="checkbox-container {className}" class:muted class:ghost>
+<div
+  class="checkbox-container {className}"
+  class:has-description={description}
+  class:muted
+  class:ghost
+>
   <input
     type="checkbox"
     id={uniqueId}
@@ -43,6 +51,7 @@
     {disabled}
     {tabindex}
     aria-label={ariaLabel || undefined}
+    aria-describedby={descriptionId}
     aria-checked={mixed ? 'mixed' : undefined}
     on:change
     on:focus
@@ -60,9 +69,29 @@
       <slot />
     </span>
   </label>
+  {#if description}
+    <p class="checkbox-description" id={descriptionId}>{description}</p>
+  {/if}
 </div>
 
 <style>
+  .checkbox-container.has-description {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--size-xxxsmall); /* 4px */
+  }
+
+  .checkbox-description {
+    margin: 0;
+    padding-left: 24px /* box 16 + gap 8 */;
+    color: var(--figma-color-text-secondary);
+    font-family: var(--font-stack);
+    font-size: var(--body-medium-font-size);
+    font-weight: var(--body-medium-font-weight);
+    line-height: var(--body-medium-line-height);
+    letter-spacing: var(--body-medium-letter-spacing);
+  }
+
   /* Container */
   .checkbox-container {
     display: flex;

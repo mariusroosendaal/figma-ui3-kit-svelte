@@ -5,10 +5,12 @@
   export let min = 0;
   export let max = 100;
   export let step = 1;
-  export let variant = 'range'; // 'delta' | 'range' | 'stepper'
+  export let variant = 'range'; // 'delta' | 'range' | 'stepper' | 'hue' | 'opacity'
+  /** Opacity variant: the colour faded over the checkerboard. */
+  export let color = '#000000';
   export let disabled = false;
   export let tabindex = 0;
-  export let defaultValue = null; // For delta variant - the reference/starting point
+  export let defaultValue = null; // Delta: the reference point. Range: a marker dot there (UI3's corner radius slider).
   export let ariaLabel = '';
   export let ariaValueText = '';
 
@@ -30,6 +32,10 @@
   // Calculate default position for delta variant
   $: actualDefaultValue = defaultValue !== null ? defaultValue : (min + max) / 2;
   $: defaultPercentage = ((actualDefaultValue - min) / (max - min)) * 100;
+
+  // Hue and opacity draw a colour track with a plain white knob instead of a fill
+  $: spectrum = variant === 'hue' || variant === 'opacity';
+  $: showMarker = variant === 'range' && defaultValue !== null;
 
   // Check if handle is at default position (for delta variant handle styling)
   $: isAtDefault = variant === 'delta' && value === actualDefaultValue;
@@ -84,7 +90,10 @@
 </script>
 
 <div class="slider-container {className}" class:disabled>
-  <div class="slider-track" class:disabled>
+  <div class="slider-track" class:disabled class:spectrum style:--slider-color={color}>
+    {#if spectrum}
+      <div class="slider-spectrum {variant}" class:disabled></div>
+    {/if}
     <!-- Native range input (full width, invisible) -->
     <input
       type="range"
@@ -114,13 +123,21 @@
       ></div>
       <!-- Default position indicator (sits on top with z-index: 3) -->
       <div class="slider-default-indicator" class:disabled style="left: {defaultPercentage}%"></div>
-    {:else}
+    {:else if !spectrum}
       <!-- Range/Stepper: fill from start to handle -->
       <div
         class="slider-fill"
         class:disabled
         class:hasValue={fillHasValue}
         style="width: {percentage}%"
+      ></div>
+    {/if}
+
+    {#if showMarker}
+      <div
+        class="slider-marker"
+        class:on-fill={defaultPercentage <= percentage}
+        style="left: {defaultPercentage}%"
       ></div>
     {/if}
 
@@ -144,6 +161,7 @@
         class:disabled
         class:at-default={isAtDefault}
         class:modified={variant === 'delta' && !isAtDefault}
+        class:plain={spectrum}
       ></div>
     </div>
   </div>
@@ -365,6 +383,72 @@
     background-color: var(--figma-color-icon-onbrand);
     pointer-events: none;
     z-index: 3;
+  }
+
+  /* HUE AND OPACITY — the track is the colour; the pill spans the end caps too */
+  .slider-track.spectrum,
+  .slider-track.spectrum::before,
+  .slider-track.spectrum::after {
+    background-color: transparent;
+    border-color: transparent;
+  }
+
+  .slider-spectrum {
+    position: absolute;
+    top: -1px;
+    bottom: -1px;
+    left: -8px;
+    right: -8px;
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px
+      var(--figma-color-bordertranslucent, var(--color-border-transparent));
+    pointer-events: none;
+  }
+
+  .slider-spectrum.hue {
+    background: linear-gradient(
+      to right,
+      #ff0000 0%,
+      #ffff00 16.67%,
+      #00ff00 33.33%,
+      #00ffff 50%,
+      #0000ff 66.67%,
+      #ff00ff 83.33%,
+      #ff0000 100%
+    );
+  }
+
+  /* The checkerboard is UI3's chit pattern (see Chit), at the slider's 10.68px tile. */
+  .slider-spectrum.opacity {
+    background:
+      linear-gradient(to right, transparent, var(--slider-color)),
+      url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAMCAIAAADZF8uwAAAAGUlEQVR42mN4iAH+YwCGIasIUwhT25BVBABMTZUQNDC5rAAAAABJRU5ErkJggg==')
+        top left / 10.68px 10.68px;
+  }
+
+  .slider-spectrum.disabled {
+    opacity: 0.4;
+  }
+
+  .slider-handle.plain::before {
+    display: none;
+  }
+
+  /* RANGE MARKER — a reference point on the track */
+  .slider-marker {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: var(--figma-color-icon-tertiary);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .slider-marker.on-fill {
+    background-color: var(--figma-color-icon-onbrand);
   }
 
   .slider-default-indicator.disabled {

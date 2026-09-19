@@ -11,6 +11,8 @@ const imports = ["import { Menu } from 'figma-ui3-kit-svelte'"]
 // The kit's Menu is data-driven, so rows become menuItems, built from what each
 // row template reports in metadata.props. Headings and dividers start a new
 // group; a heading also labels it. Icon imports come up from the rows.
+// A Menu row/Footer becomes footerLabel with footerVariant="row".
+let footer = ''
 const buildItems = (rows) => {
   const items = []
   let group = 'group-1'
@@ -19,6 +21,10 @@ const buildItems = (rows) => {
   let grouped = false
   rows.forEach((row) => {
     const props = row.executeTemplate().metadata.props || {}
+    if (props.kind === 'footer') {
+      footer = props.text
+      return
+    }
     if (props.kind === 'divider' || props.kind === 'heading') {
       grouped = true
       groupCount += 1
@@ -39,6 +45,10 @@ const buildItems = (rows) => {
     if (item.type) fields.push(`type: '${item.type}'`)
     if (item.type && item.checked) fields.push(`checked: ${JSON.stringify(item.checked)}`)
     if (item.iconName) fields.push(`iconName: ${item.iconName}`)
+    if (item.avatar) {
+      const color = item.avatar.color ? `, color: '${item.avatar.color}'` : ''
+      fields.push(`avatar: { name: ${JSON.stringify(item.avatar.name)}${color} }`)
+    }
     if (item.detail) fields.push(`detail: ${JSON.stringify(item.detail)}`)
     if (item.badge) fields.push(`badge: ${JSON.stringify(item.badge)}`)
     if (item.disabled) fields.push('disabled: true')
@@ -50,7 +60,7 @@ const buildItems = (rows) => {
 const lines = buildItems(instance.findConnectedInstances(() => true, { path: ['Items slot'] }))
 
 export default {
-  example: figma.code`<Menu bind:isOpen menuItems={[
+  example: figma.code`<Menu bind:isOpen${footer ? figma.code` footerLabel="${footer}" footerVariant="row" on:footer={handleFooter}` : ''} menuItems={[
 ${lines.join('\n')}
 ]} />`,
   imports,

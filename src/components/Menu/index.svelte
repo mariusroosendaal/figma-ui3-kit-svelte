@@ -25,6 +25,9 @@
   import MenuHeading from '../MenuHeading/index.svelte';
   import Icon from '../Icon/index.svelte';
   import IconSearch from './../../icons/24/icon.24.search.small.svg';
+  import IconChevronDown from './../../icons/24/icon.24.chevron.down.svg';
+  import IconChevronUp from './../../icons/24/icon.24.chevron.up.svg';
+  import IconPlus from './../../icons/16/icon.16.plus.svg';
 
   export let isOpen = false;
   /** @type {any[]} */
@@ -41,6 +44,10 @@
   export let searchPlaceholder = 'Search';
   /** Label of a full-width button under the list, e.g. "Clear all"; fires `footer`. */
   export let footerLabel = '';
+  /** @type {'button' | 'row'} button: a bordered button (multi-select menus); row: a centred "+ label" row (UI3's Menu row/Footer) */
+  export let footerVariant = 'button';
+  /** Row footer's icon; a plus by default */
+  export let footerIconName = null;
   /** Whether the menu takes focus when it opens. Sub-menus opened by the pointer don't. */
   export let autofocus = true;
 
@@ -73,6 +80,10 @@
   let subAnchor = null;
   let openTimer = null;
   let closeTimer = null;
+  // Overflow: arrow rows at the edges scroll the list on hover (UI3's Menu row/Expand)
+  let canScrollUp = false;
+  let canScrollDown = false;
+  let scrollFrame = null;
 
   $: listId = menuListId || `menu-${menuId}`;
   const rowId = (index) => `${listId}-${index}`;
@@ -132,6 +143,8 @@
     if (!isOpen) return;
     place();
     placed = true;
+    await tick();
+    updateOverflow();
     if (autofocus) (searchable ? input : list)?.focus({ preventScroll: true });
     scrollToActive();
     // A tick later, so the click that opened the menu isn't taken for one outside.
@@ -200,12 +213,43 @@
 
   onDestroy(() => {
     clearTimers();
+    stopScroll();
     if (typeof document === 'undefined') return;
     stopListening();
     document.removeEventListener('dropdown:open', onOtherMenuOpen);
   });
 
   // PLACEMENT
+
+  function updateOverflow() {
+    if (!list) return;
+    canScrollUp = list.scrollTop > 0;
+    canScrollDown = list.scrollTop + list.clientHeight < list.scrollHeight - 1;
+  }
+
+  // Re-measured when the rows change (search) — after they render.
+  $: if (isOpen && placed) remeasure(rows);
+  function remeasure(_rows) {
+    tick().then(updateOverflow);
+  }
+
+  function startScroll(direction) {
+    stopScroll();
+    const stepFrame = () => {
+      if (!list) return;
+      list.scrollTop += direction * 4;
+      updateOverflow();
+      if ((direction < 0 && canScrollUp) || (direction > 0 && canScrollDown)) {
+        scrollFrame = window.requestAnimationFrame(stepFrame);
+      }
+    };
+    scrollFrame = window.requestAnimationFrame(stepFrame);
+  }
+
+  function stopScroll() {
+    if (scrollFrame) window.cancelAnimationFrame(scrollFrame);
+    scrollFrame = null;
+  }
 
   function place() {
     if (!wrapper) return;
@@ -428,53 +472,85 @@
       </div>
     {/if}
 
-    <ul
-      bind:this={list}
-      class="menu"
-      role="menu"
-      id={listId}
-      tabindex={searchable ? -1 : 0}
-      aria-activedescendant={searchable ? undefined : activeIdOf(isOpen, active)}
-      on:keydown={handleKeydown}
-      on:mouseleave={onListLeave}
-      on:mousedown|preventDefault
-    >
-      {#each rows as { item, index }, k (index)}
-        {@const prev = k > 0 ? rows[k - 1].item : null}
-        {#if prev && sectionOf(item) !== sectionOf(prev)}
-          <li role="separator" class="separator"><MenuDivider /></li>
-        {/if}
-        {#if headingOf(item) && (!prev || prev.group !== item.group)}
-          <li role="presentation"><MenuHeading text={item.group} /></li>
-        {/if}
-        <MenuItem
-          id={rowId(index)}
-          variant={rowVariant(item)}
-          role={rowRole(item)}
-          selected={rowSelected(item)}
-          highlighted={index === active || index === openSub}
-          disabled={item.disabled}
-          hasSubMenu={hasSub(item)}
-          iconName={item.iconName ?? null}
-          chit={item.chit ?? null}
-          detail={item.detail ?? ''}
-          badge={item.badge ?? ''}
-          on:mouseenter={() => onRowEnter(index)}
-          on:mousemove={() => active !== index && onRowEnter(index)}
-          on:click={() => activate(index, false)}
+    <div class="list-area" class:no-top-edge={searchable} class:no-bottom-edge={footerLabel}>
+      <ul
+        bind:this={list}
+        on:scroll={updateOverflow}
+        class="menu"
+        role="menu"
+        id={listId}
+        tabindex={searchable ? -1 : 0}
+        aria-activedescendant={searchable ? undefined : activeIdOf(isOpen, active)}
+        on:keydown={handleKeydown}
+        on:mouseleave={onListLeave}
+        on:mousedown|preventDefault
+      >
+        {#each rows as { item, index }, k (index)}
+          {@const prev = k > 0 ? rows[k - 1].item : null}
+          {#if prev && sectionOf(item) !== sectionOf(prev)}
+            <li role="separator" class="separator"><MenuDivider /></li>
+          {/if}
+          {#if headingOf(item) && (!prev || prev.group !== item.group)}
+            <li role="presentation"><MenuHeading text={item.group} /></li>
+          {/if}
+          <MenuItem
+            id={rowId(index)}
+            variant={rowVariant(item)}
+            role={rowRole(item)}
+            selected={rowSelected(item)}
+            highlighted={index === active || index === openSub}
+            disabled={item.disabled}
+            hasSubMenu={hasSub(item)}
+            iconName={item.iconName ?? null}
+            chit={item.chit ?? null}
+            avatar={item.avatar ?? null}
+            detail={item.detail ?? ''}
+            badge={item.badge ?? ''}
+            on:mouseenter={() => onRowEnter(index)}
+            on:mousemove={() => active !== index && onRowEnter(index)}
+            on:click={() => activate(index, false)}
+          >
+            {item.label}
+          </MenuItem>
+        {:else}
+          <li role="presentation" class="empty">
+            {needle ? `No matches for “${query.trim()}”` : 'Nothing to show'}
+          </li>
+        {/each}
+      </ul>
+      <!-- Pointer-only, as in UI3: the keys scroll the list by moving the highlight. -->
+      {#if canScrollUp}
+        <div
+          class="overflow-arrow up"
+          aria-hidden="true"
+          on:mouseenter={() => startScroll(-1)}
+          on:mouseleave={stopScroll}
         >
-          {item.label}
-        </MenuItem>
-      {:else}
-        <li role="presentation" class="empty">
-          {needle ? `No matches for “${query.trim()}”` : 'Nothing to show'}
-        </li>
-      {/each}
-    </ul>
+          <Icon iconName={IconChevronUp} color="--color-icon-menu" />
+        </div>
+      {/if}
+      {#if canScrollDown}
+        <div
+          class="overflow-arrow down"
+          aria-hidden="true"
+          on:mouseenter={() => startScroll(1)}
+          on:mouseleave={stopScroll}
+        >
+          <Icon iconName={IconChevronDown} color="--color-icon-menu" />
+        </div>
+      {/if}
+    </div>
 
     {#if footerLabel}
-      <div class="footer" bind:this={footer}>
-        <button type="button" class="footer-button" on:click={() => dispatch('footer')}>
+      <div class="footer" class:row={footerVariant === 'row'} bind:this={footer}>
+        <button
+          type="button"
+          class={footerVariant === 'row' ? 'footer-row' : 'footer-button'}
+          on:click={() => dispatch('footer')}
+        >
+          {#if footerVariant === 'row'}
+            <Icon iconName={footerIconName || IconPlus} color="--color-icon-menu" size={16} />
+          {/if}
           {footerLabel}
         </button>
       </div>
@@ -528,9 +604,52 @@
     visibility: visible;
   }
 
+  .list-area {
+    position: relative;
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  /* The arrows cover the list's edges; keyboard scrolling keeps rows clear of them. */
+  .overflow-arrow {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--size-small); /* 24px */
+    background-color: var(--color-bg-menu);
+    cursor: default;
+    z-index: 1;
+  }
+
+  .overflow-arrow:hover {
+    background-color: var(--color-bg-menu-hover);
+  }
+
+  .overflow-arrow.up {
+    top: 0;
+    border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
+  }
+
+  .overflow-arrow.down {
+    bottom: 0;
+    border-radius: 0 0 var(--border-radius-large) var(--border-radius-large);
+  }
+
+  .no-top-edge .overflow-arrow.up,
+  .no-bottom-edge .overflow-arrow.down {
+    border-radius: 0;
+  }
+
   .menu {
     flex: 1 1 auto;
     min-height: 0;
+    scroll-padding: var(--size-small) 0;
+    scrollbar-width: none;
     margin: 0;
     padding: var(--size-xxsmall); /* 8px */
     overflow-y: auto;
@@ -590,6 +709,35 @@
     border-top: 1px solid var(--color-border-menu);
   }
 
+  .footer.row {
+    padding: var(--size-xxsmall);
+  }
+
+  .footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--size-xxxsmall); /* 4px */
+    width: 100%;
+    height: var(--size-small);
+    padding: 0 var(--size-xxsmall);
+    border: 0;
+    border-radius: var(--border-radius-medium);
+    background: transparent;
+    color: var(--color-text-menu);
+    font: inherit;
+    cursor: default;
+  }
+
+  .footer-row:hover {
+    background-color: var(--color-bg-menu-selected);
+  }
+
+  .footer-row:focus-visible {
+    outline: 1px solid var(--color-bg-menu-selected);
+    outline-offset: -1px;
+  }
+
   .footer-button {
     width: 100%;
     height: var(--size-small); /* 24px */
@@ -612,14 +760,8 @@
     border-color: var(--color-bg-menu-selected);
   }
 
+  /* No scrollbar: the overflow arrows stand in for it, as in UI3 */
   .menu::-webkit-scrollbar {
-    width: 12px;
-    background-color: transparent;
-  }
-
-  .menu::-webkit-scrollbar-thumb {
-    border: solid 3px transparent;
-    border-radius: 6px;
-    box-shadow: inset 0 0 10px 10px rgba(255, 255, 255, 0.4);
+    display: none;
   }
 </style>

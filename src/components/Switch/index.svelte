@@ -8,17 +8,20 @@
   export let tabindex = 0;
   export let mixed = false; // indeterminate state
   export let ariaLabel = '';
+  /** Secondary line under the label, e.g. a side effect of the setting. */
+  export let description = '';
 
   let className = '';
   export { className as class };
   let uniqueId = 'switch--' + (Math.random() * 10000000).toFixed(0).toString();
+  $: descriptionId = description ? `${uniqueId}-description` : undefined;
 
   function handleClick(e) {
     if (/** @type {any} */ (e).pointerType === 'mouse') e.currentTarget.blur();
   }
 </script>
 
-<div class="switch-container {className}">
+<div class="switch-container {className}" class:has-description={description}>
   <input
     type="checkbox"
     id={uniqueId}
@@ -28,6 +31,7 @@
     {tabindex}
     role={mixed ? undefined : 'switch'}
     aria-label={ariaLabel || undefined}
+    aria-describedby={descriptionId}
     aria-checked={mixed ? 'mixed' : checked}
     on:click={handleClick}
     on:change
@@ -46,9 +50,29 @@
       <slot />
     </span>
   </label>
+  {#if description}
+    <p class="switch-description" id={descriptionId}>{description}</p>
+  {/if}
 </div>
 
 <style>
+  .switch-container.has-description {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--size-xxxsmall); /* 4px */
+  }
+
+  .switch-description {
+    margin: 0;
+    padding-left: 40px /* track 32 + gap 8 */;
+    color: var(--figma-color-text-secondary);
+    font-family: var(--font-stack);
+    font-size: var(--body-medium-font-size);
+    font-weight: var(--body-medium-font-weight);
+    line-height: var(--body-medium-line-height);
+    letter-spacing: var(--body-medium-letter-spacing);
+  }
+
   /* Container */
   .switch-container {
     display: flex;

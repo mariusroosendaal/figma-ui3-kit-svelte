@@ -17,6 +17,7 @@ const render = (handle) => {
 const disabled = instance.getEnum('🎛️  Disabled', { 'True': true, 'False': false })
 const empty = instance.getEnum('🐣 State', { 'Empty': true, 'Default': false, 'Hover': false, 'Focused': false, 'Focuse': false })
 const dropdown = instance.getEnum('🐣 Dropdown', { 'True': true, 'False': false })
+const varPill = instance.getEnum('🐣 Var pill', { 'True': true, 'False': false })
 
 let text = ''
 const value = instance.findText('Value')
@@ -35,10 +36,24 @@ if (lead && lead.type === 'INSTANCE') {
   }
 }
 
-const valueAttr = empty ? figma.code` placeholder="${text}"` : figma.code` value={${text}}`
+// Var pill: the value is bound; the pill's text names the variable.
+let variable = ''
+if (varPill) {
+  const pill = instance.findInstance('_Chip variable')
+  if (pill && pill.type === 'INSTANCE') {
+    const name = pill.findText('Value')
+    if (name && name.type === 'TEXT') variable = name.textContent
+  }
+}
 
-// 🐣 Var pill / Var icon show a bound variable, which the kit doesn't model;
-// 🐣 Dropdown becomes `options` (presets live in code).
+const valueAttr = variable
+  ? figma.code` value={value} variable="${variable}" on:detach`
+  : empty
+    ? figma.code` placeholder="${text}"`
+    : figma.code` value={${text}}`
+
+// 🐣 Var icon (the bind-variable affordance) has no code prop; 🐣 Dropdown becomes
+// `options` (presets live in code).
 export default {
   example: figma.code`<NumericInput${valueAttr}${label ? figma.code` label="${label}"` : ''}${iconCode ? figma.code` iconName={${iconCode}}` : ''}${dropdown ? ' options={[]}' : ''}${disabled ? ' disabled' : ''} />`,
   imports,

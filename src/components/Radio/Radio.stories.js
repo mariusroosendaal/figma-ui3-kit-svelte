@@ -32,3 +32,9 @@ export const Default = {
     props: { ...args },
   }),
 };
+
+// UI3's radio "Button" variant, laid out as a row by RadioGroup direction="horizontal"
+export const ButtonVariant = {
+  args: { value: 'option1', disabled: false, variant: 'button' },
+  render: (args) => ({ Component: RadioWrapper, props: { ...args } }),
+};

@@ -1,4 +1,7 @@
 <script>
+  import Badge from '../Badge/index.svelte';
+
+  /** Strings, or `{ label, badge? }` where badge is a count shown beside the label. */
   export let tabs = [];
   export let selectedTab = 0;
   export let onTabChange = null;
@@ -48,6 +51,12 @@
       role="tab"
     >
       <span class="tab-text">{tab.label || tab}</span>
+      {#if tab.badge !== undefined && tab.badge !== null && tab.badge !== ''}
+        <Badge
+          variant={index === selectedTab ? 'count' : 'count-inactive'}
+          text={String(tab.badge)}
+        />
+      {/if}
     </button>
   {/each}
 </div>
@@ -64,6 +73,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: var(--size-xxxsmall); /* 4px to a badge */
     height: var(--size-small); /* 24px height */
     padding: 0 var(--size-xxsmall); /* 8px horizontal padding */
     border-radius: var(--border-radius-medium); /* 5px */
@@ -102,7 +112,7 @@
 
   /* Hover state */
   .tab:hover:not(.selected) {
-    background-color: var(--figma-color-bg);
+    background-color: var(--figma-color-bg-hover);
   }
 
   .tab:hover:not(.selected) .tab-text {

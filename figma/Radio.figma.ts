@@ -9,6 +9,7 @@ const instance = figma.selectedInstance
 const imports = ["import { Radio } from 'figma-ui3-kit-svelte'"]
 
 const showLabel = instance.getEnum('🎛️ Label', { 'True': true, 'False': false })
+const button = instance.getEnum('👥 Variant', { 'Input': false, 'Button': true })
 const disabled = instance.getEnum('🐣 State', {
   'Default': false,
   'Active': false,
@@ -23,12 +24,12 @@ if (showLabel) {
 }
 const value = label ? label.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-') : 'option'
 
-// 🐣 On? is expressed through bind:group in code, and the Button variant has no
-// code equivalent, so both render as a plain Radio.
+// 🐣 On? (and the Button variant's Active state) is bind:group in code. A row of
+// Button radios sits in <RadioGroup direction="horizontal">.
 export default {
   example: label
-    ? figma.code`<Radio bind:group={selected} value="${value}"${disabled ? ' disabled' : ''}>${label}</Radio>`
-    : figma.code`<Radio bind:group={selected} value="${value}"${disabled ? ' disabled' : ''} />`,
+    ? figma.code`<Radio bind:group={selected} value="${value}"${button ? ' variant="button"' : ''}${disabled ? ' disabled' : ''}>${label}</Radio>`
+    : figma.code`<Radio bind:group={selected} value="${value}"${button ? ' variant="button"' : ''}${disabled ? ' disabled' : ''} />`,
   imports,
   id: 'radio',
   metadata: { nestable: true, props: { imports } },

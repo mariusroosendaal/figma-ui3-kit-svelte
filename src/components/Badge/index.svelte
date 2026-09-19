@@ -1,12 +1,15 @@
 <script>
-  // testing
   import Icon from './../Icon/index.svelte';
 
-  export let variant = 'default'; // default, brand, component, danger, success, warning, invert, selected, variable, variable-selected, feedback, merged, archived, menu, figjam
+  export let variant = 'default'; // default, brand, component, danger, success, warning, invert, selected, variable, variable-selected, feedback, merged, archived, menu, figjam, count, count-inactive
   export let strong = false; // true for strong variants (colored backgrounds)
   export let iconName = null; // SVG icon data for variants that support icons
   export let text = ''; // Badge text (falls back to slot content if provided)
   export let ariaLabel = null; // Use when badge text alone doesn't convey the status type (WCAG 4.1.2)
+  /** @type {'small' | 'large'} large uses body-large text (UI3's "Badge large") */
+  export let size = 'small';
+  /** UI3's "Badge Dot": an unread marker with no text. Set ariaLabel when it carries meaning. */
+  export let dot = false;
 
   let className = '';
   export { className as class };
@@ -38,36 +41,48 @@
   }
 </script>
 
-<div
-  class="badge {className}"
-  aria-label={ariaLabel || undefined}
-  class:default={variant === 'default'}
-  class:brand={variant === 'brand'}
-  class:component={variant === 'component'}
-  class:danger={variant === 'danger'}
-  class:success={variant === 'success'}
-  class:warning={variant === 'warning'}
-  class:invert={variant === 'invert'}
-  class:selected={variant === 'selected'}
-  class:variable={variant === 'variable'}
-  class:variable-selected={variant === 'variable-selected'}
-  class:feedback={variant === 'feedback'}
-  class:merged={variant === 'merged'}
-  class:archived={variant === 'archived'}
-  class:menu={variant === 'menu'}
-  class:figjam={variant === 'figjam'}
-  class:strong
-  class:has-icon={iconName !== null}
->
-  {#if iconName && (variant === 'variable' || variant === 'variable-selected' || variant === 'feedback' || variant === 'merged' || variant === 'archived')}
-    <div class="badge-icon">
-      <Icon {iconName} color={getIconColor()} />
-    </div>
-  {/if}
-  <span class="badge-text">
-    <slot>{text}</slot>
-  </span>
-</div>
+{#if dot}
+  <span
+    class="badge-dot {className}"
+    role={ariaLabel ? 'img' : undefined}
+    aria-label={ariaLabel || undefined}
+    aria-hidden={ariaLabel ? undefined : 'true'}
+  ></span>
+{:else}
+  <div
+    class="badge {className}"
+    aria-label={ariaLabel || undefined}
+    class:default={variant === 'default'}
+    class:brand={variant === 'brand'}
+    class:component={variant === 'component'}
+    class:danger={variant === 'danger'}
+    class:success={variant === 'success'}
+    class:warning={variant === 'warning'}
+    class:invert={variant === 'invert'}
+    class:selected={variant === 'selected'}
+    class:variable={variant === 'variable'}
+    class:variable-selected={variant === 'variable-selected'}
+    class:feedback={variant === 'feedback'}
+    class:merged={variant === 'merged'}
+    class:archived={variant === 'archived'}
+    class:menu={variant === 'menu'}
+    class:figjam={variant === 'figjam'}
+    class:count={variant === 'count'}
+    class:count-inactive={variant === 'count-inactive'}
+    class:large={size === 'large'}
+    class:strong
+    class:has-icon={iconName !== null}
+  >
+    {#if iconName && (variant === 'variable' || variant === 'variable-selected' || variant === 'feedback' || variant === 'merged' || variant === 'archived')}
+      <div class="badge-icon">
+        <Icon {iconName} color={getIconColor()} />
+      </div>
+    {/if}
+    <span class="badge-text">
+      <slot>{text}</slot>
+    </span>
+  </div>
+{/if}
 
 <style>
   .badge {
@@ -84,6 +99,13 @@
     white-space: nowrap;
     flex-shrink: 0;
     user-select: none;
+  }
+
+  .badge.large {
+    font-size: var(--body-large-font-size);
+    font-weight: var(--body-large-font-weight);
+    line-height: var(--size-xsmall);
+    letter-spacing: var(--body-large-letter-spacing);
   }
 
   .badge.has-icon {
@@ -110,6 +132,45 @@
     background-color: transparent;
     color: var(--figma-color-text);
     border: 1px solid var(--figma-color-border);
+  }
+
+  /* Filled grey, as in UI3's "Badge small alt" and "Badge large" defaults */
+  .badge.default.strong {
+    background-color: var(--figma-color-bg-tertiary);
+    border-color: transparent;
+  }
+
+  /* COUNT VARIANTS — tab and list counts (UI3's "Badge small alt") */
+  .badge.count {
+    background-color: var(--figma-color-bg-selected);
+    color: var(--figma-color-text);
+  }
+
+  .badge.count-inactive {
+    background-color: var(--figma-color-bg-hover);
+    color: var(--figma-color-text-secondary);
+  }
+
+  /* DOT — a 5px brand dot on a 9px canvas-coloured square */
+  .badge-dot {
+    position: relative;
+    display: inline-block;
+    flex-shrink: 0;
+    width: 9px;
+    height: 9px;
+    border-radius: var(--border-radius-medium);
+    background-color: var(--figma-color-bg);
+  }
+
+  .badge-dot::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 5px;
+    height: 5px;
+    border-radius: 3px;
+    background-color: var(--figma-color-bg-brand);
   }
 
   /* BRAND VARIANT */

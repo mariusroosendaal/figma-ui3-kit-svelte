@@ -56,3 +56,12 @@ export const ManyTabs = {
     props: { ...args },
   }),
 };
+
+// UI3's _Tab badge: a count beside the label, brighter on the selected tab
+export const WithBadges = {
+  args: {
+    tabs: [{ label: 'Local', badge: 3 }, { label: 'Libraries', badge: 21 }, { label: 'All' }],
+    selectedTab: 0,
+  },
+  render: (args) => ({ Component: TabsWrapper, props: { ...args } }),
+};

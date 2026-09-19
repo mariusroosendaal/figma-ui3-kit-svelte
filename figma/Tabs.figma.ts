@@ -10,13 +10,22 @@ const imports = ["import { Tabs } from 'figma-ui3-kit-svelte'"]
 
 // Each tab is a nested (unpublished) _Tab instance; read its label and selection
 // directly. 🐣 Tab Count is implied by the number of tabs found.
-const tabs = instance.findLayers((node) => node.type === 'INSTANCE')
+// Tab instances only: a tab's badge is an instance too.
+const tabs = instance.findLayers((node) => node.type === 'INSTANCE' && /tab/i.test(node.name))
 
 const labels = []
 let selectedTab = 0
 tabs.forEach((tab, i) => {
   if (tab.type !== 'INSTANCE') return
-  labels.push(`{ label: ${JSON.stringify(tab.getString('Text'))} }`)
+  // 🎛️ Badge shows a count in a nested "Badge small alt"
+  let badge = ''
+  if (tab.getBoolean('🎛️ Badge')) {
+    const [text] = tab.findLayers((node) => node.type === 'TEXT' && node.textContent !== tab.getString('Text'))
+    if (text && text.type === 'TEXT') badge = text.textContent
+  }
+  const fields = [`label: ${JSON.stringify(tab.getString('Text'))}`]
+  if (badge) fields.push(`badge: ${/^\d+$/.test(badge) ? badge : JSON.stringify(badge)}`)
+  labels.push(`{ ${fields.join(', ')} }`)
   if (tab.getEnum('🐣 Selected', { 'True': true, 'False': false })) selectedTab = i
 })
 

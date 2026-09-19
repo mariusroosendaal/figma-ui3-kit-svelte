@@ -24,15 +24,24 @@ if (showLabel) {
   if (value && value.type === 'TEXT') label = value.textContent
 }
 
+// The description line
+let description = ''
+if (instance.getBoolean('👁️ Description')) {
+  // The description's layer is named "Value" too, inside the Description frame.
+  const text = instance.findText('Value', { path: ['Description'] })
+  if (text && text.type === 'TEXT') description = text.textContent
+}
+const descriptionAttr = description ? figma.code` description="${description}"` : ''
+
 // The Figma set has no plain unchecked variant — its default unchecked box is
 // Muted=True — so Muted only maps to code for checked and mixed boxes.
 const attrs = `${type === 'checked' ? ' checked' : ''}${type === 'mixed' ? ' mixed' : ''}${disabled ? ' disabled' : ''}${muted && type !== 'unchecked' ? ' muted' : ''}${ghost ? ' ghost' : ''}`
 
-// 🐣 State (focus) is runtime state and 👁️ Description has no code prop; neither is mapped.
+// 🐣 State (focus) is runtime state and isn't mapped.
 export default {
   example: label
-    ? figma.code`<Checkbox${attrs}>${label}</Checkbox>`
-    : figma.code`<Checkbox${attrs} />`,
+    ? figma.code`<Checkbox${attrs}${descriptionAttr}>${label}</Checkbox>`
+    : figma.code`<Checkbox${attrs}${descriptionAttr} />`,
   imports,
   id: 'checkbox',
   metadata: { nestable: true, props: { imports } },

@@ -19,6 +19,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dropdown** — `searchable` and `searchPlaceholder`
 - Named icons `IconSwatchSmall`, `IconEyeSmall`, `IconHiddenSmall`, `IconLinkBroken`, `IconLinkConnected`, `IconStyles`, `IconPlay`
 - Code Connect templates for the new components and for Menu row/Complex, /Toggle, /Toolbar and the multi-select menu
+- **Avatar** — UI3's avatar: initial on a multiplayer colour (stable per name), photo or org image with fallback, overflow count (`unread`), three sizes, circle or square
+- **NumericInputMulti** — several numbers behind one lead (corner radii, paddings); per-cell or whole-field disabling; the lead scrubs every cell
+- **VariablePill** — the pill Figma shows for a value bound to a variable; **NumericInput** takes `variable` to show one, with a detach button
+- **Tree** — a nested list for browsing, picking (`mode="single"`) or ticking (`mode="check"`, with tri-state parents); tree keyboard pattern; Tree row and Tree components on the Kit additions page
+- **Badge** — `count` and `count-inactive` variants, `size="large"`, and `dot`
+- **Checkbox**, **Switch** — `description` line, linked with `aria-describedby`
+- **Tabs** — per-tab `badge` counts
+- **Radio** — `variant="button"`; **RadioGroup** — `direction="horizontal"`
+- **Dropdown** — `size="large"`, `stroke={false}`, and the chosen item's icon or chit in the button
+- **Slider** — `hue` and `opacity` variants (with `color`); a range slider shows a marker at `defaultValue`
+- **Modal** / **ModalHeader** — Navigation (back arrow, `onBack`), Tabs (`headerTabs`, bindable `selectedTab`) and custom (`header` slot) headers
+- **Menu** — overflow arrows instead of a scrollbar for tall menus (UI3's Menu row/Expand), `footerVariant="row"` (UI3's Menu row/Footer), `avatar` on items; **MenuItem** — `avatar` lead
+- Static tokens for multiplayer colours and `--color-bg-menu-hover`
+- Code Connect templates for Avatar, Badge small alt/large/dot, Chip variable, Numeric input multi, Modal header, Menu row/Footer, Tree row and Tree; Checkbox, Switch, Dropdown, Tabs, Radio, Slider, Numeric input and the Complex menu row map their remaining properties
 
 ### Changed
 - **Menu** — rewritten on `aria-activedescendant`: one highlight shared by pointer and keyboard, focus stays in the list (or the search field) instead of moving between rows, disabled rows are skipped, sub-menus open with ArrowRight/Enter and close with ArrowLeft, focus returns to the trigger after a keyboard pick. The menu flips above its trigger and scrolls when there isn't room, and closes when anything behind it scrolls instead of locking body scroll. Items are no longer given an `id`.
@@ -27,6 +41,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **Menu** — headings and dividers render inside `<li>` elements, so the list's markup is valid
+- **Tabs** — an unselected tab's hover uses UI3's `bg-hover` fill
+- **Modal** — one dialog body instead of two copies for with and without an overlay
+- **ModalHeader** — the second icon button takes `icon2AriaLabel`
 
 ## [0.5.2] - 2026-05-13
 

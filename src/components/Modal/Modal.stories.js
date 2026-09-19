@@ -1,5 +1,6 @@
 import Modal from './index.svelte';
 import ModalWrapper from '../../../.storybook/ModalWrapper.svelte';
+import ModalHeaderSlotWrapper from '../../../.storybook/ModalHeaderSlotWrapper.svelte';
 
 export default {
   title: 'Components/Modal',
@@ -157,4 +158,27 @@ export const Bottom = {
     Component: ModalWrapper,
     props: { ...args },
   }),
+};
+
+// UI3's "Modal header" Navigation variant: a back arrow before the title
+export const NavigationHeader = {
+  args: { title: 'Export settings', headerVariant: 'navigation' },
+  render: (args) => ({ Component: ModalWrapper, props: { ...args } }),
+};
+
+// Tabs variant: the dialog's tabs replace the title (which stays for screen readers)
+export const TabsHeader = {
+  args: {
+    title: 'Libraries',
+    headerVariant: 'tabs',
+    headerTabs: ['Updates', 'Libraries', 'Analytics'],
+    width: 'large',
+  },
+  render: (args) => ({ Component: ModalWrapper, props: { ...args } }),
+};
+
+// Dropdown variant: any control, through the `header` slot
+export const DropdownHeader = {
+  args: { title: 'Library' },
+  render: (args) => ({ Component: ModalHeaderSlotWrapper, props: { ...args } }),
 };

@@ -28,6 +28,17 @@ const trail = instance.getEnum('🎛️ Trail', {
   'Mixed': 'detail+checkbox',
 })
 
+// An avatar lead: its initial and colour (the Avatar template reports both).
+let avatar = null
+if (lead === 'avatar') {
+  const person = instance.findInstance('Avatar')
+  if (person && person.type === 'INSTANCE') {
+    const props = person.executeTemplate().metadata.props || {}
+    avatar = props.color === 'photo' ? { name: '' } : { name: props.text || '', color: props.color }
+  }
+}
+const avatarCode = avatar ? ` avatar={{ name: ${JSON.stringify(avatar.name)}${avatar.color ? `, color: '${avatar.color}'` : ''} }}` : ''
+
 let iconName = ''
 if (lead === 'icon') {
   const [icon] = instance.findLayers((node) => node.type === 'INSTANCE' && node.name.startsWith('icon.'))
@@ -59,14 +70,13 @@ const attrs = [
   checked === 'mixed' ? ' selected="mixed"' : checked ? ' selected' : '',
 ].join('')
 
-// 🎛️ Lead Avatar has no kit equivalent (the kit has no Avatar) and renders no lead.
 // Inside a Menu this row becomes `{ type: 'checkbox', checked, iconName, detail, badge }`.
 export default {
-  example: figma.code`<MenuItem${attrs}${iconName ? figma.code` iconName={${iconName}}` : ''}${detail ? figma.code` detail="${detail}"` : ''}${badge ? figma.code` badge="${badge}"` : ''}>${label}</MenuItem>`,
+  example: figma.code`<MenuItem${attrs}${avatarCode}${iconName ? figma.code` iconName={${iconName}}` : ''}${detail ? figma.code` detail="${detail}"` : ''}${badge ? figma.code` badge="${badge}"` : ''}>${label}</MenuItem>`,
   imports,
   id: 'menu-item-complex',
   metadata: {
     nestable: true,
-    props: { imports, iconImports, kind: 'item', type: checkbox ? 'checkbox' : undefined, label, checked, iconName, detail, badge },
+    props: { imports, iconImports, kind: 'item', type: checkbox ? 'checkbox' : undefined, label, checked, iconName, avatar, detail, badge },
   },
 }

@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import Menu from '../Menu/index.svelte';
+  import Chit from '../Chit/index.svelte';
   import Icon from '../Icon/index.svelte';
   import IconChevronDown from './../../icons/24/icon.24.chevron.down.svg';
 
@@ -11,6 +12,10 @@
   export let disabled = false;
   export let iconName = null;
   export let ariaLabel = '';
+  /** false: no border until hovered (UI3's Stroke=False, for dense panels) */
+  export let stroke = true;
+  /** @type {'default' | 'large'} */
+  export let size = 'default';
   export let searchable = false; // search field above long lists
   export let searchPlaceholder = 'Search';
 
@@ -23,6 +28,10 @@
 
   // Unique identifier for this dropdown instance
   const dropdownId = Math.random().toString(36).substr(2, 9);
+
+  // The chosen item's own lead (icon or chit) shows in the button, else the prop's icon
+  $: leadChit = value && value.chit ? value.chit : null;
+  $: leadIcon = !leadChit && value && value.iconName ? value.iconName : iconName;
 
   // Get icon color based on state
   function getIconColor() {
@@ -70,9 +79,14 @@
     aria-controls="dropdown-{dropdownId}-menu"
     aria-label={ariaLabel || placeholder || undefined}
     class:selected={isOpen}
+    class:borderless={!stroke}
+    class:large={size === 'large'}
+    class:has-lead={leadChit || leadIcon}
   >
-    {#if iconName}
-      <span class="icon"><Icon {iconName} color={getIconColor()} /></span>
+    {#if leadChit}
+      <span class="icon"><Chit color={leadChit} /></span>
+    {:else if leadIcon}
+      <span class="icon"><Icon iconName={leadIcon} color={getIconColor()} /></span>
     {/if}
 
     {#if value}
@@ -164,6 +178,34 @@
   /* .placeholder {
     color: var(--figma-color-text-tertiary); 
   } */
+
+  button.borderless:not(:hover):not(:focus-visible):not(.selected) {
+    border-color: transparent;
+  }
+
+  button.large {
+    height: var(--size-medium); /* 32px */
+    padding-right: var(--size-xxxsmall);
+  }
+
+  /* Large: the lead sits on a 24px grey tile inside a 32px cell */
+  button.large.has-lead {
+    padding-left: 0;
+  }
+
+  button.large .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--size-medium);
+    height: var(--size-medium);
+    margin-left: 0;
+  }
+
+  button.large .icon > :global(*) {
+    border-radius: var(--border-radius-medium);
+    background-color: var(--figma-color-bg-secondary);
+  }
 
   .caret {
     display: block;

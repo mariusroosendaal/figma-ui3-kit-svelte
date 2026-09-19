@@ -58,3 +58,13 @@ export const Default = {
     text: 'Badge',
   },
 };
+
+// UI3's "Badge small alt": counts on tabs and lists
+export const Count = { args: { variant: 'count', text: '21' } };
+export const CountInactive = { args: { variant: 'count-inactive', text: '21' } };
+
+// UI3's "Badge large"
+export const Large = { args: { size: 'large', variant: 'default', strong: true, text: 'Badge' } };
+
+// UI3's "Badge Dot": an unread marker
+export const Dot = { args: { dot: true, ariaLabel: 'Unread' } };

@@ -16,6 +16,8 @@ const render = (handle) => {
 
 const disabled = instance.getEnum('🎛️ Disabled', { 'False': false, 'True': true })
 const iconLead = instance.getEnum('🎛️ Icon Lead', { 'False': false, 'True': true })
+const size = instance.getEnum('👥 Size', { 'Default': 'default', 'Large': 'large' })
+const stroke = instance.getEnum('🎛️ Stroke', { 'True': true, 'False': false })
 
 let text = ''
 const value = instance.findText('Value')
@@ -28,9 +30,9 @@ if (iconLead) {
 }
 
 // Menu items come from code, so the trigger text becomes the placeholder.
-// 👥 Size, 🎛️ Stroke and 🐣 State have no code props and aren't mapped.
+// 🐣 State is runtime state and isn't mapped.
 export default {
-  example: figma.code`<Dropdown menuItems={menuItems} bind:value placeholder="${text}"${iconCode ? figma.code` iconName={${iconCode}}` : ''}${disabled ? ' disabled' : ''} />`,
+  example: figma.code`<Dropdown menuItems={menuItems} bind:value placeholder="${text}"${iconCode ? figma.code` iconName={${iconCode}}` : ''}${size === 'large' ? ' size="large"' : ''}${stroke ? '' : ' stroke={false}'}${disabled ? ' disabled' : ''} />`,
   imports,
   id: 'dropdown',
   metadata: { nestable: true, props: { imports } },

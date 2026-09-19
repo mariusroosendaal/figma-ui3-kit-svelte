@@ -29,10 +29,14 @@ function slot(name, indent) {
 }
 
 const legend = instance.getBoolean('👁️ Legend') ? instance.getString('🎛️ Legend') : ''
+// Button radios sit in a row
+const buttons = instance
+  .findConnectedInstances((node) => node.codeConnectId() === 'radio')
+  .some((node) => node.type === 'INSTANCE' && node.getPropertyValue('👥 Variant') === 'Button')
 const radios = slot('Radios slot', '  ')
 
 export default {
-  example: figma.code`<RadioGroup${legend ? figma.code` legend="${legend}"` : ''}>
+  example: figma.code`<RadioGroup${legend ? figma.code` legend="${legend}"` : ''}${buttons ? ' direction="horizontal"' : ''}>
   ${radios}
 </RadioGroup>`,
   imports,

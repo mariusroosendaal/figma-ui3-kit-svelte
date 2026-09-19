@@ -24,22 +24,29 @@ The templates double as the reverse mapping: to mock up a Svelte layout, create 
 |---|---|---|
 | Button | `2012:48557` | Label is `🎛️ Label#32561:0`. Figma-only: `🐣 State`, `👁️ Hotkey`. `FigJam` renders as `primary` in code. |
 | Badge small | `2012:35027` | Label is the first text layer (no text property). `warning` ↔ `Warn`. |
-| Checkbox | `2012:55461` | Label is the `Value` text layer. Plain unchecked needs `🎛️ Muted=True` — no non-muted unchecked variant exists. |
-| Switch | `2015:24697` | Label is the `Value` text layer. `🐣 Type`: On ↔ `checked`, Mixed ↔ `mixed`. |
-| Radio button | `2015:20365` | Selection is `bind:group` in code. The Button variant has no code equivalent. |
+| Badge small alt | `2012:35077` | → `Badge`: Count New ↔ `variant="count"`, Count Inactive ↔ `count-inactive`, Default ↔ `default strong`, Strong ↔ `invert strong`. |
+| Badge large, Badge Dot | `2012:35016`, `2012:35086` | → `Badge size="large"` (Default/Strong/Merged/Archived), `Badge dot`. |
+| Avatar | `2012:32015` | Colour variants ↔ `color` (initial as `name`), Photo/Org ↔ `src`, Overflow ↔ `count` (+ `unread`), Size, Shape, Disabled. `_Avatar status` isn't modelled. |
+| Checkbox | `2012:55461` | Label is the `Value` text layer; `👁️ Description` ↔ `description` (its layer is `Description > Value`). Plain unchecked needs `🎛️ Muted=True` — no non-muted unchecked variant exists. |
+| Switch | `2015:24697` | Label is the `Value` text layer; `👁️  Description` (two spaces) ↔ `description`. `🐣 Type`: On ↔ `checked`, Mixed ↔ `mixed`. |
+| Radio button | `2015:20365` | Selection is `bind:group` in code. The Button variant ↔ `variant="button"` (its Active state is the chosen one); a RadioGroup of them gets `direction="horizontal"`. |
 | Button icon | `2324:46757` | → `IconButton`. Icon is `🎛️ Icon` (instance swap). |
 | Text input | `2028:79255` | Single Line/Quick Action → `Input`, Multi Line → `Textarea`. Empty states use the text as `placeholder`. |
-| Dropdown | `2028:36589` | Trigger text → `placeholder`; menu items live in code. No size prop in code. |
-| Tabs | `2015:27780` | One `_Tab` per tab: label is its `Text` property, `🐣 Selected` → `selectedTab`. |
+| Dropdown | `2028:36589` | Trigger text → `placeholder`; menu items live in code. Size Large ↔ `size="large"`, Stroke False ↔ `stroke={false}`. |
+| Tabs | `2015:27780` | One `_Tab` per tab: label is its `Text` property, `🐣 Selected` → `selectedTab`, `🎛️ Badge` → the tab's `badge` count. |
 | Segmented control | `2015:20960` | One `_Segment` per segment: `🎛️ Label` (label variant) or `🎛️ Icon` + `🎛️ Text` tooltip (icon variant). |
-| Slider | `2015:23280` | Slider (centre fill) ↔ `delta`, Stepper ↔ `stepper`, Range and everything else ↔ `range`. Knob position is the value. |
+| Slider | `2015:23280` | Slider (centre fill) ↔ `delta`, Stepper ↔ `stepper`, Color Range ↔ `hue`, Fill ↔ `opacity`, Corner Radius ↔ `range` with `defaultValue` (the marker), Range ↔ `range`. Gradient (a gradient-stop editor) has no kit equivalent. Knob position is the value. |
 | Tooltip | `2015:39095` | Center directions ↔ `Top`/`Bottom`, corners and sides map 1:1. Wraps a trigger in code. |
 | Menu row/Simple, /Checkmark | `2327:96028`, `2327:96252` | → `MenuItem` (Checkmark ↔ `variant="checkmark"`, `🎛️ On` ↔ `selected`, Dot ↔ `selected="mixed"`). Shortcut → `detail`. In a Menu: `type: 'check'`. |
-| Menu row/Complex | `2327:96049` | → `MenuItem`. Lead Icon ↔ `iconName`; Trail Shortcut ↔ `detail`, Badge ↔ `badge`, Checkbox ↔ `variant="checkbox"`, Mixed ↔ both. Avatar has no kit equivalent. |
+| Menu row/Complex | `2327:96049` | → `MenuItem`. Lead Icon ↔ `iconName`, Avatar ↔ `avatar` (initial and colour); Trail Shortcut ↔ `detail`, Badge ↔ `badge`, Checkbox ↔ `variant="checkbox"`, Mixed ↔ both. |
 | Menu row/Toggle, /Toolbar | `2327:96288`, `2327:96311` | → `MenuItem` `variant="toggle"` / `variant="checkmark"` with `iconName`. In a Menu: `type: 'toggle'` / `type: 'check'`. |
 | Menu row/Heading, /Divider | `2327:96347`, `2327:96331` | → `MenuHeading`, `MenuDivider`. |
+| Menu row/Footer | `2327:96342` | → Menu `footerLabel` with `footerVariant="row"`. Menu row/Expand is the overflow arrow, which Menu draws itself; it has no template. |
+| Modal header | `2327:122026` | → Modal's header: Navigation ↔ `headerVariant="navigation"` + `onBack`, Tabs ↔ `headerVariant="tabs"` + `headerTabs`, Dropdown ↔ the `header` slot. |
 | Menu multi-select | `2327:96387` | → `Menu searchable footerLabel`: the field's text is `searchPlaceholder`, the button's label `footerLabel`, the rows `menuItems`. |
-| Numeric input | `2028:79190` | → `NumericInput`. An `icon.24.prop-text` lead is `label` (its letter); any other lead icon is `iconName`. Empty ↔ `placeholder`, Dropdown ↔ `options`. Var pill/icon aren't modelled. |
+| Numeric input | `2028:79190` | → `NumericInput`. An `icon.24.prop-text` lead is `label` (its letter); any other lead icon is `iconName`. Empty ↔ `placeholder`, Dropdown ↔ `options`, Var pill ↔ `variable` (the pill's text). Var icon isn't modelled. |
+| Numeric input multi | `2028:79619` | → `NumericInputMulti`; the cells' numbers → `values`, Partial Disable ↔ `disabled` on the last cell. |
+| Chip variable | `2028:79753` | → `VariablePill`: Selected ↔ `selected`, On Selected ↔ `onSelected`, Soft Deleted / Value Not Rendered ↔ `muted`, Disabled ↔ `disabled`. |
 | Combo input | `2028:79408` | → `NumericInput` with `options`. |
 | Color input | `2028:79525` | → `ColorInput`. Hex and opacity are read from the text layers; Variable ↔ `variable`. Image and Gradient render as a colour. |
 | Chit 24 | `2028:79673` | → `Chit`. Circle ↔ `shape="circle"`; Opacity ↔ `opacity`. Code Connect can't read fills, so the colour stays a placeholder. |
@@ -59,6 +66,8 @@ Built on the **Kit additions** page, because UI3 has no equivalent or its API di
 | Radio group | `1027216:162` | Legend + `Radios slot` of UI3 Radio buttons. |
 | Disclosure item | `1027216:25160` | Expanded × Section; `Content slot` renders only when expanded. |
 | Disclosure | `1027216:25161` | `Items slot` of Disclosure items. |
+| Tree row | `1027222:26144` | Depth 0–3 (indent) × Twisty None/Closed/Open × Selected; `🎛️ Label`, `👁️/🎛️ Detail`, `👁️/↪ Icon`, `👁️ Checkbox` (a UI3 Checkbox; its Type is the tick). |
+| Tree | `1027222:26241` | `Rows slot` of Tree rows; the template nests them by Depth into `nodes`, and derives `mode`, `expanded`, `selected` and `checked`. |
 | Menu | `1027206:366` | Fill `Items slot` with UI3 menu rows. The kit's Menu is data-driven, so rows become `menuItems` (with `type`, `checked`, `iconName`, `detail`, `badge` from each row); headings and dividers start groups. |
 
 ## Adding a component

@@ -1,4 +1,5 @@
 import Switch from './index.svelte';
+import LabelledWrapper from '../../../.storybook/LabelledWrapper.svelte';
 
 export default {
   title: 'Components/Switch',
@@ -36,4 +37,15 @@ export const Default = {
     mixed: false,
     value: '',
   },
+};
+
+export const WithDescription = {
+  args: {
+    checked: true,
+    description: 'Helpful description of the setting, e.g. a side effect or a condition.',
+  },
+  render: (args) => ({
+    Component: LabelledWrapper,
+    props: { component: Switch, label: 'Live sync', props: args },
+  }),
 };

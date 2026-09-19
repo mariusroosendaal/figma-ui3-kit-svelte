@@ -15,8 +15,12 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import Icon from '../Icon/index.svelte';
+  import IconButton from '../IconButton/index.svelte';
   import Menu from '../Menu/index.svelte';
+  import VariablePill from '../VariablePill/index.svelte';
   import IconChevronDown from './../../icons/24/icon.24.chevron.down.svg';
+  import IconDetach from './../../icons/24/icon.24.detach.small.svg';
+  import { evaluate } from './numeric.js';
 
   /** @type {number | null} */
   export let value = null;
@@ -42,6 +46,8 @@
   export let id = null;
   export let name = null;
   export let ariaLabel = '';
+  /** @type {string | null} a bound variable's name: shown as a pill in place of the value, with a detach button (fires `detach`) */
+  export let variable = null;
 
   let className = '';
   export { className as class };
@@ -130,7 +136,7 @@
   // SCRUBBING
 
   function scrubStart(event) {
-    if (disabled || event.button !== 0) return;
+    if (disabled || variable || event.button !== 0) return;
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     scrub = { x: event.clientX, start: numeric ?? evaluate(text) ?? 0, moved: false };
@@ -161,53 +167,6 @@
   function handlePreset(event) {
     commit(event.detail.value);
   }
-
-  // Arithmetic without eval: numbers, + - * /, parentheses and unary minus.
-  // Anything else is not a number.
-  function evaluate(source) {
-    const src = String(source ?? '')
-      .replace(/,/g, '.')
-      .replace(/\s+/g, '');
-    if (!src) return null;
-    let at = 0;
-    const peek = () => src[at];
-    function expr() {
-      let v = term();
-      while (peek() === '+' || peek() === '-') v = src[at++] === '+' ? v + term() : v - term();
-      return v;
-    }
-    function term() {
-      let v = factor();
-      while (peek() === '*' || peek() === '/') v = src[at++] === '*' ? v * factor() : v / factor();
-      return v;
-    }
-    function factor() {
-      if (peek() === '-') {
-        at++;
-        return -factor();
-      }
-      if (peek() === '+') {
-        at++;
-        return factor();
-      }
-      if (peek() === '(') {
-        at++;
-        const v = expr();
-        if (src[at++] !== ')') throw new Error('unclosed');
-        return v;
-      }
-      const match = /^(\d+\.?\d*|\.\d+)(e[+-]?\d+)?/i.exec(src.slice(at));
-      if (!match) throw new Error('not a number');
-      at += match[0].length;
-      return parseFloat(match[0]);
-    }
-    try {
-      const v = expr();
-      return at === src.length && Number.isFinite(v) ? v : null;
-    } catch {
-      return null;
-    }
-  }
 </script>
 
 <div
@@ -215,13 +174,15 @@
   class:focused
   class:disabled
   class:has-lead={hasLead}
-  class:has-options={options && options.length > 0}
+  class:has-options={options && options.length > 0 && !variable}
+  class:bound={variable}
 >
   {#if hasLead}
     <!-- Scrubbing is a pointer shortcut; the field's arrow keys do the same. -->
     <span
       class="lead"
       class:scrubbing={scrub?.moved}
+      class:static={variable}
       on:pointerdown={scrubStart}
       on:pointermove={scrubMove}
       on:pointerup={scrubEnd}
@@ -240,58 +201,70 @@
       {/if}
     </span>
   {/if}
-  <input
-    bind:this={input}
-    bind:value={text}
-    type="text"
-    inputmode="decimal"
-    role="spinbutton"
-    autocomplete="off"
-    spellcheck="false"
-    {id}
-    {name}
-    {disabled}
-    {placeholder}
-    aria-label={ariaLabel || undefined}
-    aria-valuenow={numeric ?? undefined}
-    aria-valuemin={min ?? undefined}
-    aria-valuemax={max ?? undefined}
-    on:keydown={handleKeydown}
-    on:focus={handleFocus}
-    on:blur={handleBlur}
-    on:mouseup={handleMouseUp}
-    on:focus
-    on:blur
-    on:keydown
-  />
-  {#if unit && text !== ''}
-    <span class="unit" aria-hidden="true">{unit}</span>
-  {/if}
-  {#if options && options.length > 0}
-    <button
-      bind:this={chevron}
-      type="button"
-      class="chevron"
-      tabindex="-1"
-      aria-label="Presets"
-      aria-haspopup="menu"
-      aria-expanded={menuOpen}
-      {disabled}
-      on:click={() => (menuOpen = !menuOpen)}
-    >
-      <Icon
-        iconName={IconChevronDown}
-        color={disabled ? '--figma-color-icon-disabled' : '--figma-color-icon-secondary'}
+  {#if variable}
+    <span class="pill-slot"><VariablePill label={variable} {disabled} /></span>
+    {#if !disabled}
+      <IconButton
+        class="detach"
+        iconName={IconDetach}
+        ariaLabel="Detach {variable}"
+        on:click={() => dispatch('detach', variable)}
       />
-    </button>
-    <Menu
-      bind:isOpen={menuOpen}
-      {menuItems}
-      anchorElement={chevron}
-      position="bottom-right"
-      itemVariant="checkmark"
-      on:select={handlePreset}
+    {/if}
+  {:else}
+    <input
+      bind:this={input}
+      bind:value={text}
+      type="text"
+      inputmode="decimal"
+      role="spinbutton"
+      autocomplete="off"
+      spellcheck="false"
+      {id}
+      {name}
+      {disabled}
+      {placeholder}
+      aria-label={ariaLabel || undefined}
+      aria-valuenow={numeric ?? undefined}
+      aria-valuemin={min ?? undefined}
+      aria-valuemax={max ?? undefined}
+      on:keydown={handleKeydown}
+      on:focus={handleFocus}
+      on:blur={handleBlur}
+      on:mouseup={handleMouseUp}
+      on:focus
+      on:blur
+      on:keydown
     />
+    {#if unit && text !== ''}
+      <span class="unit" aria-hidden="true">{unit}</span>
+    {/if}
+    {#if options && options.length > 0}
+      <button
+        bind:this={chevron}
+        type="button"
+        class="chevron"
+        tabindex="-1"
+        aria-label="Presets"
+        aria-haspopup="menu"
+        aria-expanded={menuOpen}
+        {disabled}
+        on:click={() => (menuOpen = !menuOpen)}
+      >
+        <Icon
+          iconName={IconChevronDown}
+          color={disabled ? '--figma-color-icon-disabled' : '--figma-color-icon-secondary'}
+        />
+      </button>
+      <Menu
+        bind:isOpen={menuOpen}
+        {menuItems}
+        anchorElement={chevron}
+        position="bottom-right"
+        itemVariant="checkmark"
+        on:select={handlePreset}
+      />
+    {/if}
   {/if}
 </div>
 
@@ -375,6 +348,34 @@
 
   input:disabled {
     color: var(--figma-color-text-disabled);
+  }
+
+  .pill-slot {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    min-width: 0;
+    padding: 0 var(--size-xxxsmall);
+  }
+
+  .has-lead .pill-slot {
+    padding-left: 0;
+  }
+
+  .lead.static {
+    cursor: default;
+  }
+
+  /* The detach button shows while the field is hovered or holds focus */
+  .numeric-input :global(.detach) {
+    flex: 0 0 auto;
+    margin: -1px -1px -1px 0;
+    opacity: 0;
+  }
+
+  .numeric-input.bound:hover :global(.detach),
+  .numeric-input.bound:focus-within :global(.detach) {
+    opacity: 1;
   }
 
   .unit {

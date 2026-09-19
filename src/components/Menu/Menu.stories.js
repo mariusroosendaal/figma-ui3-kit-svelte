@@ -43,6 +43,11 @@ export default {
       control: 'text',
       description: 'Label of a full-width button under the list; fires `footer`',
     },
+    footerVariant: {
+      control: 'select',
+      options: ['button', 'row'],
+      description: 'button (multi-select menus) or a centred "+ label" row',
+    },
     menuItems: {
       control: 'object',
       description:
@@ -267,6 +272,49 @@ export const RichRows = {
       { value: 'files', label: 'Files', iconName: IconFolder, detail: '250' },
       { value: 'archived', label: 'Archived', iconName: IconFolder, disabled: true },
     ],
+    minWidth: '208px',
+  },
+  render: (args) => ({ Component: MenuWrapper, props: { ...args } }),
+};
+
+// UI3's Complex rows with avatars, and Menu row/Footer as the last row
+export const PeopleWithFooterRow = {
+  args: {
+    footerLabel: 'Invite people',
+    footerVariant: 'row',
+    menuItems: [
+      {
+        value: 'e',
+        label: 'Elijah Smith',
+        avatar: { name: 'Elijah Smith', color: 'green' },
+        type: 'checkbox',
+      },
+      {
+        value: 't',
+        label: 'Ethan Thompson',
+        avatar: { name: 'Ethan Thompson', color: 'pink' },
+        type: 'checkbox',
+      },
+      {
+        value: 'o',
+        label: 'Olivia Martinez',
+        avatar: { name: 'Olivia Martinez', color: 'yellow' },
+        type: 'checkbox',
+        checked: true,
+      },
+    ],
+    minWidth: '208px',
+  },
+  render: (args) => ({ Component: MenuWrapper, props: { ...args } }),
+};
+
+// Taller than the window: UI3's overflow arrows (Menu row/Expand) scroll it on hover
+export const Overflow = {
+  args: {
+    menuItems: Array.from({ length: 60 }, (_, i) => ({
+      value: i,
+      label: `Weight ${100 + i * 10}`,
+    })),
     minWidth: '208px',
   },
   render: (args) => ({ Component: MenuWrapper, props: { ...args } }),

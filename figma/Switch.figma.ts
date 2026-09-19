@@ -20,9 +20,20 @@ if (showLabel) {
 
 const attrs = `${type === 'on' ? ' checked' : ''}${type === 'mixed' ? ' mixed' : ''}${disabled ? ' disabled' : ''}`
 
-// 🐣 State (focus) is runtime state and 👁️ Description has no code prop; neither is mapped.
+// The description line (the property name has two spaces)
+let description = ''
+if (instance.getBoolean('👁️  Description')) {
+  // The description's layer is named "Value" too, inside the Description frame.
+  const text = instance.findText('Value', { path: ['Description'] })
+  if (text && text.type === 'TEXT') description = text.textContent
+}
+const descriptionAttr = description ? figma.code` description="${description}"` : ''
+
+// 🐣 State (focus) is runtime state and isn't mapped.
 export default {
-  example: label ? figma.code`<Switch${attrs}>${label}</Switch>` : figma.code`<Switch${attrs} />`,
+  example: label
+    ? figma.code`<Switch${attrs}${descriptionAttr}>${label}</Switch>`
+    : figma.code`<Switch${attrs}${descriptionAttr} />`,
   imports,
   id: 'switch',
   metadata: { nestable: true, props: { imports } },

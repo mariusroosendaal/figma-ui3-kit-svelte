@@ -10,6 +10,8 @@
   export let searchable = false;
   export let searchPlaceholder = 'Search';
   export let footerLabel = '';
+  /** @type {'button' | 'row'} */
+  export let footerVariant = 'button';
 
   let isOpen = false;
   let anchorElement = null;
@@ -47,6 +49,7 @@
     {searchable}
     {searchPlaceholder}
     {footerLabel}
+    {footerVariant}
     on:select={handleSelect}
     on:footer={handleFooter}
   />
