@@ -150,7 +150,7 @@ Props: `value`, `placeholder`, `rows`, `disabled`.
 <NumericInput value={null} placeholder="Mixed" label="W" />
 ```
 
-Props: `value` (number, or `null` for the placeholder), `min`, `max`, `step`, `precision` (decimals kept; default 2), `label` (lead letter), `iconName` (lead icon), `unit`, `placeholder`, `options` (numbers or `{ label, value }`; adds a presets chevron), `disabled`, `id`, `ariaLabel`. Events: `change` (committed value), `input` (while scrubbing).
+Props: `value` (number, or `null` for the placeholder), `min`, `max`, `step`, `precision` (decimals kept; default 2), `label` (lead letter), `iconName` (lead icon), `unit`, `placeholder`, `options` (numbers or `{ label, value }`; adds a presets chevron), `disabled`, `id`, `ariaLabel`, `variable` (see below). Events: `change` (committed value), `input` (while scrubbing), `detach` and `variableClick` (both bound-only, with the variable name).
 
 Dragging the lead scrubs the value; ArrowUp/ArrowDown step it (Shift ×10); Enter commits, Escape reverts. Typed arithmetic works (`24*2`); anything unreadable reverts. Values commit on Enter, blur or a step — not on every keystroke.
 
@@ -159,6 +159,8 @@ A value bound to a variable shows as a pill with a detach button, as in UI3:
 ```svelte
 <NumericInput value={8} label="W" variable={boundTo} on:detach={() => (boundTo = null)} ariaLabel="Width" />
 ```
+
+While bound, the pill is the field's control: it takes the field's `id` (so a `<label for>` still reaches it), stays in the tab order, and fires `variableClick` when picked — bind a new variable there. The field is not editable and does not scrub until it is detached.
 
 ---
 
@@ -476,7 +478,7 @@ Props: `label`, `direction` (`"Top"` | `"Bottom"` | `"Left"` | `"Right"`), `hotk
 </Modal>
 ```
 
-Key props: `isOpen`, `title` (also names the dialog when tabs or a header slot replace it), `width` (`"small"` 240px | `"medium"` 320px | `"large"` 480px | custom string), `height` (`"auto"` | `"50vh"` | `"80vh"` | custom string), `position` (`"center"` | `"left"` | `"right"` | `"bottom"`), `headerVariant` (`"default"` | `"navigation"` | `"tabs"`), `onBack`, `headerTabs`, `selectedTab` (bindable), `panelIds`, `icon2`, `icon2Name`, `footerVariant`, `footerBorder`, `showOverlay`, `closeOnOverlayClick`, `closeOnEscape`, `onClose`, `contentPadding`. Slots: default, `header`, `footer-left`, `footer-right`, `footer-full`. Events: `close`, `back`, `tabChange`, `icon2Click`.
+Key props: `isOpen`, `title` (also names the dialog when tabs or a header slot replace it), `width` (`"small"` 240px | `"medium"` 320px | `"large"` 480px | custom string), `height` (`"auto"` | `"50vh"` | `"80vh"` | custom string), `position` (`"center"` | `"left"` | `"right"` | `"bottom"`), `headerVariant` (`"default"` | `"navigation"` | `"tabs"`), `onBack`, `headerTabs`, `selectedTab` (bindable), `panelIds`, `backAriaLabel`, `icon2`, `icon2Name`, `icon2AriaLabel` (required whenever `icon2` is set), `footerVariant`, `footerBorder`, `showOverlay`, `closeOnOverlayClick`, `closeOnEscape`, `onClose`, `contentPadding`. Slots: default, `header`, `footer-left`, `footer-right`, `footer-full`. Events: `close`, `back`, `tabChange`, `icon2Click`.
 
 ---
 

@@ -202,7 +202,26 @@
     </span>
   {/if}
   {#if variable}
-    <span class="pill-slot"><VariablePill label={variable} {disabled} /></span>
+    <!--
+      A button, not a span: the pill is the field's control while it is bound
+      (clicking it rebinds, as in Figma), it takes the field's `id` so a
+      `<label for>` still reaches it, and it keeps the field in the tab order.
+    -->
+    <button
+      bind:this={input}
+      type="button"
+      class="pill-slot"
+      {id}
+      {name}
+      {disabled}
+      aria-label={ariaLabel ? `${ariaLabel}: bound to ${variable}` : `Bound to ${variable}`}
+      on:click={() => dispatch('variableClick', variable)}
+      on:focus
+      on:blur
+      on:keydown
+    >
+      <VariablePill label={variable} {disabled} />
+    </button>
     {#if !disabled}
       <IconButton
         class="detach"
@@ -354,8 +373,20 @@
     display: flex;
     flex: 1 1 auto;
     align-items: center;
+    justify-content: flex-start;
     min-width: 0;
+    height: 100%;
+    margin: 0;
     padding: 0 var(--size-xxxsmall);
+    border: 0;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    cursor: default;
+  }
+
+  .pill-slot:focus-visible :global(.variable-pill) {
+    border-color: var(--figma-color-border-selected);
   }
 
   .has-lead .pill-slot {

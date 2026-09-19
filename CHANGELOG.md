@@ -43,7 +43,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Menu** — headings and dividers render inside `<li>` elements, so the list's markup is valid
 - **Tabs** — an unselected tab's hover uses UI3's `bg-hover` fill
 - **Modal** — one dialog body instead of two copies for with and without an overlay
-- **ModalHeader** — the second icon button takes `icon2AriaLabel`
+- **ModalHeader** — the second icon button takes `icon2AriaLabel`; **Modal** passes `icon2AriaLabel` and `backAriaLabel` through, so a dialog's own icon buttons can be named
+- **NumericInput** — a bound field is still a control: the pill is a button carrying the field's `id`, `name` and `ariaLabel`, so a `<label for>` reaches it and it stays in the tab order. It fires `variableClick` when picked.
 
 ## [0.5.2] - 2026-05-13
 

@@ -7,11 +7,13 @@
   export let title = '';
   export let headerVariant = 'default'; // 'default' | 'navigation' | 'tabs'
   export let onBack = null; // navigation header's back arrow; also fires `back`
+  export let backAriaLabel = 'Back'; // navigation header's back arrow
   export let headerTabs = []; // tabs header: as Tabs' `tabs`
   export let selectedTab = 0; // tabs header: bindable
   export let panelIds = []; // tabs header: ids of the panels, for aria-controls
   export let icon2 = false;
   export let icon2Name = null;
+  export let icon2AriaLabel = ''; // required whenever `icon2` is set (WCAG 4.1.2)
   export let onIcon2Click = null;
   export let footerVariant = 'default';
   export let footerBorder = true;
@@ -211,9 +213,11 @@
           variant={headerVariant}
           {icon2}
           {icon2Name}
+          {icon2AriaLabel}
           onIcon2Click={handleIcon2Click}
           onClose={closeModal}
           onBack={handleBack}
+          {backAriaLabel}
         >
           <slot name="header" slot="title" />
         </ModalHeader>
@@ -224,9 +228,11 @@
           variant={headerVariant}
           {icon2}
           {icon2Name}
+          {icon2AriaLabel}
           onIcon2Click={handleIcon2Click}
           onClose={closeModal}
           onBack={handleBack}
+          {backAriaLabel}
           tabs={headerTabs}
           {selectedTab}
           {panelIds}
