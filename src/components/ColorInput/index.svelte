@@ -272,11 +272,9 @@
     letter-spacing: inherit;
   }
 
-  /* Basis 0, so the hex field's intrinsic width never floors the whole control
-     in a narrow column (see NumericInput). */
   input.hex,
   .variable {
-    flex: 1 1 0;
+    flex: 1 1 auto;
     padding-right: var(--size-xxsmall);
     overflow: hidden;
     white-space: nowrap;
