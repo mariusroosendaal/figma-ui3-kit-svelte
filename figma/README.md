@@ -25,6 +25,14 @@ The templates double as the reverse mapping: to mock up a Svelte layout, create 
 | Button | `2012:48557` | Label is `🎛️ Label#32561:0`. Figma-only: `🐣 State`, `👁️ Hotkey`. `FigJam` renders as `primary` in code. |
 | Badge small | `2012:35027` | Label is the first text layer (no text property). `warning` ↔ `Warn`. |
 | Checkbox | `2012:55461` | Label is the `Value` text layer. Plain unchecked needs `🎛️ Muted=True` — no non-muted unchecked variant exists. |
+| Switch | `2015:24697` | Label is the `Value` text layer. `🐣 Type`: On ↔ `checked`, Mixed ↔ `mixed`. |
+| Radio button | `2015:20365` | Selection is `bind:group` in code. The Button variant has no code equivalent. |
+| Button icon | `2324:46757` | → `IconButton`. Icon is `🎛️ Icon` (instance swap). |
+| Text input | `2028:79255` | Single Line/Quick Action → `Input`, Multi Line → `Textarea`. Empty states use the text as `placeholder`. |
+| Dropdown | `2028:36589` | Trigger text → `placeholder`; menu items live in code. No size prop in code. |
+| Tabs | `2015:27780` | One `_Tab` per tab: label is its `Text` property, `🐣 Selected` → `selectedTab`. |
+| Segmented control | `2015:20960` | One `_Segment` per segment: `🎛️ Label` (label variant) or `🎛️ Icon` + `🎛️ Text` tooltip (icon variant). |
+| Slider | `2015:23280` | Range ↔ `delta`, Stepper ↔ `stepper`, everything else ↔ `range`. Knob position is the value. |
 
 ## Adding a component
 
