@@ -8,15 +8,16 @@ const instance = figma.selectedInstance
 // import list in metadata.props.imports for parent templates to merge.
 const imports = ["import { Slider } from 'figma-ui3-kit-svelte'"]
 
-// Range in Figma fills from the centre, which is the kit's delta variant.
-// Gradient, Color Range and Corner Radius have no dedicated code variant.
+// UI3's Slider variant fills from the centre (the kit's delta); Range is the plain
+// left-filled slider. Fill, Gradient, Color Range and Corner Radius have no
+// dedicated code variant.
 const variant = instance.getEnum('👥 Variant', {
   'Corner Radius': 'range',
   'Fill': 'range',
   'Gradient': 'range',
-  'Range': 'delta',
+  'Range': 'range',
   'Stepper': 'stepper',
-  'Slider': 'range',
+  'Slider': 'delta',
   'Color Range': 'range',
   'Disabled': 'range',
 })

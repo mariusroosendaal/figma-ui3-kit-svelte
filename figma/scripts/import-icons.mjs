@@ -57,7 +57,25 @@ export default {
   )
 }
 
-console.log(`Wrote ${written.size} icon templates to ${OUT_DIR}/`)
+// Name → { id, key } for the mockup builder, which needs library keys to place
+// icons in files other than the UI3 file. Keys come from the published library.
+const res = await fetch('https://api.figma.com/v1/files/6dJFbL7SDC7kkS1fu3AHH6/components', {
+  headers: { 'X-Figma-Token': process.env.FIGMA_ACCESS_TOKEN },
+})
+const published = res.ok ? (await res.json()).meta.components : []
+const icons = Object.fromEntries(
+  published
+    .filter((c) => /^icon\.(16|24)\./.test(c.name))
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((c) => [c.name, { id: c.node_id, key: c.key }]),
+)
+// One icon per line so it stays grep-friendly.
+fs.writeFileSync(
+  'figma/icons.json',
+  '{\n' + Object.entries(icons).map(([name, v]) => `  ${JSON.stringify(name)}: ${JSON.stringify(v)}`).join(',\n') + '\n}\n',
+)
+
+console.log(`Wrote ${written.size} icon templates to ${OUT_DIR}/ and ${Object.keys(icons).length} icons to figma/icons.json`)
 if (missingSvg.length) {
   console.log(`Skipped ${missingSvg.length} Figma icons with no SVG in src/icons:`)
   console.log(missingSvg.map((n) => `  ${n}`).join('\n'))
