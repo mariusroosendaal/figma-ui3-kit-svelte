@@ -1,0 +1,11 @@
+{
+  "codeConnect": {
+    "parser": "html",
+    "include": ["figma/**/*.figma.ts"],
+    "label": "Svelte",
+    "language": "jsx",
+    "documentUrlSubstitutions": {
+      "<UI3_FILE>": "https://www.figma.com/design/6dJFbL7SDC7kkS1fu3AHH6/UI3--Figma-s-UI-Kit--Community-"
+    }
+  }
+}

@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
+    "@figma/code-connect": "^2.0.1",
     "@storybook/addon-a11y": "^8.6.15",
     "@storybook/addon-essentials": "^8.6.14",
     "@storybook/addon-interactions": "^8.6.14",
@@ -51,8 +52,11 @@
     "build": "storybook build",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
-    "prettier": "npx prettier --write \"src/**/*.{js,ts,svelte,html,css}\"",  
-    "check": "svelte-check --tsconfig ./jsconfig.json"
+    "prettier": "npx prettier --write \"src/**/*.{js,ts,svelte,html,css}\"",
+    "check": "svelte-check --tsconfig ./jsconfig.json",
+    "figma:icons": "node figma/scripts/import-icons.mjs",
+    "figma:parse": "figma connect parse",
+    "figma:publish": "npm run figma:icons && figma connect publish"
   },
   "repository": {
     "type": "git",

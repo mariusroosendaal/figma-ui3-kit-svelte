@@ -104,3 +104,6 @@ storybook-static
 .idea/
 archive/ 
 
+
+# Generated Code Connect icon templates (npm run figma:icons)
+figma/icons/
