@@ -46,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Tabs** — an unselected tab's hover uses UI3's `bg-hover` fill
 - **Modal** — one dialog body instead of two copies for with and without an overlay
 - **ModalHeader** — the second icon button takes `icon2AriaLabel`; **Modal** passes `icon2AriaLabel` and `backAriaLabel` through, so a dialog's own icon buttons can be named
+- **NumericInput**, **ColorInput** — the text cell flexes from a basis of 0 rather than `auto`. With `auto` the input's intrinsic ~20-character width became the field's min-content, which a `1fr` grid track will not shrink below, so a two-column row of fields overflowed a narrow plugin panel.
 - **NumericInput** — a bound field is still a control: the pill is a button carrying the field's `id`, `name` and `ariaLabel`, so a `<label for>` reaches it and it stays in the tab order. It fires `variableClick` when picked.
 - **NumericInputMulti** — every cell is named, numbered off the new `ariaLabel` (or `label`) when `ariaLabels` is left out, and the field itself is named too; scrubbing the lead no longer leaves a focused cell showing its old number
 - **Tree** — a row's tick state comes from one pass over the tree instead of a walk per row, so a large tree no longer re-walks its subtrees on every keystroke; collapsing a parent moves the keyboard to it rather than leaving it on a row that is gone

@@ -335,8 +335,11 @@
     cursor: default;
   }
 
+  /* Basis 0, not auto: an input's intrinsic width is about 20 characters, and
+     with basis auto that becomes the field's min-content — which a `1fr` grid
+     track then refuses to shrink below, pushing the column off a narrow panel. */
   input {
-    flex: 1 1 auto;
+    flex: 1 1 0;
     min-width: 0;
     height: 100%;
     margin: 0;
@@ -371,7 +374,7 @@
 
   .pill-slot {
     display: flex;
-    flex: 1 1 auto;
+    flex: 1 1 0;
     align-items: center;
     justify-content: flex-start;
     min-width: 0;
