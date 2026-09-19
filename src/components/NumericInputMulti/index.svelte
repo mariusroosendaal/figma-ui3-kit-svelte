@@ -24,6 +24,8 @@
   export let precision = null;
   export let iconName = null;
   export let label = '';
+  /** Names the field as a whole, e.g. 'Corner radius'. Falls back to `label`. */
+  export let ariaLabel = '';
   /** Names each cell, e.g. ['Top left', 'Top right', 'Bottom right', 'Bottom left']. */
   export let ariaLabels = [];
   export let placeholder = '';
@@ -48,6 +50,12 @@
   $: allDisabled = cellDisabled.every(Boolean);
   $: texts = values.map((v, i) => (i === focusedIndex ? texts[i] : format(v)));
   $: hasLead = Boolean(iconName || label);
+  // Every cell is a spinbutton, so every cell needs a name. Without `ariaLabels`
+  // they are numbered off the field's own name, which beats four unnamed fields.
+  $: groupLabel = ariaLabel || label;
+  $: cellLabels = values.map(
+    (_, i) => ariaLabels[i] || (groupLabel ? `${groupLabel} ${i + 1}` : `Value ${i + 1}`)
+  );
 
   function format(n) {
     if (n == null || Number.isNaN(n)) return '';
@@ -115,6 +123,11 @@
     scrub.moved = true;
     const delta = dx * step * (event.shiftKey ? 10 : 1);
     values = scrub.start.map((v, i) => (cellDisabled[i] ? v : clamp((v ?? 0) + delta)));
+    // A focused cell keeps its own text, so scrubbing has to rewrite it or it
+    // would sit on a stale number until blur.
+    if (focusedIndex !== -1 && !cellDisabled[focusedIndex]) {
+      texts[focusedIndex] = format(values[focusedIndex]);
+    }
     dispatch('input', { values, index: -1 });
   }
 
@@ -131,6 +144,7 @@
   class:disabled={allDisabled}
   class:focused={focusedIndex !== -1}
   role="group"
+  aria-label={groupLabel || undefined}
 >
   {#if hasLead}
     <!-- Scrubbing is a pointer shortcut; each cell's arrow keys do the same. -->
@@ -167,7 +181,7 @@
       spellcheck="false"
       {placeholder}
       disabled={cellDisabled[index]}
-      aria-label={ariaLabels[index] || undefined}
+      aria-label={cellLabels[index]}
       aria-valuenow={values[index] ?? undefined}
       aria-valuemin={min ?? undefined}
       aria-valuemax={max ?? undefined}

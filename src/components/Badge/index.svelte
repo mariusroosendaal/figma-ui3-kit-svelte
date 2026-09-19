@@ -49,7 +49,8 @@
     aria-hidden={ariaLabel ? undefined : 'true'}
   ></span>
 {:else}
-  <div
+  <!-- A span, not a div: a badge sits inside a tab button and a menu row, which take phrasing content. -->
+  <span
     class="badge {className}"
     aria-label={ariaLabel || undefined}
     class:default={variant === 'default'}
@@ -74,14 +75,14 @@
     class:has-icon={iconName !== null}
   >
     {#if iconName && (variant === 'variable' || variant === 'variable-selected' || variant === 'feedback' || variant === 'merged' || variant === 'archived')}
-      <div class="badge-icon">
+      <span class="badge-icon">
         <Icon {iconName} color={getIconColor()} />
-      </div>
+      </span>
     {/if}
     <span class="badge-text">
       <slot>{text}</slot>
     </span>
-  </div>
+  </span>
 {/if}
 
 <style>

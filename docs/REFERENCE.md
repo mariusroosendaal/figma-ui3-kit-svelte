@@ -177,7 +177,9 @@ While bound, the pill is the field's control: it takes the field's `id` (so a `<
   ariaLabels={["Top left", "Top right", "Bottom right", "Bottom left"]} />
 ```
 
-Props: `values`, `min`, `max`, `step`, `precision`, `iconName` or `label` (lead), `ariaLabels`, `placeholder`, `disabled` (one flag, or one per cell). Events: `change` and `input` with `{ values, index }` (`index` is -1 when the lead scrubs every cell).
+Props: `values`, `min`, `max`, `step`, `precision`, `iconName` or `label` (lead), `ariaLabel` (names the field; falls back to `label`), `ariaLabels` (names each cell), `placeholder`, `disabled` (one flag, or one per cell). Events: `change` and `input` with `{ values, index }` (`index` is -1 when the lead scrubs every cell).
+
+Each cell is a spinbutton in its own right, so each needs a name. Pass `ariaLabels` where the cells mean different things (corners, sides); without it they are numbered off `ariaLabel` or `label`.
 
 ---
 
@@ -384,7 +386,7 @@ Props: `checked`, `mixed`, `disabled`, `description`, `ariaLabel`.
 <Slider bind:value={alpha} variant="opacity" color="#9747ff" ariaLabel="Opacity" />
 ```
 
-Props: `value`, `min`, `max`, `step`, `variant` (`"range"` | `"delta"` | `"stepper"` | `"hue"` | `"opacity"`), `defaultValue` (delta's reference point; on a range slider, a marker dot there), `color` (opacity variant), `disabled`, `ariaLabel` (required), `ariaValueText`.
+Props: `value`, `min`, `max`, `step`, `variant` (`"range"` | `"delta"` | `"stepper"` | `"hue"` | `"opacity"`), `defaultValue` (delta's reference point; on a range slider, a marker dot there), `color` (opacity variant), `disabled`, `ariaLabel` (required), `ariaValueText`. The variants do not set their own range: a `hue` slider needs `max={360}`, an `opacity` one `max={100}`.
 
 ---
 
@@ -480,6 +482,8 @@ Props: `label`, `direction` (`"Top"` | `"Bottom"` | `"Left"` | `"Right"`), `hotk
 
 Key props: `isOpen`, `title` (also names the dialog when tabs or a header slot replace it), `width` (`"small"` 240px | `"medium"` 320px | `"large"` 480px | custom string), `height` (`"auto"` | `"50vh"` | `"80vh"` | custom string), `position` (`"center"` | `"left"` | `"right"` | `"bottom"`), `headerVariant` (`"default"` | `"navigation"` | `"tabs"`), `onBack`, `headerTabs`, `selectedTab` (bindable), `panelIds`, `backAriaLabel`, `icon2`, `icon2Name`, `icon2AriaLabel` (required whenever `icon2` is set), `footerVariant`, `footerBorder`, `showOverlay`, `closeOnOverlayClick`, `closeOnEscape`, `onClose`, `contentPadding`. Slots: default, `header`, `footer-left`, `footer-right`, `footer-full`. Events: `close`, `back`, `tabChange`, `icon2Click`.
 
+`panelIds` points each tab at its panel with `aria-controls`, which only holds if the panels are in the DOM. Leave it out when the panels are behind an `{#if}` and label them with `aria-labelledby` instead.
+
 ---
 
 ### Disclosure / DisclosureItem
@@ -572,6 +576,8 @@ Props: `name` (initial and label; also picks a stable colour), `src` (photo or o
 ```
 
 Props: `nodes` (`{ id, label, iconName?, detail?, disabled?, children? }`), `mode` (`"none"` browse | `"single"` pick one | `"check"` tick leaves; parents show all/some/none and tick their leaves), `expanded` (open parent ids; `null` opens all), `selected`, `checked`, `disabled`, `ariaLabel`. Events: `toggle`, `select`, `change`. Keyboard: arrows, Right/Left open, close and step in or out, Home/End, Enter/Space.
+
+A node's `iconName` is rendered as raw SVG, so it must be a build-time import like any other `Icon` — never a string from the document or from a message. Everything else in a node (`label`, `detail`) is escaped as text and is safe to fill from document data.
 
 ---
 

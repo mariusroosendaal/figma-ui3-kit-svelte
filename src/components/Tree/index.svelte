@@ -75,18 +75,38 @@
   $: rows = flatten(nodes, open);
   $: activeRow = rows.find((r) => r.node.id === active) ?? null;
 
-  // Takes `on` so the markup re-renders when the ticks change.
-  function checkState(node, on = ticked) {
-    const leaves = leavesOf(node);
-    const count = leaves.filter((id) => on.has(id)).length;
-    return count === 0 ? false : count === leaves.length ? true : 'mixed';
+  // Every row's tick state in one post-order pass, so drawing a row is a lookup
+  // rather than a walk of its own subtree.
+  function checkStates(list, on, out = new Map()) {
+    for (const node of list) {
+      if (!hasChildren(node)) {
+        out.set(node.id, on.has(node.id));
+        continue;
+      }
+      checkStates(node.children, on, out);
+      let all = true;
+      let none = true;
+      for (const child of node.children) {
+        const state = out.get(child.id);
+        if (state === true) none = false;
+        else if (state === false) all = false;
+        else all = none = false;
+      }
+      out.set(node.id, all ? true : none ? false : 'mixed');
+    }
+    return out;
   }
+  $: states = mode === 'check' ? checkStates(nodes, ticked) : null;
 
   function toggleOpen(node, force) {
     const next = new Set(open);
     const opening = force ?? !next.has(node.id);
     if (opening) next.add(node.id);
     else next.delete(node.id);
+    // Closing a parent takes its rows away: leave the keyboard on the parent
+    // rather than on a row that is no longer there.
+    if (!opening && active !== null && active !== node.id && findNode([node], active))
+      active = node.id;
     expanded = [...next];
     dispatch('toggle', { id: node.id, expanded: opening });
   }
@@ -98,7 +118,7 @@
       dispatch('select', node);
     } else if (mode === 'check') {
       const leaves = leavesOf(node).filter((id) => !findNode(nodes, id)?.disabled);
-      const on = checkState(node) !== true;
+      const on = states.get(node.id) !== true;
       const next = new Set(checked);
       for (const id of leaves) on ? next.add(id) : next.delete(id);
       checked = [...next];
@@ -193,7 +213,7 @@
   on:mousedown|preventDefault={(e) => e.currentTarget.focus()}
 >
   {#each rows as row (row.node.id)}
-    {@const state = mode === 'check' ? checkState(row.node, ticked) : null}
+    {@const state = states ? states.get(row.node.id) : null}
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <li
       id="{treeId}-{row.node.id}"

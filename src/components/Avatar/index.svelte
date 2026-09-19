@@ -19,7 +19,8 @@
   export let count = null;
   export let unread = false;
   export let disabled = false;
-  /** Defaults to the name; the count reads as "N more" */
+  /** Only when the tooltip is the wrong name; by default the tooltip names it
+   * (the name, or "N more" for a count) and doubling the two reads twice. */
   export let ariaLabel = '';
 
   let className = '';
@@ -31,7 +32,10 @@
   $: hue = color ?? COLORS[hash % COLORS.length];
   $: initial = (name || '').trim().charAt(0).toUpperCase();
   $: overflow = count !== null && count !== undefined;
-  $: label = ariaLabel || (overflow ? `${count} more` : name) || undefined;
+  // The tooltip names the avatar on its own, so `aria-label` is only set when
+  // the caller wants a different one — otherwise both are read out.
+  $: tooltip = (overflow ? `${count} more` : name) || undefined;
+  $: label = ariaLabel || tooltip;
   // A broken image falls back to the initial; a new src tries again.
   let failed = false;
   $: resetFailed(src);
@@ -52,8 +56,8 @@
       ? 'var(--color-text-on-multiplayer-yellow)'
       : 'var(--color-text-on-multiplayer)'}
   role={label ? 'img' : undefined}
-  aria-label={label}
-  title={label}
+  aria-label={ariaLabel || undefined}
+  title={tooltip}
 >
   {#if src && !failed && !overflow}
     <img {src} alt="" on:error={() => (failed = true)} />

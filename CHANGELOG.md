@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Menu** — rewritten on `aria-activedescendant`: one highlight shared by pointer and keyboard, focus stays in the list (or the search field) instead of moving between rows, disabled rows are skipped, sub-menus open with ArrowRight/Enter and close with ArrowLeft, focus returns to the trigger after a keyboard pick. The menu flips above its trigger and scrolls when there isn't room, and closes when anything behind it scrolls instead of locking body scroll. Items are no longer given an `id`.
 - **MenuItem** — `selected` now only draws the check; the highlight is separate (`highlighted`), so a menu with several checked rows no longer paints them all blue
 - **Dropdown** — no longer broadcasts its own `dropdown:open` event (Menu already closes other menus); measures the trigger before the menu places itself
+- **Badge** — renders a `<span>` rather than a `<div>`, so it is valid inside a tab button or a menu row; `variant="default"` with `strong` now fills grey, matching UI3's "Badge small alt"
+- **Avatar** — the tooltip is the accessible name; `ariaLabel` is for when it should read as something else, rather than repeating the tooltip
 
 ### Fixed
 - **Menu** — headings and dividers render inside `<li>` elements, so the list's markup is valid
@@ -45,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Modal** — one dialog body instead of two copies for with and without an overlay
 - **ModalHeader** — the second icon button takes `icon2AriaLabel`; **Modal** passes `icon2AriaLabel` and `backAriaLabel` through, so a dialog's own icon buttons can be named
 - **NumericInput** — a bound field is still a control: the pill is a button carrying the field's `id`, `name` and `ariaLabel`, so a `<label for>` reaches it and it stays in the tab order. It fires `variableClick` when picked.
+- **NumericInputMulti** — every cell is named, numbered off the new `ariaLabel` (or `label`) when `ariaLabels` is left out, and the field itself is named too; scrubbing the lead no longer leaves a focused cell showing its old number
+- **Tree** — a row's tick state comes from one pass over the tree instead of a walk per row, so a large tree no longer re-walks its subtrees on every keystroke; collapsing a parent moves the keyboard to it rather than leaving it on a row that is gone
 
 ## [0.5.2] - 2026-05-13
 
