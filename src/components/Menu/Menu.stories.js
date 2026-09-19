@@ -1,5 +1,8 @@
 import Menu from './index.svelte';
 import MenuWrapper from '../../../.storybook/MenuWrapper.svelte';
+import IconFolder from '../../icons/16/icon.16.folder.svg';
+import IconFrame from '../../icons/16/icon.16.frame.svg';
+import IconComponent from '../../icons/16/icon.16.component.svg';
 
 export default {
   title: 'Components/Menu',
@@ -27,6 +30,18 @@ export default {
     minWidth: {
       control: 'text',
       description: 'Minimum width of the menu',
+    },
+    searchable: {
+      control: 'boolean',
+      description: 'Search field above the list; filters by label, group and detail',
+    },
+    searchPlaceholder: {
+      control: 'text',
+      description: 'Placeholder and accessible name of the search field',
+    },
+    footerLabel: {
+      control: 'text',
+      description: 'Label of a full-width button under the list; fires `footer`',
     },
     menuItems: {
       control: 'object',
@@ -137,4 +152,122 @@ export const WithNested = {
     Component: MenuWrapper,
     props: { ...args },
   }),
+};
+
+// Checkmark rows flip on their own and close the menu; the dot marks a sub-menu
+// holding the current choice. Details carry shortcuts.
+const viewMenuItems = [
+  {
+    value: 'pixel-preview',
+    label: 'Pixel preview',
+    type: 'check',
+    checked: 'mixed',
+    subMenu: [
+      { value: 'off', label: 'Disabled' },
+      { value: '1x', label: '1x' },
+      { value: '2x', label: '2x' },
+    ],
+  },
+  { value: 'pixel-grid', label: 'Pixel grid', type: 'check', checked: true, detail: "⇧'" },
+  { value: 'snap', label: 'Snap to pixel grid', type: 'check', checked: true, detail: "⇧⌘'" },
+  { value: 'layout-grids', label: 'Layout grids', type: 'check', detail: '⇧G' },
+  { value: 'rulers', label: 'Rulers', type: 'check', detail: '⇧R' },
+  {
+    value: 'multiplayer',
+    label: 'Multiplayer cursors',
+    type: 'check',
+    checked: true,
+    detail: '⌥⌘\\',
+    disabled: true,
+  },
+  {
+    value: 'comments',
+    label: 'Comments',
+    type: 'check',
+    checked: true,
+    detail: '⇧C',
+    group: 'Canvas',
+  },
+  {
+    value: 'prototypes',
+    label: 'Prototypes',
+    type: 'check',
+    checked: true,
+    detail: '⇧E',
+    group: 'Canvas',
+  },
+];
+
+export const Checkmarks = {
+  args: { menuItems: viewMenuItems, minWidth: '208px' },
+  render: (args) => ({ Component: MenuWrapper, props: { ...args } }),
+};
+
+// Toggle rows keep the menu open, so several can be flipped in one go.
+export const Toggles = {
+  args: {
+    menuItems: [
+      { value: 'outline', label: 'Show outlines', type: 'toggle', checked: true, detail: '⌥⇧⌘O' },
+      { value: 'grid', label: 'Show grid', type: 'toggle', checked: false },
+      { value: 'labels', label: 'Show labels', type: 'toggle', checked: 'mixed' },
+    ],
+    minWidth: '208px',
+  },
+  render: (args) => ({ Component: MenuWrapper, props: { ...args } }),
+};
+
+// UI3's "Menu multi-select": search, grouped rows with icons or chits, trailing
+// checkboxes with counts, and a footer action.
+export const MultiSelect = {
+  args: {
+    searchable: true,
+    searchPlaceholder: 'Search projects, teams, or organizations',
+    footerLabel: 'Clear all',
+    showGroupLabels: true,
+    menuItems: [
+      { value: 'a', label: 'Project A', group: 'Projects', iconName: IconFolder, type: 'checkbox' },
+      { value: 'b', label: 'Project B', group: 'Projects', iconName: IconFolder, type: 'checkbox' },
+      {
+        value: 'ta',
+        label: 'Team A',
+        group: 'Teams',
+        chit: '#ffc700',
+        type: 'checkbox',
+        checked: true,
+      },
+      { value: 'tb', label: 'Team B', group: 'Teams', chit: '#f24e1e', type: 'checkbox' },
+      {
+        value: 'oa',
+        label: 'Org A',
+        group: 'Organizations',
+        chit: '#14ae5c',
+        type: 'checkbox',
+        detail: '24',
+      },
+      {
+        value: 'ob',
+        label: 'Org B',
+        group: 'Organizations',
+        chit: '#14ae5c',
+        type: 'checkbox',
+        detail: '3',
+        checked: true,
+      },
+    ],
+  },
+  render: (args) => ({ Component: MenuWrapper, props: { ...args } }),
+};
+
+// "Menu row/Complex": lead icons, counts and badges.
+export const RichRows = {
+  args: {
+    menuItems: [
+      { value: 'frame', label: 'Frame', iconName: IconFrame, detail: 'F' },
+      { value: 'component', label: 'Component', iconName: IconComponent, badge: 'New' },
+      { value: 'files', label: 'Files', iconName: IconFolder, detail: '250' },
+      { value: 'archived', label: 'Archived', iconName: IconFolder, disabled: true },
+    ],
+    minWidth: '208px',
+  },
+  render: (args) => ({ Component: MenuWrapper, props: { ...args } }),
 };

@@ -1,5 +1,5 @@
 <script>
-  import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import Menu from '../Menu/index.svelte';
   import Icon from '../Icon/index.svelte';
   import IconChevronDown from './../../icons/24/icon.24.chevron.down.svg';
@@ -11,6 +11,8 @@
   export let disabled = false;
   export let iconName = null;
   export let ariaLabel = '';
+  export let searchable = false; // search field above long lists
+  export let searchPlaceholder = 'Search';
 
   let className = '';
   export { className as class };
@@ -30,22 +32,6 @@
     return '--figma-color-icon';
   }
 
-  // Calculate trigger width when menu opens
-  function calculateTriggerWidth() {
-    if (menuButton) {
-      const rect = menuButton.getBoundingClientRect();
-      triggerWidth = rect.width;
-    }
-  }
-
-  // Update trigger width when isOpen changes
-  $: if (isOpen) {
-    // Use setTimeout to ensure the element is rendered
-    setTimeout(() => {
-      calculateTriggerWidth();
-    }, 0);
-  }
-
   // Sync selected state on menuItems whenever value changes
   $: if (menuItems && menuItems.length > 0) {
     menuItems.forEach((item) => {
@@ -61,50 +47,17 @@
     dispatch('change', event.detail);
   }
 
-  // Handle menu close
+  // Menu returns focus to the trigger itself when it closes from the keyboard
   function handleClose() {
     isOpen = false;
-    menuButton?.focus();
   }
 
-  // Handle button click
   function handleButtonClick() {
-    if (!disabled) {
-      const newIsOpen = !isOpen;
-      if (newIsOpen) {
-        // Dispatch event to close other dropdowns
-        if (typeof document !== 'undefined') {
-          document.dispatchEvent(
-            new CustomEvent('dropdown:open', {
-              detail: { dropdownId },
-            })
-          );
-        }
-      }
-      isOpen = newIsOpen;
-    }
+    if (disabled) return;
+    // The menu is at least as wide as the trigger; measured before it places itself
+    if (!isOpen) triggerWidth = menuButton?.getBoundingClientRect().width ?? null;
+    isOpen = !isOpen;
   }
-
-  // Handle other dropdowns opening - close this one if it's not the one that opened
-  function handleOtherDropdownOpen(event) {
-    if (event.detail.dropdownId !== dropdownId && isOpen) {
-      isOpen = false;
-    }
-  }
-
-  // Listen for other dropdowns opening
-  onMount(() => {
-    if (typeof document !== 'undefined') {
-      document.addEventListener('dropdown:open', handleOtherDropdownOpen);
-    }
-  });
-
-  // Clean up event listener
-  onDestroy(() => {
-    if (typeof document !== 'undefined') {
-      document.removeEventListener('dropdown:open', handleOtherDropdownOpen);
-    }
-  });
 </script>
 
 <div bind:this={menuWrapper} class="wrapper {className}" class:disabled>
@@ -141,6 +94,8 @@
     minWidth={triggerWidth ? triggerWidth + 'px' : null}
     itemVariant="checkmark"
     menuListId="dropdown-{dropdownId}-menu"
+    {searchable}
+    {searchPlaceholder}
     on:select={handleSelect}
     on:close={handleClose}
   />

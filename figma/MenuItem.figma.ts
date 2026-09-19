@@ -7,27 +7,17 @@ const instance = figma.selectedInstance
 // Dev Mode only lifts imports one level, so every template also reports its full
 // import list in metadata.props.imports for parent templates to merge.
 const imports = ["import { MenuItem } from 'figma-ui3-kit-svelte'"]
-const render = (handle) => {
-  const result = handle.executeTemplate()
-  const nested = result.metadata && result.metadata.props && result.metadata.props.imports
-  if (nested) nested.forEach((i) => imports.includes(i) || imports.push(i))
-  return result.example
-}
 
 const label = instance.getString('🎛️ Text')
 const disabled = instance.getEnum('🐣 State', { 'Default': false, 'Hover': false, 'Disabled': true })
 const hasSubMenu = instance.getEnum('🎛️ Submenu', { 'False': false, 'True': true })
-const shortcut = instance.getBoolean('👁️ hasShortcut') ? instance.getString('↪ Shortcut') : ''
-
-const id = label.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-') || 'item'
+const detail = instance.getBoolean('👁️ hasShortcut') && !hasSubMenu ? instance.getString('↪ Shortcut') : ''
 
 // Standalone snippet uses MenuItem; inside a Menu the parent template reads
 // metadata.props to build menuItems (the kit's Menu is data-driven).
 export default {
-  example: figma.code`<MenuItem id="${id}"${disabled ? ' disabled' : ''}${hasSubMenu ? ' hasSubMenu' : ''}>${label}${shortcut && !hasSubMenu ? figma.code`
-  <svelte:fragment slot="trail">${shortcut}</svelte:fragment>
-` : ''}</MenuItem>`,
+  example: figma.code`<MenuItem${detail ? figma.code` detail="${detail}"` : ''}${disabled ? ' disabled' : ''}${hasSubMenu ? ' hasSubMenu' : ''}>${label}</MenuItem>`,
   imports,
   id: 'menu-item',
-  metadata: { nestable: true, props: { imports, kind: 'item', label, selected: false, checkmark: false, disabled, hasSubMenu } },
+  metadata: { nestable: true, props: { imports, kind: 'item', label, disabled, detail, hasSubMenu } },
 }

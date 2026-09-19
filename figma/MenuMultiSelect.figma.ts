@@ -1,4 +1,4 @@
-// url=<UI3_FILE>?node-id=1027206-366
+// url=<UI3_FILE>?node-id=2327-96387
 // source=src/components/Menu/index.svelte
 // component=Menu
 import figma from 'figma'
@@ -47,13 +47,28 @@ const buildItems = (rows) => {
   })
 }
 
-const lines = buildItems(instance.findConnectedInstances(() => true, { path: ['Items slot'] }))
+// UI3's multi-select menu: a search field, rows, and a footer button. The field
+// and the button are Menu props here, so only the rows go into menuItems.
+const lines = buildItems(instance.findConnectedInstances(() => true))
+
+let searchPlaceholder = ''
+const search = instance.findInstance('Text input')
+if (search && search.type === 'INSTANCE') {
+  const value = search.findText('Value')
+  if (value && value.type === 'TEXT') searchPlaceholder = value.textContent
+}
+
+let footerLabel = ''
+const button = instance.findInstance('Button')
+if (button && button.type === 'INSTANCE') footerLabel = button.getString('🎛️ Label')
+
+const searchAttrs = search && search.type === 'INSTANCE' ? figma.code` searchable searchPlaceholder="${searchPlaceholder}"` : ''
 
 export default {
-  example: figma.code`<Menu bind:isOpen menuItems={[
+  example: figma.code`<Menu bind:isOpen${searchAttrs}${footerLabel ? figma.code` footerLabel="${footerLabel}" on:footer={handleFooter}` : ''} menuItems={[
 ${lines.join('\n')}
 ]} />`,
   imports,
-  id: 'menu',
+  id: 'menu-multi-select',
   metadata: { nestable: true, props: { imports } },
 }

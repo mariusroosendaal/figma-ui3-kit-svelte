@@ -63,17 +63,22 @@ All components accept a `class` prop for custom styling.
 - Button
 - Checkbox
 - Chip
+- Chit
+- ColorInput
 - Disclosure / DisclosureItem
 - Dropdown
 - Icon
 - IconButton
+- IconToggle
 - Input
 - Label
 - Menu / MenuItem / MenuDivider / MenuHeading
 - Modal
-- Radio
+- NumericInput
+- Radio / RadioGroup
 - SegmentedControl / Segment
 - Slider
+- SplitButton
 - Switch
 - Tabs
 - Text

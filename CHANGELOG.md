@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **SegmentedControl** and **Segment** components — single-select control matching UI3's segmented control (formerly "option strip"), with icon and label segments, group and per-segment disabled states, optional tooltips, and arrow-key focus navigation
+- **NumericInput** — UI3's numeric field: lead letter or icon that scrubs on drag, arrow-key steps (Shift ×10), typed arithmetic, `min`/`max`/`precision`, a unit, a `null` placeholder state, and `options` for a presets chevron (UI3's combo input)
+- **ColorInput** — chit, hex and opacity cell; 3/6/8-digit hex, system colour picker from the chit, bound-variable display
+- **Chit** — UI3's colour swatch as a component: 24px cell, 14px square or 16px circle, opacity split over the checkerboard, gradients, images and multi-mode slices
+- **IconToggle** — UI3's icon toggle buttons: icon swap (with a Highlighted variant) or a single icon on the selected fill; `aria-pressed`
+- **SplitButton** — icon action with a chevron menu of alternatives
+- **Menu** — per-item `type` (`check`, `checkbox`, `toggle`) with `checked` (incl. `mixed`); `iconName`, `chit`, `detail` and `badge` on items; `disabled` items; `section`; `searchable` with `searchPlaceholder`; `footerLabel` with a `footer` event (UI3's multi-select menu)
+- **MenuItem** — `checkbox` and `toggle` variants, `iconName`, `chit`, `detail`, `badge`, `highlighted`, `role`
+- **Dropdown** — `searchable` and `searchPlaceholder`
+- Named icons `IconSwatchSmall`, `IconEyeSmall`, `IconHiddenSmall`, `IconLinkBroken`, `IconLinkConnected`, `IconStyles`, `IconPlay`
+- Code Connect templates for the new components and for Menu row/Complex, /Toggle, /Toolbar and the multi-select menu
+
+### Changed
+- **Menu** — rewritten on `aria-activedescendant`: one highlight shared by pointer and keyboard, focus stays in the list (or the search field) instead of moving between rows, disabled rows are skipped, sub-menus open with ArrowRight/Enter and close with ArrowLeft, focus returns to the trigger after a keyboard pick. The menu flips above its trigger and scrolls when there isn't room, and closes when anything behind it scrolls instead of locking body scroll. Items are no longer given an `id`.
+- **MenuItem** — `selected` now only draws the check; the highlight is separate (`highlighted`), so a menu with several checked rows no longer paints them all blue
+- **Dropdown** — no longer broadcasts its own `dropdown:open` event (Menu already closes other menus); measures the trigger before the menu places itself
+
+### Fixed
+- **Menu** — headings and dividers render inside `<li>` elements, so the list's markup is valid
 
 ## [0.5.2] - 2026-05-13
 

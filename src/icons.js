@@ -29,6 +29,13 @@ export { default as IconInfoSmall } from './icons/24/icon.24.info.small.svg';
 export { default as IconGoSmall } from './icons/24/icon.24.action.go.small.svg';
 export { default as IconInteraction } from './icons/24/icon.24.interaction.default.small.svg';
 export { default as IconConditional } from './icons/24/icon.24.action.conditional.small.svg';
+export { default as IconSwatchSmall } from './icons/24/icon.24.swatch.small.svg';
+export { default as IconEyeSmall } from './icons/24/icon.24.eye.small.svg';
+export { default as IconHiddenSmall } from './icons/24/icon.24.hidden.small.svg';
+export { default as IconLinkBroken } from './icons/24/icon.24.link-broken.svg';
+export { default as IconLinkConnected } from './icons/24/icon.24.link-connected.svg';
+export { default as IconStyles } from './icons/24/icon.24.styles.svg';
+export { default as IconPlay } from './icons/24/icon.24.play.svg';
 
 //16px alternatives (for compact layouts)
 export { default as Icon16Check } from './icons/16/icon.16.check.svg';

@@ -34,8 +34,18 @@ The templates double as the reverse mapping: to mock up a Svelte layout, create 
 | Segmented control | `2015:20960` | One `_Segment` per segment: `🎛️ Label` (label variant) or `🎛️ Icon` + `🎛️ Text` tooltip (icon variant). |
 | Slider | `2015:23280` | Slider (centre fill) ↔ `delta`, Stepper ↔ `stepper`, Range and everything else ↔ `range`. Knob position is the value. |
 | Tooltip | `2015:39095` | Center directions ↔ `Top`/`Bottom`, corners and sides map 1:1. Wraps a trigger in code. |
-| Menu row/Simple, /Checkmark | `2327:96028`, `2327:96252` | → `MenuItem` (Checkmark ↔ `variant="checkmark"`, `🎛️ On` ↔ `selected`). Shortcut → `trail` slot. |
+| Menu row/Simple, /Checkmark | `2327:96028`, `2327:96252` | → `MenuItem` (Checkmark ↔ `variant="checkmark"`, `🎛️ On` ↔ `selected`, Dot ↔ `selected="mixed"`). Shortcut → `detail`. In a Menu: `type: 'check'`. |
+| Menu row/Complex | `2327:96049` | → `MenuItem`. Lead Icon ↔ `iconName`; Trail Shortcut ↔ `detail`, Badge ↔ `badge`, Checkbox ↔ `variant="checkbox"`, Mixed ↔ both. Avatar has no kit equivalent. |
+| Menu row/Toggle, /Toolbar | `2327:96288`, `2327:96311` | → `MenuItem` `variant="toggle"` / `variant="checkmark"` with `iconName`. In a Menu: `type: 'toggle'` / `type: 'check'`. |
 | Menu row/Heading, /Divider | `2327:96347`, `2327:96331` | → `MenuHeading`, `MenuDivider`. |
+| Menu multi-select | `2327:96387` | → `Menu searchable footerLabel`: the field's text is `searchPlaceholder`, the button's label `footerLabel`, the rows `menuItems`. |
+| Numeric input | `2028:79190` | → `NumericInput`. An `icon.24.prop-text` lead is `label` (its letter); any other lead icon is `iconName`. Empty ↔ `placeholder`, Dropdown ↔ `options`. Var pill/icon aren't modelled. |
+| Combo input | `2028:79408` | → `NumericInput` with `options`. |
+| Color input | `2028:79525` | → `ColorInput`. Hex and opacity are read from the text layers; Variable ↔ `variable`. Image and Gradient render as a colour. |
+| Chit 24 | `2028:79673` | → `Chit`. Circle ↔ `shape="circle"`; Opacity ↔ `opacity`. Code Connect can't read fills, so the colour stays a placeholder. |
+| Button icon toggle | `2324:46776` | → `IconToggle` with `iconName` + `iconNameOn`; Highlighted ↔ `highlighted`. |
+| Button icon dialog toggle | `2324:46817` | → `IconToggle` with one `iconName`; `🎛️ On` ↔ `pressed`. |
+| Button icon split | `2324:46856` | → `SplitButton`; the menu's items live in code. |
 
 Built on the **Kit additions** page, because UI3 has no equivalent or its API differs too much from the kit:
 
@@ -49,7 +59,7 @@ Built on the **Kit additions** page, because UI3 has no equivalent or its API di
 | Radio group | `1027216:162` | Legend + `Radios slot` of UI3 Radio buttons. |
 | Disclosure item | `1027216:25160` | Expanded × Section; `Content slot` renders only when expanded. |
 | Disclosure | `1027216:25161` | `Items slot` of Disclosure items. |
-| Menu | `1027206:366` | Fill `Items slot` with UI3 menu rows. The kit's Menu is data-driven, so rows become `menuItems`; headings and dividers start groups. Any checkmark row makes the whole menu `itemVariant="checkmark"`. |
+| Menu | `1027206:366` | Fill `Items slot` with UI3 menu rows. The kit's Menu is data-driven, so rows become `menuItems` (with `type`, `checked`, `iconName`, `detail`, `badge` from each row); headings and dividers start groups. |
 
 ## Adding a component
 

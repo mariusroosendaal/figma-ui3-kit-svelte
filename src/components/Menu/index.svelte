@@ -1,678 +1,625 @@
+<!--
+  Menu: UI3's dark menu, built from data.
+
+  Items are `{ label, value?, group?, section?, showHeading?, disabled?, type?,
+  checked?, selected?, iconName?, chit?, detail?, badge?, subMenu? }`:
+
+  - `type` makes a row a control. 'check' draws a leading checkmark (`checked:
+    'mixed'` draws a dot) and closes the menu like any action; 'checkbox' and
+    'toggle' draw a trailing checkbox or a leading switch and keep it open, so
+    several can be flipped in one go. Each flips `checked` and fires `select`.
+  - Without a type, a row is an action. With `itemVariant="checkmark"` the rows
+    are a single choice instead, marked by `selected` (how Dropdown uses it).
+  - A group change draws a divider, and a heading when `showHeading` (or
+    `showGroupLabels`) says so; `section` separates dividers from headings.
+
+  Keyboard: arrows and Home/End move the highlight, Enter or Space picks,
+  ArrowRight/ArrowLeft open and leave a sub-menu, Escape closes. With
+  `searchable` the field keeps focus while the arrows move through what it
+  leaves. The highlight follows the pointer too, so there is only ever one.
+-->
 <script>
-  import { onMount, onDestroy } from 'svelte';
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
   import MenuItem from '../MenuItem/index.svelte';
   import MenuDivider from '../MenuDivider/index.svelte';
   import MenuHeading from '../MenuHeading/index.svelte';
+  import Icon from '../Icon/index.svelte';
+  import IconSearch from './../../icons/24/icon.24.search.small.svg';
 
   export let isOpen = false;
+  /** @type {any[]} */
   export let menuItems = [];
   export let showGroupLabels = false;
+  /** @type {HTMLElement | null} */
   export let anchorElement = null;
-  export let position = 'bottom-left';
+  export let position = 'bottom-left'; // 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right' | 'right' (sub-menus)
   export let minWidth = null;
   export let itemVariant = 'default'; // "default" | "checkmark"
   export let nestingLevel = 0; // Nesting level for z-index calculation (0 = top-level)
   export let menuListId = '';
+  export let searchable = false;
+  export let searchPlaceholder = 'Search';
+  /** Label of a full-width button under the list, e.g. "Clear all"; fires `footer`. */
+  export let footerLabel = '';
+  /** Whether the menu takes focus when it opens. Sub-menus opened by the pointer don't. */
+  export let autofocus = true;
 
   let className = '';
   export { className as class };
 
   const dispatch = createEventDispatcher();
-  let menuWrapper, menuList;
-  let menuPosition = { top: 0, left: 0 };
+  const menuId = Math.random().toString(36).slice(2, 11);
+  const GAP = 4;
+  const MARGIN = 8;
 
-  // Unique identifier for this menu instance
-  const menuId = Math.random().toString(36).substr(2, 9);
+  /** @type {HTMLDivElement} */
+  let wrapper;
+  /** @type {HTMLUListElement} */
+  let list;
+  /** @type {HTMLInputElement} */
+  let input;
+  /** @type {HTMLDivElement} */
+  let searchRow;
+  /** @type {HTMLDivElement} */
+  let footer;
 
-  // Sub-menu state management
-  let openSubMenuId = null; // ID of item with open sub-menu
-  let hoverTimeouts = new Map(); // Timeouts for hover delays
-  let hoverTimeout = null; // Global hover timeout for closing sub-menus
+  let query = '';
+  let active = -1; // index into menuItems
+  let placed = false;
+  let place_ = { top: 0, left: 0, maxHeight: 0 };
+  let openSub = -1;
+  let subByKeyboard = false;
+  /** @type {HTMLElement | null} */
+  let subAnchor = null;
+  let openTimer = null;
+  let closeTimer = null;
 
-  // Keyboard navigation state
-  let focusedItemId = null; // ID of currently focused menu item
+  $: listId = menuListId || `menu-${menuId}`;
+  const rowId = (index) => `${listId}-${index}`;
+  // Called from the markup rather than kept as a reactive value: `active` is set
+  // inside functions that reactive statements call, which a derived value misses.
+  const activeIdOf = (open, index) =>
+    open && index >= 0 ? `menu-item-${rowId(index)}` : undefined;
 
-  $: (menuItems, updateSelectedAndIds());
-  $: if (isOpen && anchorElement) {
-    // Calculate position immediately when menu opens, before it renders
-    updateMenuPosition();
+  const hasSub = (item) => Array.isArray(item?.subMenu) && item.subMenu.length > 0;
+  const sectionOf = (item) => item.section ?? item.group ?? null;
+  const headingOf = (item) => item.group && (item.showHeading ?? showGroupLabels);
+  const haystack = (item) =>
+    [item.label, item.group, item.detail].filter(Boolean).join(' ').toLowerCase();
+
+  $: needle = searchable ? query.trim().toLowerCase() : '';
+  $: rows = menuItems
+    .map((item, index) => ({ item, index }))
+    .filter(({ item }) => !needle || haystack(item).includes(needle));
+  $: enabled = rows.filter(({ item }) => !item.disabled).map(({ index }) => index);
+  // Every row keeps the check column once one row needs it, so labels line up.
+  $: checkColumn = itemVariant === 'checkmark' || menuItems.some((item) => item.type === 'check');
+
+  function rowVariant(item) {
+    if (item.type === 'checkbox' || item.type === 'toggle') return item.type;
+    return checkColumn ? 'checkmark' : 'default';
   }
-  $: if (isOpen && anchorElement && menuWrapper) {
-    // Update position with actual dimensions after menu renders
-    updateMenuPosition();
+
+  function rowSelected(item) {
+    if (item.type) return item.checked ?? false;
+    return itemVariant === 'checkmark' ? Boolean(item.selected) : false;
   }
 
-  // Reset focused item when menu opens
-  /* eslint-disable svelte/infinite-reactive-loop */
-  $: if (isOpen && menuList) {
+  function rowRole(item) {
+    if (item.type) return 'menuitemcheckbox';
+    return itemVariant === 'checkmark' ? 'menuitemradio' : 'menuitem';
+  }
+
+  // OPEN AND CLOSE
+
+  $: handleOpenChange(isOpen);
+
+  async function handleOpenChange(open) {
+    if (!open) {
+      stopListening();
+      return;
+    }
+    query = '';
+    placed = false;
+    openSub = -1;
+    const chosen = menuItems.findIndex((item) => item.selected && !item.disabled);
+    const first = menuItems.findIndex((item) => !item.disabled);
+    active = chosen >= 0 ? chosen : nestingLevel > 0 && autofocus ? first : -1;
+    if (nestingLevel === 0) {
+      document.dispatchEvent(new CustomEvent('dropdown:open', { detail: { dropdownId: menuId } }));
+    }
+    await tick();
+    if (!isOpen) return;
+    place();
+    placed = true;
+    if (autofocus) (searchable ? input : list)?.focus({ preventScroll: true });
+    scrollToActive();
+    // A tick later, so the click that opened the menu isn't taken for one outside.
     setTimeout(() => {
-      const selectedItem = menuItems.find((item) => item.selected);
-      const targetId = selectedItem != null ? selectedItem.id : null;
-
-      const focusTarget =
-        targetId != null ? menuList.querySelector(`li[id="menu-item-${targetId}"]`) : null;
-
-      if (focusTarget) {
-        focusTarget.focus();
-        focusedItemId = parseInt(focusTarget.getAttribute('id').replace('menu-item-', ''), 10);
-      } else {
-        focusedItemId = null;
-      }
+      if (isOpen && nestingLevel === 0) startListening();
     }, 0);
   }
-  /* eslint-enable svelte/infinite-reactive-loop */
 
-  // Dispatch event when this menu opens (only for top-level menus)
-  $: if (isOpen && nestingLevel === 0) {
-    if (typeof document !== 'undefined') {
-      document.dispatchEvent(
-        new CustomEvent('dropdown:open', {
-          detail: { dropdownId: menuId },
-        })
-      );
+  /** Closes the menu. `returnFocus` sends focus back to the trigger when it was inside. */
+  function close(returnFocus = false) {
+    if (!isOpen) return;
+    const hadFocus = wrapper?.contains(document.activeElement);
+    clearTimers();
+    openSub = -1;
+    if (nestingLevel > 0) {
+      dispatch('close', { all: true, returnFocus });
+      return;
     }
+    isOpen = false;
+    stopListening();
+    dispatch('close');
+    if (returnFocus && hadFocus) anchorElement?.focus();
   }
 
-  //FUNCTIONS
-
-  //assign id's to the input array
-  onMount(async () => {
-    updateSelectedAndIds();
-    // Listen for other menus/dropdowns opening
-    if (typeof document !== 'undefined') {
-      document.addEventListener('dropdown:open', handleOtherDropdownOpen);
+  function onSubClose(event) {
+    if (event.detail?.all) {
+      close(event.detail.returnFocus);
+      return;
     }
+    const byKeyboard = subByKeyboard;
+    openSub = -1;
+    if (byKeyboard) (searchable ? input : list)?.focus({ preventScroll: true });
+  }
+
+  function onClickOutside(event) {
+    if (isOpen && wrapper && !wrapper.contains(event.target)) close();
+  }
+
+  // The menu is placed against its trigger once; anything scrolling behind it
+  // would leave it floating, so that closes it.
+  function onScroll(event) {
+    if (isOpen && wrapper && !wrapper.contains(event.target)) close();
+  }
+
+  function onOtherMenuOpen(event) {
+    if (isOpen && nestingLevel === 0 && event.detail?.dropdownId !== menuId) close();
+  }
+
+  function startListening() {
+    document.addEventListener('click', onClickOutside);
+    window.addEventListener('scroll', onScroll, true);
+    window.addEventListener('resize', onResize);
+  }
+
+  function stopListening() {
+    document.removeEventListener('click', onClickOutside);
+    window.removeEventListener('scroll', onScroll, true);
+    window.removeEventListener('resize', onResize);
+  }
+
+  function onResize() {
+    if (isOpen) place();
+  }
+
+  onMount(() => document.addEventListener('dropdown:open', onOtherMenuOpen));
+
+  onDestroy(() => {
+    clearTimers();
+    if (typeof document === 'undefined') return;
+    stopListening();
+    document.removeEventListener('dropdown:open', onOtherMenuOpen);
   });
 
-  // Calculate menu position relative to anchor element
-  function updateMenuPosition() {
-    if (!anchorElement) return;
+  // PLACEMENT
 
-    const anchorRect = anchorElement.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-
-    // Use estimated dimensions for initial positioning
-    const estimatedMenuWidth = 200; // reasonable default
-    const estimatedMenuHeight = 150; // reasonable default
-
-    let top = 0;
-    let left = 0;
-
-    // Calculate position based on position prop
-    switch (position) {
-      case 'bottom-left':
-        top = anchorRect.bottom + 4; // 4px gap
-        left = anchorRect.left;
-        break;
-      case 'bottom-right':
-        top = anchorRect.bottom + 4;
-        left = anchorRect.right - estimatedMenuWidth;
-        break;
-      case 'top-left':
-        top = anchorRect.top - estimatedMenuHeight - 4;
-        left = anchorRect.left;
-        break;
-      case 'top-right':
-        top = anchorRect.top - estimatedMenuHeight - 4;
-        left = anchorRect.right - estimatedMenuWidth;
-        break;
-      default:
-        top = anchorRect.bottom + 4;
-        left = anchorRect.left;
+  function place() {
+    if (!wrapper) return;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    // What the whole menu would take, not what it is squeezed to now.
+    const wanted =
+      (searchRow?.offsetHeight ?? 0) + (list?.scrollHeight ?? 0) + (footer?.offsetHeight ?? 0) + 2;
+    const width = wrapper.offsetWidth;
+    if (!anchorElement) {
+      place_ = { top: MARGIN, left: MARGIN, maxHeight: vh - MARGIN * 2 };
+      return;
     }
+    const anchor = anchorElement.getBoundingClientRect();
 
-    menuPosition = { top, left };
-
-    // Update position with actual dimensions after menu renders
-    if (menuWrapper) {
-      const actualMenuWidth = menuWrapper.offsetWidth;
-      const actualMenuHeight = menuWrapper.offsetHeight;
-
-      if (actualMenuWidth > 0 && actualMenuHeight > 0) {
-        // Recalculate with actual dimensions
-        let adjustedTop = top;
-        let adjustedLeft = left;
-
-        // Adjust for actual width if needed
-        if (position.includes('right')) {
-          adjustedLeft = anchorRect.right - actualMenuWidth;
-        }
-
-        // Adjust for actual height if needed
-        if (position.includes('top')) {
-          adjustedTop = anchorRect.top - actualMenuHeight - 4;
-        }
-
-        // Re-check viewport boundaries with actual dimensions
-        if (adjustedLeft + actualMenuWidth > viewportWidth) {
-          adjustedLeft = viewportWidth - actualMenuWidth - 8;
-        }
-        if (adjustedLeft < 8) {
-          adjustedLeft = 8;
-        }
-        if (adjustedTop + actualMenuHeight > viewportHeight) {
-          if (anchorRect.top - actualMenuHeight - 4 > 0) {
-            adjustedTop = anchorRect.top - actualMenuHeight - 4;
-          } else {
-            adjustedTop = viewportHeight - actualMenuHeight - 8;
-          }
-        }
-        if (adjustedTop < 8) {
-          adjustedTop = 8;
-        }
-        menuPosition = { top: adjustedTop, left: adjustedLeft };
-      }
-    }
-  }
-
-  // Prevent body scroll when menu is open
-  function preventBodyScroll() {
-    document.body.style.overflow = 'hidden';
-  }
-
-  function restoreBodyScroll() {
-    document.body.style.overflow = '';
-  }
-
-  // this function runs everytime the menuItems array is updated
-  // it will auto assign ids and keep the value var updated
-  function updateSelectedAndIds() {
-    if (menuItems) {
-      menuItems.forEach((item, index) => {
-        //update id
-        item['id'] = index;
-      });
-    }
-  }
-
-  //menu highlight function on the selected menu item
-  function removeHighlight(event) {
-    let items = Array.from(event.target.parentNode.children);
-    items.forEach((item) => {
-      item.blur();
-      item.classList.remove('highlight');
-    });
-  }
-
-  //run for all menu click events
-  function menuClick(event) {
-    if (menuList.contains(event.target)) {
-      //find selected item in array
-      let itemId = parseInt(event.target.getAttribute('id').replace('menu-item-', ''), 10);
-      const item = menuItems[itemId];
-
-      // If item has sub-menu, don't close menu or dispatch select
-      if (item.subMenu && Array.isArray(item.subMenu) && item.subMenu.length > 0) {
-        // Don't handle click for items with sub-menus (hover handles it)
-        return;
-      }
-
-      // Only persist selection state for checkmark menus (e.g. Dropdown selector).
-      // Plain menus have no selection memory — avoids stale highlight on next open.
-      if (itemVariant === 'checkmark') {
-        menuItems.forEach((i) => {
-          i.selected = false;
-        });
-        item.selected = true;
-        updateSelectedAndIds();
-      }
-      dispatch('select', item);
-      closeMenu();
-    }
-  }
-
-  // Calculate sub-menu position
-  function calculateSubMenuPosition(parentItemElement, subMenuItems) {
-    if (!parentItemElement) return { top: 0, left: 0 };
-
-    const parentRect = parentItemElement.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-
-    // Estimate sub-menu dimensions
-    const estimatedSubMenuWidth = 200;
-    const estimatedSubMenuHeight = subMenuItems.length * 32; // ~32px per item
-
-    let top = parentRect.top - 9; // Align top edge of sub-menu with top edge of parent item
-    let left = parentRect.right + 12; // Default: position to the right with 4px gap
-
-    // Check if there's enough room on the right
-    const spaceOnRight = viewportWidth - parentRect.right;
-    if (spaceOnRight < estimatedSubMenuWidth + 50) {
-      // Position on left side instead
-      left = parentRect.left - estimatedSubMenuWidth - 12;
-    }
-
-    // Adjust for viewport boundaries
-    if (left < 8) {
-      left = 8;
-    }
-    if (left + estimatedSubMenuWidth > viewportWidth - 8) {
-      left = viewportWidth - estimatedSubMenuWidth - 8;
-    }
-
-    // Adjust vertical position if sub-menu would go below viewport
-    if (top + estimatedSubMenuHeight > viewportHeight - 8) {
-      top = Math.max(8, viewportHeight - estimatedSubMenuHeight - 8);
-    }
-    if (top < 8) {
-      top = 8;
-    }
-
-    return { top, left };
-  }
-
-  // Handle mouse enter on menu item with sub-menu
-  function handleMenuItemHover(event, itemId) {
-    const item = menuItems[itemId];
-    if (!item || !item.subMenu || !Array.isArray(item.subMenu) || item.subMenu.length === 0) {
+    if (position === 'right') {
+      // Beside the parent row, its first row level with it; flipped left when
+      // there is no room on the right.
+      let left = anchor.right + 12;
+      if (left + width > vw - MARGIN) left = anchor.left - width - 12;
+      const maxHeight = vh - MARGIN * 2;
+      const height = Math.min(wanted, maxHeight);
+      const top = Math.min(Math.max(MARGIN, anchor.top - 9), vh - MARGIN - height);
+      place_ = { top, left: Math.max(MARGIN, left), maxHeight };
       return;
     }
 
-    // Clear any existing hover timeout
-    if (hoverTimeouts.has(itemId)) {
-      clearTimeout(hoverTimeouts.get(itemId));
-      hoverTimeouts.delete(itemId);
-    }
-
-    // Close any other open sub-menu
-    if (openSubMenuId !== null && openSubMenuId !== itemId) {
-      openSubMenuId = null;
-    }
-
-    // Open sub-menu after small delay
-    const timeoutId = setTimeout(() => {
-      openSubMenuId = itemId;
-      hoverTimeouts.delete(itemId);
-    }, 120); // 120ms delay
-
-    hoverTimeouts.set(itemId, timeoutId);
+    const below = vh - anchor.bottom - GAP - MARGIN;
+    const above = anchor.top - GAP - MARGIN;
+    const prefersUp = position.startsWith('top');
+    const up = prefersUp ? wanted <= above || above >= below : !(wanted <= below || below >= above);
+    const maxHeight = Math.max(120, up ? above : below);
+    const height = Math.min(wanted, maxHeight);
+    let left = position.endsWith('right') ? anchor.right - width : anchor.left;
+    left = Math.min(left, vw - width - MARGIN);
+    place_ = {
+      top: up ? anchor.top - GAP - height : anchor.bottom + GAP,
+      left: Math.max(MARGIN, left),
+      maxHeight,
+    };
   }
 
-  // Handle mouse leave on menu item
-  function handleMenuItemLeave(event, itemId) {
-    // Start timeout for closing sub-menu
-    if (hoverTimeouts.has(itemId)) {
-      clearTimeout(hoverTimeouts.get(itemId));
-      hoverTimeouts.delete(itemId);
-    }
+  // HIGHLIGHT
 
-    // Close sub-menu after delay if mouse doesn't return
-    hoverTimeout = setTimeout(() => {
-      if (openSubMenuId === itemId) {
-        openSubMenuId = null;
-      }
-    }, 300); // 300ms timeout
+  function setActive(index, scroll = false) {
+    active = index;
+    if (scroll) scrollToActive();
   }
 
-  function closeMenu() {
-    // Close all sub-menus first
-    openSubMenuId = null;
-
-    // Clear all hover timeouts
-    hoverTimeouts.forEach((timeout) => clearTimeout(timeout));
-    hoverTimeouts.clear();
-    if (hoverTimeout) {
-      clearTimeout(hoverTimeout);
-      hoverTimeout = null;
-    }
-
-    isOpen = false;
-    restoreBodyScroll();
-    dispatch('close');
+  async function scrollToActive() {
+    await tick();
+    if (active < 0) return;
+    document.getElementById(`menu-item-${rowId(active)}`)?.scrollIntoView({ block: 'nearest' });
   }
 
-  // Handle other menus/dropdowns opening - close this one if it's not the one that opened
-  function handleOtherDropdownOpen(event) {
-    if (event.detail.dropdownId !== menuId && isOpen) {
-      closeMenu();
-    }
+  function move(step) {
+    if (enabled.length === 0) return;
+    const at = enabled.indexOf(active);
+    const next =
+      at === -1
+        ? step > 0
+          ? 0
+          : enabled.length - 1
+        : (at + step + enabled.length) % enabled.length;
+    setActive(enabled[next], true);
   }
 
-  // Handle clicks outside the menu to close it
-  function handleClickOutside(event) {
-    if (!isOpen) return;
+  // Typing moves the highlight to the first match, so Enter picks it. Handed
+  // what it reads, so it re-runs on a keystroke and not on an arrow key.
+  $: if (isOpen && searchable) firstMatch(needle, enabled);
+  function firstMatch(text, matches) {
+    if (text) active = matches.length ? matches[0] : -1;
+  }
 
-    // Check if click is outside this menu and all its sub-menus
-    let clickedInsideMenu = menuWrapper.contains(event.target);
+  // SUB-MENUS
 
-    // Check all sub-menu wrappers (query for them dynamically)
-    if (!clickedInsideMenu) {
-      const subMenuWrappers = document.querySelectorAll('.sub-menu-wrapper');
-      for (const wrapper of subMenuWrappers) {
-        if (wrapper.contains(event.target)) {
-          clickedInsideMenu = true;
-          break;
-        }
-      }
-    }
+  function openSubMenu(index, byKeyboard) {
+    clearTimers();
+    subAnchor = document.getElementById(`menu-item-${rowId(index)}`);
+    subByKeyboard = byKeyboard;
+    openSub = index;
+  }
 
-    if (!clickedInsideMenu) {
-      closeMenu();
+  function clearTimers() {
+    clearTimeout(openTimer);
+    clearTimeout(closeTimer);
+    openTimer = closeTimer = null;
+  }
+
+  function onRowEnter(index) {
+    setActive(index);
+    const item = menuItems[index];
+    clearTimers();
+    if (index === openSub) return;
+    if (hasSub(item) && !item.disabled) {
+      openTimer = setTimeout(() => openSubMenu(index, false), 120);
+    } else if (openSub >= 0) {
+      closeTimer = setTimeout(() => (openSub = -1), 300);
     }
   }
 
-  // Add/remove global click listener when menu opens/closes
-  $: if (isOpen) {
-    // Use setTimeout to avoid capturing the same click that opened the menu
-    setTimeout(() => {
-      document.addEventListener('click', handleClickOutside);
-      preventBodyScroll();
-    }, 0);
-  } else {
-    document.removeEventListener('click', handleClickOutside);
-    restoreBodyScroll();
+  function onListLeave() {
+    if (openSub < 0) active = -1;
   }
 
-  // Cleanup on component destroy
-  onDestroy(() => {
-    document.removeEventListener('click', handleClickOutside);
-    if (typeof document !== 'undefined') {
-      document.removeEventListener('dropdown:open', handleOtherDropdownOpen);
-    }
-    // Clear all timeouts
-    hoverTimeouts.forEach((timeout) => clearTimeout(timeout));
-    hoverTimeouts.clear();
-    if (hoverTimeout) {
-      clearTimeout(hoverTimeout);
-    }
-    restoreBodyScroll();
-  });
+  // PICKING
 
-  // Handle keyboard navigation
+  function activate(index, byKeyboard) {
+    const item = menuItems[index];
+    if (!item || item.disabled) return;
+    if (hasSub(item)) {
+      openSubMenu(index, byKeyboard);
+      return;
+    }
+    if (item.type === 'checkbox' || item.type === 'toggle') {
+      item.checked = item.checked !== true;
+      menuItems = menuItems;
+      dispatch('select', item);
+      return;
+    }
+    if (item.type === 'check') {
+      item.checked = item.checked !== true;
+      menuItems = menuItems;
+    } else if (itemVariant === 'checkmark') {
+      menuItems.forEach((i) => (i.selected = false));
+      item.selected = true;
+      menuItems = menuItems;
+    }
+    dispatch('select', item);
+    close(byKeyboard);
+  }
+
   function handleKeydown(event) {
-    if (!isOpen) return;
-
+    const inField = event.currentTarget === input;
     switch (event.key) {
-      case 'Escape':
-        event.preventDefault();
-        if (nestingLevel > 0) {
-          // Close this sub-menu level, return to parent
-          closeMenu();
-        } else {
-          closeMenu();
-        }
-        break;
       case 'ArrowDown':
         event.preventDefault();
-        focusNextItem();
+        move(1);
         break;
       case 'ArrowUp':
         event.preventDefault();
-        focusPreviousItem();
+        move(-1);
         break;
-      case 'ArrowRight':
+      case 'Home':
+      case 'End':
+        if (inField) return;
         event.preventDefault();
-        // Open sub-menu if current item has one, or navigate into sub-menu
-        if (focusedItemId !== null) {
-          const item = menuItems[focusedItemId];
-          if (item && item.subMenu && Array.isArray(item.subMenu) && item.subMenu.length > 0) {
-            openSubMenuId = focusedItemId;
-            // Focus first item in sub-menu
-            setTimeout(() => {
-              // Find the sub-menu wrapper that corresponds to this menu item
-              const focusedItem = menuList?.querySelector(`li[id="menu-item-${focusedItemId}"]`);
-              if (focusedItem) {
-                // Find sub-menu wrapper near the focused item (next sibling or nearby)
-                const allSubMenus = document.querySelectorAll('.sub-menu-wrapper');
-                for (const subMenuWrapper of allSubMenus) {
-                  const menuInstance = subMenuWrapper.querySelector('.menu');
-                  if (menuInstance) {
-                    /** @type {HTMLElement|null} */
-                    const firstMenuItem = menuInstance.querySelector('li[id]');
-                    if (firstMenuItem) {
-                      firstMenuItem.focus();
-                      break;
-                    }
-                  }
-                }
-              }
-            }, 50);
-          }
-        }
-        break;
-      case 'ArrowLeft':
-        event.preventDefault();
-        // Close sub-menu if open, or close this menu if it's a sub-menu
-        if (openSubMenuId !== null) {
-          openSubMenuId = null;
-        } else if (nestingLevel > 0) {
-          closeMenu();
-        }
+        if (enabled.length) setActive(enabled[event.key === 'Home' ? 0 : enabled.length - 1], true);
         break;
       case 'Enter':
         event.preventDefault();
-        // Select focused item or open sub-menu
-        if (focusedItemId !== null) {
-          const item = menuItems[focusedItemId];
-          if (item) {
-            if (item.subMenu && Array.isArray(item.subMenu) && item.subMenu.length > 0) {
-              // Open sub-menu
-              openSubMenuId = focusedItemId;
-            } else {
-              if (itemVariant === 'checkmark') {
-                menuItems.forEach((i) => (i.selected = false));
-                item.selected = true;
-                updateSelectedAndIds();
-              }
-              dispatch('select', item);
-              closeMenu();
-            }
-          }
+        if (active >= 0) activate(active, true);
+        break;
+      case ' ':
+        if (inField) return;
+        event.preventDefault();
+        if (active >= 0) activate(active, true);
+        break;
+      case 'ArrowRight':
+        if (inField) return;
+        event.preventDefault();
+        if (active >= 0 && hasSub(menuItems[active]) && !menuItems[active].disabled) {
+          openSubMenu(active, true);
         }
+        break;
+      case 'ArrowLeft':
+        if (inField || nestingLevel === 0) return;
+        event.preventDefault();
+        dispatch('close');
+        break;
+      case 'Escape':
+        event.preventDefault();
+        event.stopPropagation();
+        if (nestingLevel > 0) dispatch('close');
+        else close(true);
+        break;
+      case 'Tab':
+        // Tab may move to the footer button; anywhere else closes the menu.
+        if (!footerLabel || event.shiftKey) close();
         break;
     }
   }
 
-  // Focus next menu item
-  function focusNextItem() {
-    if (!menuList) return;
-
-    const items = Array.from(menuList.querySelectorAll('li[id]'));
-    if (items.length === 0) return;
-
-    let currentIndex = -1;
-    if (focusedItemId !== null) {
-      currentIndex = items.findIndex(
-        (item) => parseInt(item.getAttribute('id').replace('menu-item-', ''), 10) === focusedItemId
-      );
-    }
-
-    const nextIndex = (currentIndex + 1) % items.length;
-    const nextItem = items[nextIndex];
-    if (nextItem) {
-      nextItem.focus();
-      focusedItemId = parseInt(nextItem.getAttribute('id').replace('menu-item-', ''), 10);
-    }
+  function onFocusOut(event) {
+    const next = event.relatedTarget;
+    if (isOpen && nestingLevel === 0 && next && wrapper && !wrapper.contains(next)) close();
   }
-
-  // Focus previous menu item
-  function focusPreviousItem() {
-    if (!menuList) return;
-
-    const items = Array.from(menuList.querySelectorAll('li[id]'));
-    if (items.length === 0) return;
-
-    let currentIndex = -1;
-    if (focusedItemId !== null) {
-      currentIndex = items.findIndex(
-        (item) => parseInt(item.getAttribute('id').replace('menu-item-', ''), 10) === focusedItemId
-      );
-    }
-
-    const prevIndex = currentIndex <= 0 ? items.length - 1 : currentIndex - 1;
-    const prevItem = items[prevIndex];
-    if (prevItem) {
-      prevItem.focus();
-      focusedItemId = parseInt(prevItem.getAttribute('id').replace('menu-item-', ''), 10);
-    }
-  }
-
-  // Keyboard navigation is handled by <svelte:window on:keydown> below
 </script>
-
-<svelte:window on:keydown={handleKeydown} />
 
 {#if isOpen}
   <div
-    bind:this={menuWrapper}
+    bind:this={wrapper}
     class="menu-wrapper {className}"
+    class:placed
     style="--menu-min-width: {minWidth ||
-      'auto'}; top: {menuPosition.top}px; left: {menuPosition.left}px; z-index: {50 +
-      nestingLevel};"
+      'auto'}; top: {place_.top}px; left: {place_.left}px; max-height: {place_.maxHeight ||
+      'none'}{place_.maxHeight ? 'px' : ''}; z-index: {1001 + nestingLevel};"
+    on:focusout={onFocusOut}
   >
-    <ul class="menu" bind:this={menuList} role="menu" id={menuListId || undefined}>
-      {#if menuItems && menuItems.length > 0}
-        {#each menuItems as item, i (item.id ?? i)}
-          {#if i === 0}
-            {#if item.group && (item.showHeading ?? showGroupLabels)}
-              <MenuHeading text={item.group} />
-            {/if}
-          {:else if i > 0 && item.group && menuItems[i - 1].group != item.group}
-            {#if item.showHeading ?? showGroupLabels}
-              <MenuDivider />
-              <MenuHeading text={item.group} />
-            {:else}
-              <MenuDivider />
-            {/if}
-          {/if}
-          <MenuItem
-            on:click={menuClick}
-            on:mouseenter={(e) => {
-              removeHighlight(e);
-              const hasSubMenu =
-                item.subMenu && Array.isArray(item.subMenu) && item.subMenu.length > 0;
-              if (hasSubMenu) {
-                handleMenuItemHover(e, item.id);
-              }
-            }}
-            on:mouseleave={(e) => {
-              const hasSubMenu =
-                item.subMenu && Array.isArray(item.subMenu) && item.subMenu.length > 0;
-              if (hasSubMenu) {
-                handleMenuItemLeave(e, item.id);
-              }
-            }}
-            id={item.id}
-            bind:selected={item.selected}
-            variant={itemVariant}
-            hasSubMenu={item.subMenu && Array.isArray(item.subMenu) && item.subMenu.length > 0}
-          >
-            {item.label}
-          </MenuItem>
-        {/each}
-      {/if}
-    </ul>
-  </div>
-{/if}
-
-{#if isOpen}
-  {#each menuItems as item (item.id)}
-    {#if item.subMenu && Array.isArray(item.subMenu) && item.subMenu.length > 0 && openSubMenuId === item.id}
-      {#key item.id}
-        {#if menuList}
-          {@const parentItemEl = menuList.querySelector(`li[id="${item.id}"]`)}
-          {#if parentItemEl}
-            {@const subMenuPosition = calculateSubMenuPosition(parentItemEl, item.subMenu)}
-            <div
-              class="sub-menu-wrapper"
-              role="presentation"
-              style="position: fixed; top: {subMenuPosition.top}px; left: {subMenuPosition.left}px; z-index: {50 +
-                nestingLevel +
-                1};"
-              on:mouseenter={() => {
-                // Cancel close timeout when mouse enters sub-menu
-                if (hoverTimeout) {
-                  clearTimeout(hoverTimeout);
-                  hoverTimeout = null;
-                }
-              }}
-              on:mouseleave={() => {
-                // Start timeout for closing sub-menu
-                hoverTimeout = setTimeout(() => {
-                  if (openSubMenuId === item.id) {
-                    openSubMenuId = null;
-                  }
-                }, 300);
-              }}
-            >
-              <svelte:self
-                isOpen={true}
-                menuItems={item.subMenu}
-                {showGroupLabels}
-                position="right"
-                {itemVariant}
-                nestingLevel={nestingLevel + 1}
-                anchorElement={null}
-                on:select={(e) => {
-                  dispatch('select', e.detail);
-                  // Close menu after selection
-                  closeMenu();
-                }}
-                on:close={() => {
-                  openSubMenuId = null;
-                }}
-              />
-            </div>
-          {/if}
-        {/if}
-      {/key}
+    {#if searchable}
+      <div class="search-row" bind:this={searchRow}>
+        <div class="search-field">
+          <Icon iconName={IconSearch} color="--color-text-menu-secondary" />
+          <input
+            bind:this={input}
+            bind:value={query}
+            type="text"
+            role="combobox"
+            aria-expanded="true"
+            aria-controls={listId}
+            aria-autocomplete="list"
+            aria-activedescendant={activeIdOf(isOpen, active)}
+            aria-label={searchPlaceholder}
+            placeholder={searchPlaceholder}
+            autocomplete="off"
+            spellcheck="false"
+            on:keydown={handleKeydown}
+          />
+        </div>
+      </div>
     {/if}
-  {/each}
+
+    <ul
+      bind:this={list}
+      class="menu"
+      role="menu"
+      id={listId}
+      tabindex={searchable ? -1 : 0}
+      aria-activedescendant={searchable ? undefined : activeIdOf(isOpen, active)}
+      on:keydown={handleKeydown}
+      on:mouseleave={onListLeave}
+      on:mousedown|preventDefault
+    >
+      {#each rows as { item, index }, k (index)}
+        {@const prev = k > 0 ? rows[k - 1].item : null}
+        {#if prev && sectionOf(item) !== sectionOf(prev)}
+          <li role="separator" class="separator"><MenuDivider /></li>
+        {/if}
+        {#if headingOf(item) && (!prev || prev.group !== item.group)}
+          <li role="presentation"><MenuHeading text={item.group} /></li>
+        {/if}
+        <MenuItem
+          id={rowId(index)}
+          variant={rowVariant(item)}
+          role={rowRole(item)}
+          selected={rowSelected(item)}
+          highlighted={index === active || index === openSub}
+          disabled={item.disabled}
+          hasSubMenu={hasSub(item)}
+          iconName={item.iconName ?? null}
+          chit={item.chit ?? null}
+          detail={item.detail ?? ''}
+          badge={item.badge ?? ''}
+          on:mouseenter={() => onRowEnter(index)}
+          on:mousemove={() => active !== index && onRowEnter(index)}
+          on:click={() => activate(index, false)}
+        >
+          {item.label}
+        </MenuItem>
+      {:else}
+        <li role="presentation" class="empty">
+          {needle ? `No matches for “${query.trim()}”` : 'Nothing to show'}
+        </li>
+      {/each}
+    </ul>
+
+    {#if footerLabel}
+      <div class="footer" bind:this={footer}>
+        <button type="button" class="footer-button" on:click={() => dispatch('footer')}>
+          {footerLabel}
+        </button>
+      </div>
+    {/if}
+
+    {#if openSub >= 0 && hasSub(menuItems[openSub]) && subAnchor}
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <div class="sub-menu" on:mouseenter={clearTimers}>
+        <svelte:self
+          isOpen={true}
+          menuItems={menuItems[openSub].subMenu}
+          {showGroupLabels}
+          {itemVariant}
+          position="right"
+          nestingLevel={nestingLevel + 1}
+          anchorElement={subAnchor}
+          autofocus={subByKeyboard}
+          on:select={(e) => dispatch('select', e.detail)}
+          on:close={onSubClose}
+        />
+      </div>
+    {/if}
+  </div>
 {/if}
 
 <style>
   .menu-wrapper {
     position: fixed;
-    min-width: 140px;
-    max-width: 300px;
-  }
-
-  .sub-menu-wrapper {
-    pointer-events: auto;
-  }
-
-  /* Override nested Menu wrapper positioning to be relative to parent wrapper */
-  .sub-menu-wrapper :global(.menu-wrapper) {
-    position: relative !important;
-    top: 0 !important;
-    left: 0 !important;
-  }
-
-  .menu {
-    background-color: var(--color-bg-menu); /* #1e1e1e */
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    min-width: max(140px, var(--menu-min-width, auto));
+    max-width: min(300px, calc(100vw - 16px));
+    visibility: hidden;
     border: 1px solid var(--color-border-menu); /* #383838 */
+    border-radius: var(--border-radius-large); /* 13px */
+    background-color: var(--color-bg-menu); /* #1e1e1e */
     box-shadow:
       0px 0px 0.5px 0px rgba(0, 0, 0, 0.12),
       0px 10px 16px 0px rgba(0, 0, 0, 0.12),
       0px 2px 5px 0px rgba(0, 0, 0, 0.15);
-    padding: var(--size-xxsmall); /* 8px all sides */
-    border-radius: var(--border-radius-large); /* 13px */
+    font-family: var(--font-stack);
+    font-size: var(--body-medium-font-size);
+    font-weight: var(--body-medium-font-weight);
+    letter-spacing: var(--body-medium-letter-spacing);
+    line-height: var(--body-medium-line-height);
+  }
+
+  /* Hidden until placed, so it never flashes at the window's corner. */
+  .menu-wrapper.placed {
+    visibility: visible;
+  }
+
+  .menu {
+    flex: 1 1 auto;
+    min-height: 0;
     margin: 0;
-    max-height: calc(100vh - 32px);
+    padding: var(--size-xxsmall); /* 8px */
     overflow-y: auto;
     list-style: none;
-    min-width: var(--menu-min-width, auto);
+    outline: none;
+  }
+
+  .separator {
+    display: block;
+  }
+
+  .search-row {
+    flex: 0 0 auto;
+    padding: var(--size-xxsmall);
+    border-bottom: 1px solid var(--color-border-menu);
+  }
+
+  .search-field {
+    display: flex;
+    align-items: center;
+    height: var(--size-small); /* 24px */
+    padding-right: var(--size-xxsmall);
+    border: 1px solid transparent;
+    border-radius: var(--border-radius-medium);
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .search-field:focus-within {
+    border-color: var(--color-bg-menu-selected);
+  }
+
+  .search-field input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--color-text-menu);
+    font: inherit;
+  }
+
+  .search-field input::placeholder {
+    color: var(--color-text-menu-secondary);
+  }
+
+  .empty {
+    padding: var(--size-xxxsmall) var(--size-xxsmall);
+    color: var(--color-text-menu-tertiary);
+    user-select: none;
+  }
+
+  .footer {
+    flex: 0 0 auto;
+    padding: var(--size-xxsmall);
+    border-top: 1px solid var(--color-border-menu);
+  }
+
+  .footer-button {
+    width: 100%;
+    height: var(--size-small); /* 24px */
+    padding: 0 var(--size-xxsmall);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: var(--border-radius-medium);
+    background: transparent;
+    color: var(--color-text-menu);
+    font: inherit;
+    cursor: default;
+  }
+
+  .footer-button:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .footer-button:focus-visible {
+    outline: 1px solid var(--color-bg-menu-selected);
+    outline-offset: -1px;
+    border-color: var(--color-bg-menu-selected);
   }
 
   .menu::-webkit-scrollbar {
     width: 12px;
     background-color: transparent;
-    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=);
-    background-repeat: repeat;
-    background-size: 100% auto;
   }
-  .menu::-webkit-scrollbar-track {
-    border: solid 3px transparent;
-    -webkit-box-shadow: inset 0 0 10px 10px transparent;
-    box-shadow: inset 0 0 10px 10px transparent;
-  }
+
   .menu::-webkit-scrollbar-thumb {
     border: solid 3px transparent;
     border-radius: 6px;
-    -webkit-box-shadow: inset 0 0 10px 10px rgba(255, 255, 255, 0.4);
     box-shadow: inset 0 0 10px 10px rgba(255, 255, 255, 0.4);
   }
 </style>

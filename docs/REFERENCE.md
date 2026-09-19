@@ -124,11 +124,10 @@ Props: `variant` (`"primary"` | `"secondary"` | `"destructive"` | `"secondary-de
 
 ```svelte
 <Input bind:value={text} placeholder="Layer name..." />
-<Input bind:value={num} type="number" />
 <Input bind:value={text} disabled />
 ```
 
-Props: `value`, `placeholder`, `type`, `disabled`.
+Props: `value`, `placeholder`, `type`, `disabled`. Use `NumericInput` for numbers.
 
 ---
 
@@ -139,6 +138,50 @@ Props: `value`, `placeholder`, `type`, `disabled`.
 ```
 
 Props: `value`, `placeholder`, `rows`, `disabled`.
+
+---
+
+### NumericInput
+
+```svelte
+<NumericInput bind:value={x} label="X" ariaLabel="X position" />
+<NumericInput bind:value={opacity} iconName={IconOpacity} unit="%" min={0} max={100} />
+<NumericInput bind:value={size} options={[12, 14, 16, 24]} min={1} precision={0} />
+<NumericInput value={null} placeholder="Mixed" label="W" />
+```
+
+Props: `value` (number, or `null` for the placeholder), `min`, `max`, `step`, `precision` (decimals kept; default 2), `label` (lead letter), `iconName` (lead icon), `unit`, `placeholder`, `options` (numbers or `{ label, value }`; adds a presets chevron), `disabled`, `id`, `ariaLabel`. Events: `change` (committed value), `input` (while scrubbing).
+
+Dragging the lead scrubs the value; ArrowUp/ArrowDown step it (Shift ×10); Enter commits, Escape reverts. Typed arithmetic works (`24*2`); anything unreadable reverts. Values commit on Enter, blur or a step — not on every keystroke.
+
+---
+
+### ColorInput
+
+```svelte
+<ColorInput bind:value={hex} bind:opacity on:change={(e) => apply(e.detail)} />
+<ColorInput value="#0D99FF" />
+<ColorInput value="#FF24BD" variable="bg-assistive" />
+```
+
+Props: `value` (`#RRGGBB`), `opacity` (0–100; `null` hides the opacity cell), `variable` (bound variable name, shown instead of the hex), `pickable` (chit opens the system picker; default `true`), `disabled`, `id`, `ariaLabel`. Events: `change` and `input` (picker drag) with `{ value, opacity }`.
+
+The hex field takes 3, 6 or 8 digits with or without `#`; 8 digits also set the opacity.
+
+---
+
+### Chit
+
+```svelte
+<Chit color="#0D99FF" />
+<Chit color="#FF24BD" opacity={24} />
+<Chit color={['#E8E7E5', '#212020']} ariaLabel="Light and dark" />
+<Chit color="linear-gradient(90deg, #FF7262, #FFC700)" shape="circle" />
+```
+
+Props: `color` (any CSS colour or gradient, or an array of colours drawn as slices), `opacity` (0–100), `image` (URL), `shape` (`"square"` | `"circle"`), `ariaLabel` (set when the colour is information), `class`.
+
+A 24px cell like an icon, holding UI3's 14px square (or 16px circle). A translucent colour splits: opaque left, true alpha over the checkerboard right. No colour draws a dashed empty chit. Menu items and `ColorInput` use it.
 
 ---
 
@@ -157,7 +200,7 @@ Props: `value`, `placeholder`, `rows`, `disabled`.
 <Dropdown menuItems={options} bind:value={selected} placeholder="Select size" />
 ```
 
-Props: `menuItems` (array of `{ label, value }`), `value`, `placeholder`, `disabled`.
+Props: `menuItems` (array of `{ label, value }`; takes Menu's item fields), `value`, `placeholder`, `disabled`, `iconName`, `showGroupLabels`, `searchable`, `searchPlaceholder`, `ariaLabel`.
 
 ---
 
@@ -413,15 +456,44 @@ Key props: `isOpen`, `title`, `width` (`"small"` 240px | `"medium"` 320px | `"la
 
 ### Menu / MenuItem / MenuDivider / MenuHeading
 
+Menu is data-driven: pass `menuItems` and anchor it to its trigger.
+
 ```svelte
-<Menu>
-  <MenuHeading>Actions</MenuHeading>
-  <MenuItem on:click={handleEdit}>Edit</MenuItem>
-  <MenuItem on:click={handleDuplicate}>Duplicate</MenuItem>
-  <MenuDivider />
-  <MenuItem variant="destructive" on:click={handleDelete}>Delete</MenuItem>
-</Menu>
+<script>
+  let isOpen = false;
+  let trigger;
+  let menuItems = [
+    { label: "Duplicate", value: "duplicate", detail: "⌘D" },
+    { label: "Rename", value: "rename", iconName: IconTextSmall },
+    { label: "Show grid", value: "grid", type: "check", checked: true },
+    { label: "Snap to pixels", value: "snap", type: "toggle", checked: false, group: "Canvas" },
+    { label: "Delete", value: "delete", disabled: true, group: "Danger" },
+  ];
+</script>
+
+<IconButton bind:element={trigger} iconName={IconMore} ariaLabel="More" on:click={() => (isOpen = !isOpen)} />
+<Menu bind:isOpen bind:menuItems anchorElement={trigger} on:select={(e) => run(e.detail.value)} />
 ```
+
+Item fields: `label`, `value`, `group` (a change draws a divider), `showHeading` (label the group), `section` (dividers by section instead of group), `disabled`, `iconName` or `chit` (lead), `detail` (right-aligned shortcut or count), `badge`, `subMenu`, and:
+
+- `type: "check"` — leading checkmark, flips `checked` (`"mixed"` draws a dot) and closes the menu.
+- `type: "checkbox"` / `"toggle"` — trailing checkbox / leading switch, flips `checked` and keeps the menu open.
+- no type — an action. With `itemVariant="checkmark"` the rows are a single choice marked by `selected` (how Dropdown uses it).
+
+Props: `isOpen`, `menuItems`, `anchorElement`, `position` (`bottom-left` | `bottom-right` | `top-left` | `top-right`), `minWidth`, `itemVariant`, `showGroupLabels`, `searchable`, `searchPlaceholder`, `footerLabel`. Events: `select` (the item, after `checked` flips), `close`, `footer`.
+
+Multi-select, as in UI3's filter menus:
+
+```svelte
+<Menu bind:isOpen bind:menuItems anchorElement={trigger} searchable searchPlaceholder="Search teams"
+  footerLabel="Clear all" on:footer={clearAll} />
+<!-- menuItems: [{ label: "Team A", group: "Teams", type: "checkbox", chit: "#FFC700", detail: "24" }, …] -->
+```
+
+Keyboard: arrows, Home/End, Enter/Space, ArrowRight/ArrowLeft for sub-menus, Escape. The highlight follows the pointer and the keys alike. With `searchable` the field keeps focus while the arrows move through the matches. The menu closes when anything behind it scrolls.
+
+`MenuItem`, `MenuHeading` and `MenuDivider` are the rows Menu draws. `MenuItem` can be used alone: `variant` (`default` | `checkmark` | `checkbox` | `toggle`), `selected` (check state, `"mixed"` allowed), `iconName`, `chit`, `detail`, `badge`, `hasSubMenu`, `disabled`; `lead` and `trail` slots.
 
 ---
 
@@ -462,11 +534,40 @@ Available sizes: `16/` and `24/`. Naming pattern: `icon.{size}.{name}.svg`.
   import { IconButton, IconMore } from "figma-ui3-kit-svelte";
 </script>
 
-<IconButton iconName={IconMore} on:click={handler} />
-<IconButton iconName={IconMore} active />
+<IconButton iconName={IconMore} ariaLabel="More options" on:click={handler} />
+<IconButton iconName={IconMore} ariaLabel="More options" variant="secondary" />
 ```
 
-Props: `iconName`, `active`, `disabled`.
+Props: `iconName`, `variant` (`"default"` | `"secondary"`), `disabled`, `ariaLabel` (required), `iconColor`, `spin`.
+
+---
+
+### IconToggle
+
+```svelte
+<script>
+  import { IconToggle } from "figma-ui3-kit-svelte";
+  import { IconEyeSmall, IconHiddenSmall, IconLinkBroken, IconLinkConnected, IconStyles } from "figma-ui3-kit-svelte/icons";
+</script>
+
+<!-- Swaps icons, as UI3's "Button icon toggle" -->
+<IconToggle bind:pressed={locked} iconName={IconLinkBroken} iconNameOn={IconLinkConnected} ariaLabel="Constrain proportions" />
+<IconToggle bind:pressed={hidden} iconName={IconEyeSmall} iconNameOn={IconHiddenSmall} highlighted ariaLabel="Hide layer" />
+<!-- One icon on the selected fill, as UI3's "Button icon dialog toggle" -->
+<IconToggle bind:pressed={stylesOpen} iconName={IconStyles} ariaLabel="Styles" />
+```
+
+Props: `pressed`, `iconName`, `iconNameOn` (swaps instead of filling), `highlighted` (pressed fill with swapped icons too, for selected rows), `variant` (`"default"` | `"secondary"`), `disabled`, `ariaLabel` (required). Events: `change` (new state), `click`. Renders `aria-pressed`.
+
+---
+
+### SplitButton
+
+```svelte
+<SplitButton iconName={IconPlay} ariaLabel="Present" {menuItems} on:click={present} on:select={(e) => run(e.detail.value)} />
+```
+
+Props: `iconName`, `ariaLabel` (required, names the main action), `menuAriaLabel`, `menuItems` (as Menu), `itemVariant`, `showGroupLabels`, `size` (`"small"` | `"large"`), `disabled`. Events: `click` (main action), `select` (menu item).
 
 ---
 

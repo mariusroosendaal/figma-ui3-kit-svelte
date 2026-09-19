@@ -1,122 +1,289 @@
 <script>
+  import Badge from '../Badge/index.svelte';
+  import Chit from '../Chit/index.svelte';
   import Icon from '../Icon/index.svelte';
   import IconCheck from './../../icons/16/icon.16.check.svg';
+  import IconDot from './../../icons/16/icon.16.autolayoutgrid.dot.svg';
+  import IconMixed from './../../icons/16/icon.16.mixed.svg';
   import IconChevronRight from './../../icons/24/icon.24.chevron.right.svg';
 
-  export let id;
+  export let id = null;
+  /** @type {'default' | 'checkmark' | 'checkbox' | 'toggle'} */
+  export let variant = 'default';
+  /** Check state for the checkmark, checkbox and toggle variants; 'mixed' draws a dot or a dash. */
+  /** @type {boolean | 'mixed'} */
   export let selected = false;
-  export let variant = 'default'; // "default" | "checkmark"
+  /** Set by Menu, which moves the highlight with the keyboard and the pointer. Left
+      null, a standalone row highlights on hover. */
+  /** @type {boolean | null} */
+  export let highlighted = null;
   export let hasSubMenu = false; // Whether this item has a nested sub-menu
   export let disabled = false;
+  /** Lead visual after the check column: an icon (SVG import) or a colour chit. */
+  export let iconName = null;
+  /** @type {string | string[] | null} */
+  export let chit = null;
+  /** Right-aligned secondary text: a shortcut, a count, a value. */
+  export let detail = '';
+  /** Right-aligned badge text. */
+  export let badge = '';
+  /** Overrides the ARIA role, e.g. 'menuitemradio' for a single-choice list. */
+  export let role = null;
 
   let className = '';
   export { className as class };
+
+  $: ariaRole = role || (variant === 'default' ? 'menuitem' : 'menuitemcheckbox');
+  $: checkable = ariaRole === 'menuitemcheckbox' || ariaRole === 'menuitemradio';
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <li
-  id="menu-item-{id}"
-  tabindex="-1"
-  class:highlight={selected}
+  id={id != null ? `menu-item-${id}` : undefined}
+  class="menu-item {className}"
+  class:highlight={highlighted}
+  class:controlled={highlighted !== null}
   class:disabled
-  class={className}
-  role="menuitem"
+  class:has-check={variant === 'checkmark'}
+  class:has-trail={hasSubMenu || $$slots.trail}
+  role={ariaRole}
+  aria-checked={checkable ? (selected === 'mixed' ? 'mixed' : Boolean(selected)) : undefined}
   aria-disabled={disabled || undefined}
+  aria-haspopup={hasSubMenu ? 'menu' : undefined}
   on:mouseenter
   on:mouseleave
+  on:mousemove
   on:click
 >
   {#if variant === 'checkmark'}
-    <div class="lead">
-      <div class="icon" class:selected>
-        <Icon iconName={IconCheck} color="--color-icon-menu" />
-      </div>
-    </div>
-  {:else if $$slots.lead}
-    <div class="lead"><slot name="lead" /></div>
+    <span class="check" class:on={selected}>
+      <Icon iconName={selected === 'mixed' ? IconDot : IconCheck} color="--color-icon-menu" />
+    </span>
+  {:else if variant === 'toggle'}
+    <span class="toggle" class:on={selected === true} class:mixed={selected === 'mixed'}
+      ><span class="knob"></span></span
+    >
   {/if}
-  <div class="label"><slot /></div>
+  {#if chit}
+    <span class="lead"><Chit color={chit} /></span>
+  {:else if iconName}
+    <span class="lead"><Icon {iconName} color="--color-icon-menu" /></span>
+  {:else if $$slots.lead}
+    <span class="lead"><slot name="lead" /></span>
+  {/if}
+  <span class="label"><slot /></span>
+  {#if detail}
+    <span class="detail">{detail}</span>
+  {/if}
+  {#if badge}
+    <span class="badge"><Badge variant="menu" text={badge} /></span>
+  {/if}
+  {#if variant === 'checkbox'}
+    <span class="checkbox" class:on={selected}>
+      {#if selected}
+        <Icon iconName={selected === 'mixed' ? IconMixed : IconCheck} color="--color-icon-menu" />
+      {/if}
+    </span>
+  {/if}
   {#if hasSubMenu}
-    <div class="trail">
+    <span class="trail">
       <Icon iconName={IconChevronRight} color="--color-icon-menu" />
-    </div>
+    </span>
   {:else if $$slots.trail}
-    <div class="trail"><slot name="trail" /></div>
+    <span class="trail"><slot name="trail" /></span>
   {/if}
 </li>
 
 <style>
   li {
-    align-items: center;
-    color: var(--color-text-menu); /* #ffffff */
-    cursor: default;
     display: flex;
+    align-items: center;
+    gap: var(--size-xxsmall); /* 8px */
+    min-height: var(--size-small); /* 24px */
+    padding: 0 var(--size-xxsmall); /* 8px */
+    border-radius: var(--border-radius-medium); /* 5px */
+    outline: none;
+    color: var(--color-text-menu); /* #ffffff */
     font-family: var(--font-stack);
     font-size: var(--body-medium-font-size);
     font-weight: var(--body-medium-font-weight);
     letter-spacing: var(--body-medium-letter-spacing);
     line-height: var(--body-medium-line-height);
-    min-height: var(--size-small); /* 24px */
-    padding: 0 var(--size-xxsmall); /* 8px horizontal, 0 vertical */
+    cursor: default;
     user-select: none;
-    outline: none;
-    border-radius: var(--border-radius-medium); /* 5px */
   }
 
-  /* Reduce left padding when checkmark icon is present */
-  li:has(.lead > .icon) {
-    padding-left: var(--size-xxxsmall); /* 4px when checkmark is present */
+  /* The check column sits in the row's padding: 4px in, 4px to the label. */
+  li.has-check {
+    gap: var(--size-xxxsmall);
+    padding-left: var(--size-xxxsmall);
   }
 
-  /* Remove right padding when trail icon is present */
-  li:has(.trail) {
+  li.has-check .lead {
+    margin-left: var(--size-xxxsmall);
+    margin-right: var(--size-xxxsmall);
+  }
+
+  li.has-trail {
     padding-right: 0;
   }
 
+  .highlight,
+  li:not(.controlled):hover {
+    background-color: var(--color-bg-menu-selected); /* #0d99ff */
+  }
+
+  li.disabled {
+    color: var(--color-text-menu-tertiary);
+    cursor: default;
+  }
+
+  li:not(.controlled).disabled {
+    pointer-events: none;
+  }
+
+  li.disabled :global(.icon-component) {
+    opacity: 0.4;
+  }
+
   .label {
-    overflow-x: hidden;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     pointer-events: none;
   }
 
-  .highlight,
-  li:hover,
-  li:focus {
-    background-color: var(--color-bg-menu-selected); /* #0d99ff */
-  }
-
-  li.disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    pointer-events: none;
-  }
-
-  .lead {
+  .check,
+  .lead,
+  .trail,
+  .checkbox,
+  .toggle,
+  .detail,
+  .badge {
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
-    margin-right: var(--size-xxxsmall); /* 8px */
     pointer-events: none;
+  }
+
+  /* 16px cells that still center 24px icons. */
+  .check,
+  .lead {
+    justify-content: center;
+    width: var(--size-xsmall);
+    height: var(--size-xsmall);
+  }
+
+  .check :global(.icon-component),
+  .lead :global(.icon-component),
+  .lead :global(.chit) {
+    flex: 0 0 auto;
+  }
+
+  .check {
+    opacity: 0;
+  }
+
+  .check.on {
+    opacity: 1;
+  }
+
+  /* Right-aligned, and the last thing to give way. */
+  .detail {
+    min-width: 0;
+    margin-left: var(--size-xsmall);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--color-text-menu-secondary);
+  }
+
+  .highlight .detail {
+    color: var(--color-text-menu);
+  }
+
+  .detail + .badge,
+  .detail + .checkbox {
+    margin-left: 0;
+  }
+
+  .badge,
+  .checkbox {
+    margin-left: auto;
+  }
+
+  .label + .checkbox {
+    margin-left: var(--size-xsmall);
+  }
+
+  .checkbox {
+    justify-content: center;
+    box-sizing: border-box;
+    width: var(--size-xsmall);
+    height: var(--size-xsmall);
+    border: 1px solid var(--color-border-menu);
+    border-radius: var(--border-radius-medium);
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .checkbox.on {
+    border-color: var(--color-bg-menu-selected);
+    background-color: var(--color-bg-menu-selected);
+  }
+
+  /* On the blue highlight the box needs its own edge. */
+  .highlight .checkbox {
+    border-color: var(--color-text-menu);
+  }
+
+  .toggle {
+    position: relative;
+    box-sizing: border-box;
+    width: 32px; /* the kit Switch's track */
+    height: 16px;
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.85);
+  }
+
+  .toggle.on,
+  .toggle.mixed {
+    background-color: var(--color-bg-menu-selected);
+  }
+
+  .highlight .toggle.on,
+  .highlight .toggle.mixed {
+    box-shadow: inset 0 0 0 1px var(--color-text-menu);
+  }
+
+  .knob {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: var(--color-text-menu);
+    box-shadow:
+      0 0 0.5px rgba(0, 0, 0, 0.3),
+      0 1px 2px rgba(0, 0, 0, 0.15);
+    transition: left 0.1s ease;
+  }
+
+  .toggle.on .knob {
+    left: 17px;
+  }
+
+  .toggle.mixed .knob {
+    left: 9px;
   }
 
   .trail {
-    display: flex;
-    align-items: center;
     margin-left: auto;
-    pointer-events: none;
   }
 
-  .icon {
-    width: var(--size-xsmall); /* 16px */
-    height: var(--size-xsmall); /* 16px */
-    opacity: 0;
-    pointer-events: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .icon.selected {
-    opacity: 1;
+  .detail + .trail,
+  .badge + .trail {
+    margin-left: 0;
   }
 </style>
