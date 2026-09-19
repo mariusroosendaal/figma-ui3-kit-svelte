@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **SegmentedControl** and **Segment** components — single-select control matching UI3's segmented control (formerly "option strip"), with icon and label segments, group and per-segment disabled states, optional tooltips, and arrow-key focus navigation
+
 ## [0.5.2] - 2026-05-13
 
 ### Changed

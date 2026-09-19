@@ -16,6 +16,8 @@ import Input from './components/Input/index.svelte';
 import Label from './components/Label/index.svelte';
 import Radio from './components/Radio/index.svelte';
 import RadioGroup from './components/RadioGroup/index.svelte';
+import Segment from './components/Segment/index.svelte';
+import SegmentedControl from './components/SegmentedControl/index.svelte';
 import Menu from './components/Menu/index.svelte';
 import MenuItem from './components/MenuItem/index.svelte';
 import MenuDivider from './components/MenuDivider/index.svelte';
@@ -53,6 +55,8 @@ export {
   ModalHeader,
   Radio,
   RadioGroup,
+  Segment,
+  SegmentedControl,
   Slider,
   Switch,
   Tabs,

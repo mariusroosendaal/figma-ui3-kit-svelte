@@ -35,6 +35,8 @@ import {
   ModalHeader,
   Radio,
   RadioGroup,
+  Segment,
+  SegmentedControl,
   Slider,
   Switch,
   Tabs,
@@ -238,6 +240,42 @@ Props: `group`, `value`, `disabled`.
 ```
 
 Props: `legend`, `class`.
+
+---
+
+### SegmentedControl / Segment
+
+```svelte
+<script>
+  import { SegmentedControl, Segment } from "figma-ui3-kit-svelte";
+  import IconVertical from "figma-ui3-kit-svelte/src/icons/24/icon.24.al.layout-vertical.svg";
+  import IconHorizontal from "figma-ui3-kit-svelte/src/icons/24/icon.24.al.layout-horizontal.svg";
+
+  let direction = "vertical";
+  let sizing = "fill";
+</script>
+
+<!-- Icon segments: UI3 grid widths are 88px (2 icons) or 168px (3+) -->
+<div style="width: 88px">
+  <SegmentedControl bind:value={direction} ariaLabel="Direction">
+    <Segment value="vertical" iconName={IconVertical} tooltip="Vertical layout" />
+    <Segment value="horizontal" iconName={IconHorizontal} tooltip="Horizontal layout" />
+  </SegmentedControl>
+</div>
+
+<!-- Label segments fill the parent and truncate -->
+<SegmentedControl bind:value={sizing} ariaLabel="Sizing" on:change={(e) => console.log(e.detail)}>
+  <Segment value="fill">Fill</Segment>
+  <Segment value="hug">Hug</Segment>
+  <Segment value="fixed" disabled tooltip="Not available for text layers">Fixed</Segment>
+</SegmentedControl>
+```
+
+SegmentedControl props: `value` (bindable), `disabled` (whole control), `ariaLabel`, `class`. Dispatches `change` with the new value.
+
+Segment props: `value`, `iconName` (icon mode), `disabled`, `tooltip` (shown below; also the accessible name for icon segments), `ariaLabel`, `class`.
+
+The control fills its parent — set width on a wrapper. Each segment is a tab stop; arrow keys move focus, Enter/Space selects. A disabled segment stays focusable so its tooltip can explain why.
 
 ---
 

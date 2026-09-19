@@ -72,6 +72,7 @@ All components accept a `class` prop for custom styling.
 - Menu / MenuItem / MenuDivider / MenuHeading
 - Modal
 - Radio
+- SegmentedControl / Segment
 - Slider
 - Switch
 - Tabs
