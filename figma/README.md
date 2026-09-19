@@ -33,6 +33,18 @@ The templates double as the reverse mapping: to mock up a Svelte layout, create 
 | Tabs | `2015:27780` | One `_Tab` per tab: label is its `Text` property, `🐣 Selected` → `selectedTab`. |
 | Segmented control | `2015:20960` | One `_Segment` per segment: `🎛️ Label` (label variant) or `🎛️ Icon` + `🎛️ Text` tooltip (icon variant). |
 | Slider | `2015:23280` | Range ↔ `delta`, Stepper ↔ `stepper`, everything else ↔ `range`. Knob position is the value. |
+| Tooltip | `2015:39095` | Center directions ↔ `Top`/`Bottom`, corners and sides map 1:1. Wraps a trigger in code. |
+| Menu row/Simple, /Checkmark | `2327:96028`, `2327:96252` | → `MenuItem` (Checkmark ↔ `variant="checkmark"`, `🎛️ On` ↔ `selected`). Shortcut → `trail` slot. |
+| Menu row/Heading, /Divider | `2327:96347`, `2327:96331` | → `MenuHeading`, `MenuDivider`. |
+
+Built on the **Kit additions** page, because UI3 has no equivalent or its API differs too much from the kit:
+
+| Component | Node | Notes |
+|---|---|---|
+| Banner | `1027204:342` | `👥 Variant` ↔ `variant`. |
+| Chip | `1027205:88` | Default/Component × Default/Focused/Disabled, `👁️ Icon` + `↪ Icon`, `👁️ Close` ↔ `closable`. UI3's `_Chit input` is private, so it can't be published. |
+| Modal | `1027206:365` | Width Small/Medium/Large × Footer Split/Full/None. `Content slot` → default slot; footer slots → `footer-left` / `footer-right` / `footer-full`. |
+| Menu | `1027206:366` | Fill `Items slot` with UI3 menu rows. The kit's Menu is data-driven, so rows become `menuItems`; headings and dividers start groups. Any checkmark row makes the whole menu `itemVariant="checkmark"`. |
 
 ## Adding a component
 
