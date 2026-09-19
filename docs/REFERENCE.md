@@ -238,7 +238,25 @@ A 24px cell like an icon, holding UI3's 14px square (or 16px circle). A transluc
 <Dropdown menuItems={options} bind:value={selected} placeholder="Select size" />
 ```
 
-Props: `menuItems` (array of `{ label, value }`; takes Menu's item fields — a chosen item's `iconName` or `chit` shows in the button), `value`, `placeholder`, `disabled`, `iconName`, `size` (`"default"` | `"large"`), `stroke` (`false`: no border until hovered), `showGroupLabels`, `searchable`, `searchPlaceholder`, `ariaLabel`.
+A lead, and a badge before the chevron:
+
+```svelte
+<Dropdown
+  menuItems={collections}
+  bind:value={collection}
+  chit={["#1c7ed6", "#f76707"]}
+  label="Palette"
+  badge="2 modes"
+  badgeVariant="variable"
+  searchable
+/>
+```
+
+Props: `menuItems` (array of `{ label, value }`; takes Menu's item fields — a chosen item's `iconName` or `chit` shows in the button), `value`, `placeholder`, `disabled`, `iconName`, `chit` (a lead chit when no chosen item carries one; wins over `iconName`), `label` (button text when it should not be the chosen item's menu label — a menu row can carry more than the button has room for; `""` shows the placeholder whatever is chosen), `badge` and `badgeVariant` (the kit Badge's `text` and `variant`), `size` (`"default"` | `"large"`), `stroke` (`false`: no border until hovered), `showGroupLabels`, `searchable`, `searchPlaceholder`, `ariaLabel`.
+
+Without `ariaLabel` the button is named by what it shows, badge included — set it only when that isn't enough.
+
+UI3's own Dropdown carries neither a lead chit nor a badge; the **Dropdown badge** set on the Kit additions page covers that trigger, and its Code Connect maps back onto this same component.
 
 ---
 

@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import Menu from '../Menu/index.svelte';
+  import Badge from '../Badge/index.svelte';
   import Chit from '../Chit/index.svelte';
   import Icon from '../Icon/index.svelte';
   import IconChevronDown from './../../icons/24/icon.24.chevron.down.svg';
@@ -18,6 +19,15 @@
   export let size = 'default';
   export let searchable = false; // search field above long lists
   export let searchPlaceholder = 'Search';
+  /** @type {string | string[] | null} a lead chit when no chosen item carries one; wins over `iconName` */
+  export let chit = null;
+  /** @type {string | null} button text when it should not be the chosen item's menu label — a menu
+      row can carry more than the button has room for. `''` shows the placeholder whatever is chosen. */
+  export let label = null;
+  /** Badge between the label and the chevron; the kit Badge's `text` */
+  export let badge = '';
+  /** the kit Badge's `variant` */
+  export let badgeVariant = 'default';
 
   let className = '';
   export { className as class };
@@ -29,9 +39,11 @@
   // Unique identifier for this dropdown instance
   const dropdownId = Math.random().toString(36).substr(2, 9);
 
-  // The chosen item's own lead (icon or chit) shows in the button, else the prop's icon
-  $: leadChit = value && value.chit ? value.chit : null;
-  $: leadIcon = !leadChit && value && value.iconName ? value.iconName : iconName;
+  // The chosen item's own lead (icon or chit) shows in the button, else the prop's chit or icon
+  $: leadChit = (value && value.chit) || chit || null;
+  $: leadIcon = !leadChit && value && value.iconName ? value.iconName : leadChit ? null : iconName;
+  // `label` overrides what the button says, including `''` for "always the placeholder"
+  $: text = label ?? value?.label ?? null;
 
   // Get icon color based on state
   function getIconColor() {
@@ -77,7 +89,7 @@
     aria-expanded={isOpen}
     aria-haspopup="menu"
     aria-controls="dropdown-{dropdownId}-menu"
-    aria-label={ariaLabel || placeholder || undefined}
+    aria-label={ariaLabel || undefined}
     class:selected={isOpen}
     class:borderless={!stroke}
     class:large={size === 'large'}
@@ -89,10 +101,14 @@
       <span class="icon"><Icon iconName={leadIcon} color={getIconColor()} /></span>
     {/if}
 
-    {#if value}
-      <span class="label">{value.label}</span>
+    {#if text}
+      <span class="label">{text}</span>
     {:else}
-      <span class="placeholder">{placeholder}</span>
+      <span class="label placeholder">{placeholder}</span>
+    {/if}
+
+    {#if badge}
+      <span class="badge"><Badge variant={badgeVariant} text={badge} /></span>
     {/if}
 
     <span class="caret" aria-hidden="true">
@@ -139,13 +155,17 @@
     user-select: none;
   }
 
+  /* UI3's Dropdown has no Hover state — only Default, Focused and Active — and a
+     borderless one already answers the pointer by revealing its border below. */
+
+  /* The edge while the menu is up: UI3's Active and Focused both carry it. */
+  button.selected {
+    border-color: var(--figma-color-border-selected);
+  }
+
   button:focus-visible {
     outline: 1px solid var(--figma-color-border-selected);
     outline-offset: -1px;
-  }
-
-  button:focus-visible .placeholder {
-    color: var(--figma-color-text);
   }
 
   button:disabled .label {
@@ -153,7 +173,13 @@
   }
 
   button:disabled {
+    border-color: var(--figma-color-border-disabled);
     cursor: not-allowed;
+  }
+
+  /* The Badge has no disabled look of its own. */
+  button:disabled .badge {
+    opacity: 0.4;
   }
 
   button:disabled .placeholder {
@@ -164,8 +190,10 @@
     pointer-events: none;
   }
 
-  .label,
-  .placeholder {
+  /* The label gives way first: the badge and the chevron keep their room. */
+  .label {
+    flex: 1 1 auto;
+    min-width: 0;
     font-size: var(--body-medium-font-size);
     font-weight: var(--body-medium-font-weight);
     letter-spacing: var(--body-medium-letter-spacing);
@@ -173,11 +201,18 @@
     white-space: nowrap;
     overflow-x: hidden;
     text-overflow: ellipsis;
+    text-align: left;
   }
 
-  /* .placeholder {
-    color: var(--figma-color-text-tertiary); 
-  } */
+  /* No colour of its own: UI3's Dropdown draws Value at full strength in every
+     state and has no placeholder variant, so dimming it reads as disabled —
+     doubly so with stroke={false}, where there is no border to carry the shape. */
+
+  .badge {
+    display: flex;
+    flex: 0 0 auto;
+    margin-left: var(--size-xxxsmall);
+  }
 
   button.borderless:not(:hover):not(:focus-visible):not(.selected) {
     border-color: transparent;
@@ -208,11 +243,13 @@
   }
 
   .caret {
-    display: block;
+    display: flex;
+    flex: 0 0 auto;
     margin-left: auto;
   }
 
   .icon {
+    flex: 0 0 auto;
     margin-left: -8px;
     margin-right: 0;
   }
