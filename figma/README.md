@@ -44,6 +44,11 @@ Built on the **Kit additions** page, because UI3 has no equivalent or its API di
 | Banner | `1027204:342` | `👥 Variant` ↔ `variant`. |
 | Chip | `1027205:88` | Default/Component × Default/Focused/Disabled, `👁️ Icon` + `↪ Icon`, `👁️ Close` ↔ `closable`. UI3's `_Chit input` is private, so it can't be published. |
 | Modal | `1027206:365` | Width Small/Medium/Large × Footer Split/Full/None. `Content slot` → default slot; footer slots → `footer-left` / `footer-right` / `footer-full`. |
+| Text | `1027216:156` | Variant (heading/body sizes, `-strong`) × Color Default/Secondary/Tertiary. Use it instead of raw text so mockups round-trip. |
+| Label | `1027216:161` | Medium/Small. |
+| Radio group | `1027216:162` | Legend + `Radios slot` of UI3 Radio buttons. |
+| Disclosure item | `1027216:25160` | Expanded × Section; `Content slot` renders only when expanded. |
+| Disclosure | `1027216:25161` | `Items slot` of Disclosure items. |
 | Menu | `1027206:366` | Fill `Items slot` with UI3 menu rows. The kit's Menu is data-driven, so rows become `menuItems`; headings and dividers start groups. Any checkmark row makes the whole menu `itemVariant="checkmark"`. |
 
 ## Adding a component
