@@ -4,6 +4,10 @@
 import figma from 'figma'
 const instance = figma.selectedInstance
 
+// Dev Mode only lifts imports one level, so every template also reports its full
+// import list in metadata.props.imports for parent templates to merge.
+const imports = ["import { Radio } from 'figma-ui3-kit-svelte'"]
+
 const showLabel = instance.getEnum('🎛️ Label', { 'True': true, 'False': false })
 const disabled = instance.getEnum('🐣 State', {
   'Default': false,
@@ -25,7 +29,7 @@ export default {
   example: label
     ? figma.code`<Radio bind:group={selected} value="${value}"${disabled ? ' disabled' : ''}>${label}</Radio>`
     : figma.code`<Radio bind:group={selected} value="${value}"${disabled ? ' disabled' : ''} />`,
-  imports: ["import { Radio } from 'figma-ui3-kit-svelte'"],
+  imports,
   id: 'radio',
-  metadata: { nestable: true },
+  metadata: { nestable: true, props: { imports } },
 }

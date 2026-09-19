@@ -4,6 +4,10 @@
 import figma from 'figma'
 const instance = figma.selectedInstance
 
+// Dev Mode only lifts imports one level, so every template also reports its full
+// import list in metadata.props.imports for parent templates to merge.
+const imports = ["import { Checkbox } from 'figma-ui3-kit-svelte'"]
+
 const type = instance.getEnum('🐣 Type', {
   'Checked': 'checked',
   'Unchecked': 'unchecked',
@@ -29,7 +33,7 @@ export default {
   example: label
     ? figma.code`<Checkbox${attrs}>${label}</Checkbox>`
     : figma.code`<Checkbox${attrs} />`,
-  imports: ["import { Checkbox } from 'figma-ui3-kit-svelte'"],
+  imports,
   id: 'checkbox',
-  metadata: { nestable: true },
+  metadata: { nestable: true, props: { imports } },
 }

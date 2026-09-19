@@ -37,5 +37,5 @@ The templates double as the reverse mapping: to mock up a Svelte layout, create 
 ## Adding a component
 
 1. `get_context_for_code_connect` on the component set for its properties.
-2. Write `Name.figma.ts` mapping every variant value (unmapped values render `undefined`).
+2. Write `Name.figma.ts` mapping every variant value (unmapped values render `undefined`). Follow the existing templates: render nested instances with `render(handle)` and export `imports` plus `metadata.props.imports` — Dev Mode only lifts imports one level, so parents merge their children's lists.
 3. `npm run figma:parse`, add a row above, publish.

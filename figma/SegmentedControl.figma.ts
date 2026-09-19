@@ -4,6 +4,16 @@
 import figma from 'figma'
 const instance = figma.selectedInstance
 
+// Dev Mode only lifts imports one level, so every template also reports its full
+// import list in metadata.props.imports for parent templates to merge.
+const imports = ["import { SegmentedControl, Segment } from 'figma-ui3-kit-svelte'"]
+const render = (handle) => {
+  const result = handle.executeTemplate()
+  const nested = result.metadata && result.metadata.props && result.metadata.props.imports
+  if (nested) nested.forEach((i) => imports.includes(i) || imports.push(i))
+  return result.example
+}
+
 const variant = instance.getEnum('👥 Variant', { 'Icon': 'icon', 'Label': 'label' })
 const disabled = instance.getEnum('🐣 State', { 'Default': false, 'Disabled': true })
 
@@ -26,7 +36,7 @@ segments.forEach((seg, i) => {
   let segment
   if (variant === 'icon') {
     const icon = seg.getInstanceSwap('🎛️ Icon')
-    const iconCode = icon && icon.type === 'INSTANCE' ? icon.executeTemplate().example : undefined
+    const iconCode = icon && icon.type === 'INSTANCE' ? render(icon) : undefined
     segment = figma.code`<Segment value="${value}"${iconCode ? figma.code` iconName={${iconCode}}` : ''} tooltip="${text}" />`
   } else {
     segment = figma.code`<Segment value="${value}">${text}</Segment>`
@@ -36,7 +46,7 @@ segments.forEach((seg, i) => {
 
 export default {
   example: figma.code`<SegmentedControl bind:value${disabled ? ' disabled' : ''}>${segmentsCode}\n</SegmentedControl>`,
-  imports: ["import { SegmentedControl, Segment } from 'figma-ui3-kit-svelte'"],
+  imports,
   id: 'segmented-control',
-  metadata: { nestable: true },
+  metadata: { nestable: true, props: { imports } },
 }

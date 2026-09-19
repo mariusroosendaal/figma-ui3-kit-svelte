@@ -51,7 +51,7 @@ export default {
   example: figma.code\`${identifier}\`,
   imports: ["import ${identifier} from 'figma-ui3-kit-svelte/${svg}'"],
   id: '${name}',
-  metadata: { nestable: true },
+  metadata: { nestable: true, props: { imports: ["import ${identifier} from 'figma-ui3-kit-svelte/${svg}'"] } },
 }
 `,
   )

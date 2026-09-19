@@ -4,6 +4,16 @@
 import figma from 'figma'
 const instance = figma.selectedInstance
 
+// Dev Mode only lifts imports one level, so every template also reports its full
+// import list in metadata.props.imports for parent templates to merge.
+const imports = ["import { Button } from 'figma-ui3-kit-svelte'"]
+const render = (handle) => {
+  const result = handle.executeTemplate()
+  const nested = result.metadata && result.metadata.props && result.metadata.props.imports
+  if (nested) nested.forEach((i) => imports.includes(i) || imports.push(i))
+  return result.example
+}
+
 const label = instance.getString('🎛️ Label')
 
 // The kit has no FigJam button; it renders closest to primary.
@@ -38,7 +48,7 @@ let iconCode
 if (iconLead) {
   const icon = instance.getInstanceSwap('↪ Icon')
   if (icon && icon.type === 'INSTANCE') {
-    iconCode = icon.executeTemplate().example
+    iconCode = render(icon)
   }
 }
 
@@ -46,7 +56,7 @@ if (iconLead) {
 // code prop, so both are intentionally not mapped. Defaults are omitted for brevity.
 export default {
   example: figma.code`<Button${variant !== 'primary' ? figma.code` variant="${variant}"` : ''}${size !== 'default' ? figma.code` size="${size}"` : ''}${iconCode ? figma.code` iconName={${iconCode}}` : ''}${iconCode && iconLead === 'center' ? ' iconLead="center"' : ''}${disabled ? ' disabled' : ''}>${label}</Button>`,
-  imports: ["import { Button } from 'figma-ui3-kit-svelte'"],
+  imports,
   id: 'button',
-  metadata: { nestable: true },
+  metadata: { nestable: true, props: { imports } },
 }
