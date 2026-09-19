@@ -22,7 +22,15 @@ const state = instance.getEnum('🐣 State', {
   'Active Filled': 'filled',
 })
 const iconLead = instance.getEnum('🎛️  Icon Lead', { 'True': true, 'False': false })
-const text = instance.getString('🎛️ Label')
+// 🎛️ Label only drives the Variable state's text, so read the visible layer instead.
+let text = ''
+for (const name of ['Value', 'Text']) {
+  const layer = instance.findText(name)
+  if (layer && layer.type === 'TEXT') {
+    text = layer.textContent
+    break
+  }
+}
 
 let iconCode
 if (iconLead && variant === 'input') {
