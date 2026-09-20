@@ -18,14 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Menu** — per-item `type` (`check`, `checkbox`, `toggle`) with `checked` (incl. `mixed`); `iconName`, `chit`, `detail` and `badge` on items; `disabled` items; `section`; `searchable` with `searchPlaceholder`; `footerLabel` with a `footer` event (UI3's multi-select menu)
 - **MenuItem** — `checkbox` and `toggle` variants, `iconName`, `chit`, `detail`, `badge`, `highlighted`, `role`
 - **Dropdown** — `searchable` and `searchPlaceholder`
-- **Dropdown** — `badge`/`badgeVariant` (a Badge between the label and the chevron), `chit` (a lead chit when no chosen item carries one), and `label` (button text distinct from the chosen item's menu label); absorbs the Vitrine Linter's local `BadgeDropdown`
-- **Dropdown badge** — a Kit additions component set (`🎛️ Lead` × `🎛️ Trail`) for the lead-and-badge trigger UI3's own Dropdown doesn't carry, named after UI3's composition grammar in Menu row/Complex and Color input, with a Code Connect template mapping it onto the same `Dropdown`
+- **Dropdown** — `badge`/`badgeVariant` (a Badge between the label and the chevron), `chit` (a lead chit when no chosen item carries one), and `label` (button text distinct from the chosen item's menu label)
 - Named icons `IconSwatchSmall`, `IconEyeSmall`, `IconHiddenSmall`, `IconLinkBroken`, `IconLinkConnected`, `IconStyles`, `IconPlay`
-- Code Connect templates for the new components and for Menu row/Complex, /Toggle, /Toolbar and the multi-select menu
 - **Avatar** — UI3's avatar: initial on a multiplayer colour (stable per name), photo or org image with fallback, overflow count (`unread`), three sizes, circle or square
 - **NumericInputMulti** — several numbers behind one lead (corner radii, paddings); per-cell or whole-field disabling; the lead scrubs every cell
 - **VariablePill** — the pill Figma shows for a value bound to a variable; **NumericInput** takes `variable` to show one, with a detach button
-- **Tree** — a nested list for browsing, picking (`mode="single"`) or ticking (`mode="check"`, with tri-state parents); tree keyboard pattern; Tree row and Tree components on the Kit additions page
+- **Tree** — a nested list for browsing, picking (`mode="single"`) or ticking (`mode="check"`, with tri-state parents); tree keyboard pattern
 - **Badge** — `count` and `count-inactive` variants, `size="large"`, and `dot`
 - **Checkbox**, **Switch** — `description` line, linked with `aria-describedby`
 - **Tabs** — per-tab `badge` counts
@@ -35,7 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Modal** / **ModalHeader** — Navigation (back arrow, `onBack`), Tabs (`headerTabs`, bindable `selectedTab`) and custom (`header` slot) headers
 - **Menu** — overflow arrows instead of a scrollbar for tall menus (UI3's Menu row/Expand), `footerVariant="row"` (UI3's Menu row/Footer), `avatar` on items; **MenuItem** — `avatar` lead
 - Static tokens for multiplayer colours and `--color-bg-menu-hover`
-- Code Connect templates for Avatar, Badge small alt/large/dot, Chip variable, Numeric input multi, Modal header, Menu row/Footer, Tree row and Tree; Checkbox, Switch, Dropdown, Tabs, Radio, Slider, Numeric input and the Complex menu row map their remaining properties
 
 ### Changed
 - **Dropdown** — the open menu now marks the trigger with a selected border, matching UI3's Active state (it previously styled focus and disabled only), and a disabled trigger uses `--figma-color-border-disabled`; `aria-label` no longer falls back to `placeholder`, so the button is named by what it shows unless `ariaLabel` is set
