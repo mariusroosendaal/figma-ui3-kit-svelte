@@ -91,6 +91,10 @@
     height: var(--size-xsmall); /* 16px */
     align-items: center;
     padding: 0 var(--size-xxxsmall);
+    /* Every badge reserves its border, so swapping an outlined variant for a
+       filled one can't change the badge's width — a counter that switches on a
+       toggle or a tab would otherwise shift the layout by 2px. */
+    border: 1px solid transparent;
     border-radius: var(--border-radius-medium); /* 5px */
     font-family: var(--font-stack);
     font-size: var(--body-medium-font-size);
@@ -132,7 +136,7 @@
   .badge.default {
     background-color: transparent;
     color: var(--figma-color-text);
-    border: 1px solid var(--figma-color-border);
+    border-color: var(--figma-color-border);
   }
 
   /* Filled grey, as in UI3's "Badge small alt" and "Badge large" defaults */
@@ -141,7 +145,9 @@
     border-color: transparent;
   }
 
-  /* COUNT VARIANTS — tab and list counts (UI3's "Badge small alt") */
+  /* COUNT VARIANTS — tab and list counts, from UI3's "Badge small alt": `count`
+     is its Count New, `count-inactive` its Count Inactive, and a count with no
+     new/read meaning is `default` + `strong` (its filled grey Default). */
   .badge.count {
     background-color: var(--figma-color-bg-selected);
     color: var(--figma-color-text);
@@ -182,7 +188,7 @@
 
   .badge.brand:not(.strong) {
     background-color: transparent;
-    border: 1px solid var(--figma-color-border-brand);
+    border-color: var(--figma-color-border-brand);
     color: var(--figma-color-text-brand);
   }
 
@@ -194,7 +200,7 @@
 
   .badge.component:not(.strong) {
     background-color: transparent;
-    border: 1px solid var(--figma-color-border-component);
+    border-color: var(--figma-color-border-component);
     color: var(--figma-color-text-component);
   }
 
@@ -206,7 +212,7 @@
 
   .badge.danger:not(.strong) {
     background-color: transparent;
-    border: 1px solid var(--figma-color-border-danger);
+    border-color: var(--figma-color-border-danger);
     color: var(--figma-color-text-danger);
   }
 
@@ -218,7 +224,7 @@
 
   .badge.success:not(.strong) {
     background-color: transparent;
-    border: 1px solid var(--figma-color-border-success);
+    border-color: var(--figma-color-border-success);
     color: var(--figma-color-text-success);
   }
 
@@ -230,7 +236,7 @@
 
   .badge.warning:not(.strong) {
     background-color: transparent;
-    border: 1px solid var(--figma-color-border-warning);
+    border-color: var(--figma-color-border-warning);
     color: var(--figma-color-text-warning);
   }
 
@@ -242,7 +248,7 @@
 
   .badge.invert:not(.strong) {
     background-color: transparent;
-    border: 1px solid var(--figma-color-border);
+    border-color: var(--figma-color-border);
     color: var(--figma-color-text);
   }
 
@@ -250,42 +256,50 @@
   .badge.selected {
     background-color: transparent;
     color: var(--figma-color-text-selected);
-    border: 1px solid var(--figma-color-border-onselected);
+    border-color: var(--figma-color-border-onselected);
+  }
+
+  /* Filled, for a badge sitting on the selected fill itself, where grey reads as
+     a foreign chip and an outline as a seam. */
+  .badge.selected.strong {
+    background-color: var(--figma-color-bg-onselected);
+    color: var(--figma-color-text-onselected);
+    border-color: transparent;
   }
 
   /* VARIABLE VARIANT */
   .badge.variable {
     background-color: transparent;
     color: var(--figma-color-text);
-    border: 1px solid var(--figma-color-border);
+    border-color: var(--figma-color-border);
   }
 
   /* VARIABLE SELECTED VARIANT */
   .badge.variable-selected {
     background-color: transparent;
     color: var(--figma-color-text-selected);
-    border: 1px solid var(--figma-color-border-onselected);
+    border-color: var(--figma-color-border-onselected);
   }
 
   /* FEEDBACK VARIANT */
   .badge.feedback {
     background-color: transparent;
     color: var(--figma-color-text-brand);
-    border: 1px solid var(--figma-color-border-brand);
+    border-color: var(--figma-color-border-brand);
   }
 
   /* MERGED VARIANT */
   .badge.merged {
     background-color: transparent;
     color: var(--figma-color-text-success);
-    border: 1px solid var(--figma-color-border-success);
+    border-color: var(--figma-color-border-success);
   }
 
   /* ARCHIVED VARIANT */
   .badge.archived {
     background-color: transparent;
     color: var(--figma-color-text-tertiary);
-    border: 1px solid var(--figma-color-border-disabled);
+    border-color: var(--figma-color-border-disabled);
   }
 
   /* MENU VARIANT */
@@ -302,7 +316,7 @@
 
   .badge.figjam:not(.strong) {
     background-color: transparent;
-    border: 1px solid var(--figma-color-border-component);
+    border-color: var(--figma-color-border-component);
     color: var(--figma-color-text-component);
   }
 </style>

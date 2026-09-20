@@ -663,6 +663,25 @@ Props: `pressed`, `iconName`, `iconNameOn` (swaps instead of filling), `highligh
 
 ---
 
+### ToggleButton
+
+```svelte
+<script>
+  import { ToggleButton } from "figma-ui3-kit-svelte";
+  import { IconFilter } from "figma-ui3-kit-svelte/icons";
+</script>
+
+<!-- Text on the selected fill while on, as IconToggle's dialog toggle -->
+<ToggleButton bind:pressed={showHidden} label="Hidden layers" badge={String(hiddenCount)} />
+<ToggleButton bind:pressed={filtersOpen} iconName={IconFilter} label="Filters" badge="3" on:change={apply} />
+```
+
+Props: `pressed`, `label` (or slot), `iconName` (lead icon), `badge` (Badge text), `badgeVariant`, `variant` (`"default"` | `"secondary"`), `size` (`"default"` | `"large"`), `disabled`, `ariaLabel` (only when the label does not name the action). Events: `change` (new state), `click`. Renders `aria-pressed`.
+
+The badge is filled, not outlined: the quiet `count-inactive` an unselected tab carries while the button rests, and the on-selected fill while it is pressed, where grey would read as a foreign chip. A `badgeVariant` other than `"default"` is passed through as given.
+
+---
+
 ### SplitButton
 
 ```svelte

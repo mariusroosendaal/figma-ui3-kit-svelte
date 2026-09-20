@@ -38,6 +38,7 @@ import Switch from './components/Switch/index.svelte';
 import Tabs from './components/Tabs/index.svelte';
 import Text from './components/Text/index.svelte';
 import Textarea from './components/Textarea/index.svelte';
+import ToggleButton from './components/ToggleButton/index.svelte';
 import Tooltip from './components/Tooltip/index.svelte';
 import Tree from './components/Tree/index.svelte';
 import VariablePill from './components/VariablePill/index.svelte';
@@ -78,6 +79,7 @@ export {
   Tabs,
   Text,
   Textarea,
+  ToggleButton,
   Tooltip,
   Tree,
   VariablePill,

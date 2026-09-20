@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Chit** — UI3's colour swatch as a component: 24px cell, 14px square or 16px circle, opacity split over the checkerboard, gradients, images and multi-mode slices
 - **IconToggle** — UI3's icon toggle buttons: icon swap (with a Highlighted variant) or a single icon on the selected fill; `aria-pressed`
 - **SplitButton** — icon action with a chevron menu of alternatives
+- **ToggleButton** — a labelled button that stays pressed: the selected fill while on, as UI3's icon dialog toggle, with a lead icon, a filled "Badge small alt" counter that reads as an unselected tab's count at rest and moves to the on-selected fill while pressed, a `"secondary"` variant and two sizes; `aria-pressed`
 - **Menu** — per-item `type` (`check`, `checkbox`, `toggle`) with `checked` (incl. `mixed`); `iconName`, `chit`, `detail` and `badge` on items; `disabled` items; `section`; `searchable` with `searchPlaceholder`; `footerLabel` with a `footer` event (UI3's multi-select menu)
 - **MenuItem** — `checkbox` and `toggle` variants, `iconName`, `chit`, `detail`, `badge`, `highlighted`, `role`
 - **Dropdown** — `searchable` and `searchPlaceholder`
@@ -45,6 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Avatar** — the tooltip is the accessible name; `ariaLabel` is for when it should read as something else, rather than repeating the tooltip
 
 ### Fixed
+- **Badge** — every badge now reserves a 1px transparent border instead of only the outlined variants carrying one, so swapping a variant no longer changes the badge's width. A counter that switched with a toggle or a tab moved the layout by 2px
 - **Menu** — headings and dividers render inside `<li>` elements, so the list's markup is valid
 - **Tabs** — an unselected tab's hover uses UI3's `bg-hover` fill
 - **Modal** — one dialog body instead of two copies for with and without an overlay
