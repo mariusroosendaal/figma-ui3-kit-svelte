@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Avatar** — the tooltip is the accessible name; `ariaLabel` is for when it should read as something else, rather than repeating the tooltip
 
 ### Fixed
+- **docs** — the reference documented a `Chip` `active` prop that does not exist and left out `variant`, `label`, `iconName`, `closable`, `focused` and the `close` event; gave `Text`'s `color` as keywords when it takes a Figma token name or any CSS colour; imported `IconMore` from the package root, where it is not exported; and had no entry at all for `ModalHeader` or `ModalFooter`. The install and icon import blocks listed 29 of 39 components and 37 of 44 named icons, omitting icons the page's own examples use. Events were missing for `Dropdown`, `Slider`, `Chip`, `Disclosure` and `DisclosureItem`, and `element` bindings for `Button` and `IconButton`
 - **Badge** — every badge now reserves a 1px transparent border instead of only the outlined variants carrying one, so swapping a variant no longer changes the badge's width. A counter that switched with a toggle or a tab moved the layout by 2px
 - **Menu** — headings and dividers render inside `<li>` elements, so the list's markup is valid
 - **Tabs** — an unselected tab's hover uses UI3's `bg-hover` fill

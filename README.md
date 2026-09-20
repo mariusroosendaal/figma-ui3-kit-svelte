@@ -5,7 +5,7 @@ A lightweight, modern Svelte component library for building Figma plugin interfa
 ## Features
 
 - Light/dark theme support via Figma's CSS variables
-- 25+ components matching Figma UI3
+- 35+ components matching Figma UI3
 - 700+ icons (16px and 24px sizes)
 - Svelte 4.x, no heavy dependencies
 
@@ -74,7 +74,7 @@ All components accept a `class` prop for custom styling.
 - Input
 - Label
 - Menu / MenuItem / MenuDivider / MenuHeading
-- Modal
+- Modal / ModalHeader / ModalFooter
 - NumericInput / NumericInputMulti
 - Radio / RadioGroup
 - SegmentedControl / Segment
@@ -84,6 +84,7 @@ All components accept a `class` prop for custom styling.
 - Tabs
 - Text
 - Textarea
+- ToggleButton
 - Tooltip
 - Tree
 - VariablePill
