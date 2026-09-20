@@ -264,7 +264,7 @@ UI3's own Dropdown carries neither a lead chit nor a badge; the **Dropdown badge
 
 ```svelte
 <script>
-  const tabs = [{ label: "Local", badge: 3 }, { label: "Libraries", badge: 21 }, { label: "Export" }];
+  const tabs = [{ label: "Local", badge: 3, unread: true }, { label: "Libraries", badge: 21 }, { label: "Export" }];
   let selectedTab = 0;
 </script>
 
@@ -275,7 +275,9 @@ UI3's own Dropdown carries neither a lead chit nor a badge; the **Dropdown badge
 {/if}
 ```
 
-Props: `tabs` (strings or `{ label, badge? }`; a badge is a count beside the label), `selectedTab` (0-based index), `onTabChange`, `panelIds` (for `aria-controls`).
+Props: `tabs` (strings or `{ label, badge?, unread? }`), `selectedTab` (0-based index), `onTabChange`, `panelIds` (for `aria-controls`).
+
+The counter takes its look from UI3's "Badge small alt": `unread` makes it blue (Count New) on any tab, otherwise the selected tab gets the filled grey Default and the rest Count Inactive. An unread count is also labelled "N new", since its colour is the only thing that says so.
 
 ---
 

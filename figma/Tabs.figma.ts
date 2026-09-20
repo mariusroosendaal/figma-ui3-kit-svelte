@@ -19,12 +19,25 @@ tabs.forEach((tab, i) => {
   if (tab.type !== 'INSTANCE') return
   // 🎛️ Badge shows a count in a nested "Badge small alt"
   let badge = ''
+  let unread = false
   if (tab.getBoolean('🎛️ Badge')) {
     const [text] = tab.findLayers((node) => node.type === 'TEXT' && node.textContent !== tab.getString('Text'))
     if (text && text.type === 'TEXT') badge = text.textContent
+    // _Tab swaps the counter between Count New and Count Inactive, and reaches
+    // for Count New only on the selected tab — so read the swap, not the tab.
+    const counter = tab.findInstance('Badge small alt', { traverseInstances: true })
+    if (counter && counter.type === 'INSTANCE') {
+      unread = counter.getEnum('👥 Variant', {
+        'Default': false,
+        'Count New': true,
+        'Count Inactive': false,
+        'Strong': false,
+      })
+    }
   }
   const fields = [`label: ${JSON.stringify(tab.getString('Text'))}`]
   if (badge) fields.push(`badge: ${/^\d+$/.test(badge) ? badge : JSON.stringify(badge)}`)
+  if (badge && unread) fields.push('unread: true')
   labels.push(`{ ${fields.join(', ')} }`)
   if (tab.getEnum('🐣 Selected', { 'True': true, 'False': false })) selectedTab = i
 })

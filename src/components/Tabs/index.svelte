@@ -1,7 +1,10 @@
 <script>
   import Badge from '../Badge/index.svelte';
 
-  /** Strings, or `{ label, badge? }` where badge is a count shown beside the label. */
+  /**
+   * Strings, or `{ label, badge?, unread? }` — `badge` is a count beside the
+   * label, `unread` marks that count as new.
+   */
   export let tabs = [];
   export let selectedTab = 0;
   export let onTabChange = null;
@@ -13,6 +16,15 @@
   let tablistElement;
 
   $: isSingleTab = tabs.length === 1;
+
+  // UI3's "Badge small alt" carries three counter looks, and a tab picks one
+  // from two axes at once — selected or not, new or not. New wins on either
+  // tab, since that is what the blue count is for; otherwise the selected tab
+  // gets the filled grey Default and the rest the quieter Count Inactive.
+  function counterVariant(tab, selected) {
+    if (tab.unread) return 'count'; // "Count New"
+    return selected ? 'default' : 'count-inactive';
+  }
 
   function handleTabClick(index) {
     selectedTab = index;
@@ -53,8 +65,10 @@
       <span class="tab-text">{tab.label || tab}</span>
       {#if tab.badge !== undefined && tab.badge !== null && tab.badge !== ''}
         <Badge
-          variant={index === selectedTab ? 'count' : 'count-inactive'}
+          variant={counterVariant(tab, index === selectedTab)}
+          strong={!tab.unread && index === selectedTab}
           text={String(tab.badge)}
+          ariaLabel={tab.unread ? `${tab.badge} new` : null}
         />
       {/if}
     </button>

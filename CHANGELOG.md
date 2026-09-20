@@ -43,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **MenuItem** — `selected` now only draws the check; the highlight is separate (`highlighted`), so a menu with several checked rows no longer paints them all blue
 - **Dropdown** — no longer broadcasts its own `dropdown:open` event (Menu already closes other menus); measures the trigger before the menu places itself
 - **Badge** — renders a `<span>` rather than a `<div>`, so it is valid inside a tab button or a menu row; `variant="default"` with `strong` now fills grey, matching UI3's "Badge small alt"
+- **Tabs** — the counter no longer turns blue just because its tab is selected. UI3's `_Tab` reaches for "Count New" on the selected tab and "Count Inactive" everywhere else, which collapses two separate things: a tab is selected or not, and its count is new or not. A tab now takes `unread`, which makes the count blue on any tab; without it the selected tab gets the filled grey "Badge small alt" Default and the rest Count Inactive. An unread count is labelled "N new", since the colour is all that said so
 - **Avatar** — the tooltip is the accessible name; `ariaLabel` is for when it should read as something else, rather than repeating the tooltip
 
 ### Fixed

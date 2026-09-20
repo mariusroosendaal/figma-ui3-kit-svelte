@@ -8,7 +8,8 @@ export default {
   argTypes: {
     tabs: {
       control: 'object',
-      description: 'Array of tab objects with label property, or array of strings',
+      description:
+        'Array of strings, or of { label, badge?, unread? } — badge is a count, unread marks it new',
     },
     selectedTab: {
       control: 'number',
@@ -57,10 +58,25 @@ export const ManyTabs = {
   }),
 };
 
-// UI3's _Tab badge: a count beside the label, brighter on the selected tab
+// UI3's _Tab badge: a count beside the label. Filled grey on the selected tab,
+// quieter on the rest.
 export const WithBadges = {
   args: {
     tabs: [{ label: 'Local', badge: 3 }, { label: 'Libraries', badge: 21 }, { label: 'All' }],
+    selectedTab: 0,
+  },
+  render: (args) => ({ Component: TabsWrapper, props: { ...args } }),
+};
+
+// `unread` takes the count blue on either tab — a new count is worth the colour
+// whether or not its tab is open.
+export const UnreadCounts = {
+  args: {
+    tabs: [
+      { label: 'Local', badge: 3, unread: true },
+      { label: 'Libraries', badge: 21 },
+      { label: 'Updates', badge: 7, unread: true },
+    ],
     selectedTab: 0,
   },
   render: (args) => ({ Component: TabsWrapper, props: { ...args } }),
