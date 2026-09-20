@@ -20,10 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dropdown** — `searchable` and `searchPlaceholder`
 - **Dropdown** — `badge`/`badgeVariant` (a Badge between the label and the chevron), `chit` (a lead chit when no chosen item carries one), and `label` (button text distinct from the chosen item's menu label)
 - Named icons `IconSwatchSmall`, `IconEyeSmall`, `IconHiddenSmall`, `IconLinkBroken`, `IconLinkConnected`, `IconStyles`, `IconPlay`
-- **Avatar** — UI3's avatar: initial on a multiplayer colour (stable per name), photo or org image with fallback, overflow count (`unread`), three sizes, circle or square
-- **NumericInputMulti** — several numbers behind one lead (corner radii, paddings); per-cell or whole-field disabling; the lead scrubs every cell
-- **VariablePill** — the pill Figma shows for a value bound to a variable; **NumericInput** takes `variable` to show one, with a detach button
-- **Tree** — a nested list for browsing, picking (`mode="single"`) or ticking (`mode="check"`, with tri-state parents); tree keyboard pattern
+- **Avatar** — UI3's avatar: initial on a multiplayer colour (stable per name), photo or org image with fallback, overflow count (`unread`), three sizes, circle or square. The tooltip is its accessible name; `ariaLabel` is for when it should read as something else
+- **NumericInputMulti** — several numbers behind one lead (corner radii, paddings); per-cell or whole-field disabling; the lead scrubs every cell. Every cell is named, numbered off `ariaLabel` (or `label`) when `ariaLabels` is left out
+- **VariablePill** — the pill Figma shows for a value bound to a variable; **NumericInput** takes `variable` to show one, with a detach button. A bound field stays a control: the pill is a button carrying the field's `id`, `name` and `ariaLabel`, so a `<label for>` reaches it and it keeps its place in the tab order, and it fires `variableClick` when picked
+- **Tree** — a nested list for browsing, picking (`mode="single"`) or ticking (`mode="check"`, with tri-state parents); tree keyboard pattern, and collapsing a parent moves the keyboard onto it rather than onto a row that is gone
 - **Badge** — `count` and `count-inactive` variants, `size="large"`, and `dot`
 - **Checkbox**, **Switch** — `description` line, linked with `aria-describedby`
 - **Tabs** — per-tab `badge` counts
@@ -41,7 +41,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Dropdown** — no longer broadcasts its own `dropdown:open` event (Menu already closes other menus); measures the trigger before the menu places itself
 - **Badge** — renders a `<span>` rather than a `<div>`, so it is valid inside a tab button or a menu row; `variant="default"` with `strong` now fills grey, matching UI3's "Badge small alt"
 - **Tabs** — the counter no longer turns blue just because its tab is selected. UI3's `_Tab` reaches for "Count New" on the selected tab and "Count Inactive" everywhere else, which collapses two separate things: a tab is selected or not, and its count is new or not. A tab now takes `unread`, which makes the count blue on any tab; without it the selected tab gets the filled grey "Badge small alt" Default and the rest Count Inactive. An unread count is labelled "N new", since the colour is all that said so
-- **Avatar** — the tooltip is the accessible name; `ariaLabel` is for when it should read as something else, rather than repeating the tooltip
 
 ### Fixed
 - **docs** — `Tooltip`'s `direction` is documented with all eight values; the four corner ones (`TopLeft`, `TopRight`, `BottomLeft`, `BottomRight`) were missing, though the component has always implemented them
@@ -51,9 +50,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Tabs** — an unselected tab's hover uses UI3's `bg-hover` fill
 - **Modal** — one dialog body instead of two copies for with and without an overlay
 - **ModalHeader** — the second icon button takes `icon2AriaLabel`; **Modal** passes `icon2AriaLabel` and `backAriaLabel` through, so a dialog's own icon buttons can be named
-- **NumericInput** — a bound field is still a control: the pill is a button carrying the field's `id`, `name` and `ariaLabel`, so a `<label for>` reaches it and it stays in the tab order. It fires `variableClick` when picked.
-- **NumericInputMulti** — every cell is named, numbered off the new `ariaLabel` (or `label`) when `ariaLabels` is left out, and the field itself is named too; scrubbing the lead no longer leaves a focused cell showing its old number
-- **Tree** — a row's tick state comes from one pass over the tree instead of a walk per row, so a large tree no longer re-walks its subtrees on every keystroke; collapsing a parent moves the keyboard to it rather than leaving it on a row that is gone
 
 ## [0.5.2] - 2026-05-13
 
