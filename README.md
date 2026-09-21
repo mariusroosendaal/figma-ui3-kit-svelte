@@ -73,6 +73,7 @@ All components accept a `class` prop for custom styling.
 - IconToggle
 - Input
 - Label
+- LinkTooltip
 - Menu / MenuItem / MenuDivider / MenuHeading
 - Modal / ModalHeader / ModalFooter
 - NumericInput / NumericInputMulti

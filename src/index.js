@@ -19,6 +19,7 @@ import IconButton from './components/IconButton/index.svelte';
 import IconToggle from './components/IconToggle/index.svelte';
 import Input from './components/Input/index.svelte';
 import Label from './components/Label/index.svelte';
+import LinkTooltip from './components/LinkTooltip/index.svelte';
 import Menu from './components/Menu/index.svelte';
 import MenuDivider from './components/MenuDivider/index.svelte';
 import MenuHeading from './components/MenuHeading/index.svelte';
@@ -60,6 +61,7 @@ export {
   IconToggle,
   Input,
   Label,
+  LinkTooltip,
   Menu,
   MenuDivider,
   MenuHeading,
