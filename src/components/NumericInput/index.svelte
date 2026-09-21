@@ -63,12 +63,14 @@
   let menuOpen = false;
   let scrub = null; // { x, start, moved }
   let selectOnMouseUp = false;
+  let pillFocused = false;
 
   $: decimals = precision ?? 2;
   // A numeric string ("12", from older saved settings say) reads as its number.
   $: numeric = typeof value === 'string' ? evaluate(value) : value;
   $: if (!focused) text = format(numeric);
   $: hasLead = Boolean(iconName || label);
+  $: hasOptions = Boolean(options && options.length > 0);
   $: menuItems = (options ?? []).map((option) => {
     const item =
       typeof option === 'number' ? { label: format(option), value: option } : { ...option };
@@ -164,125 +166,133 @@
 
   // PRESETS
 
+  // Picking a preset while bound sets a raw value, so the binding goes: ask the parent to detach.
   function handlePreset(event) {
+    if (variable) dispatch('detach', variable);
     commit(event.detail.value);
   }
 </script>
 
+<!--
+  With `options` this is UI3's combo input: one box whose hover and focus borders
+  run round the whole shape, the presets chevron split off by a 1px line.
+-->
 <div
   class="numeric-input {className}"
-  class:focused
   class:disabled
-  class:has-lead={hasLead}
-  class:has-options={options && options.length > 0 && !variable}
+  class:has-options={hasOptions}
   class:bound={variable}
 >
-  {#if hasLead}
-    <!-- Scrubbing is a pointer shortcut; the field's arrow keys do the same. -->
-    <span
-      class="lead"
-      class:scrubbing={scrub?.moved}
-      class:static={variable}
-      on:pointerdown={scrubStart}
-      on:pointermove={scrubMove}
-      on:pointerup={scrubEnd}
-      on:pointercancel={scrubEnd}
-    >
-      {#if iconName}
-        <Icon
-          {iconName}
-          color={disabled ? '--figma-color-icon-disabled' : '--figma-color-icon-secondary'}
-        />
-      {:else}
-        <Icon
-          iconText={label}
-          color={disabled ? '--figma-color-text-disabled' : '--figma-color-text-secondary'}
+  <div class="field" class:has-lead={hasLead}>
+    {#if hasLead}
+      <!-- Scrubbing is a pointer shortcut; the field's arrow keys do the same. -->
+      <span
+        class="lead"
+        class:scrubbing={scrub?.moved}
+        class:static={variable}
+        on:pointerdown={scrubStart}
+        on:pointermove={scrubMove}
+        on:pointerup={scrubEnd}
+        on:pointercancel={scrubEnd}
+      >
+        {#if iconName}
+          <Icon
+            {iconName}
+            color={disabled ? '--figma-color-icon-disabled' : '--figma-color-icon-secondary'}
+          />
+        {:else}
+          <Icon
+            iconText={label}
+            color={disabled ? '--figma-color-text-disabled' : '--figma-color-text-secondary'}
+          />
+        {/if}
+      </span>
+    {/if}
+    {#if variable}
+      <!--
+        A button, not a span: the pill is the field's control while it is bound
+        (clicking it rebinds, as in Figma), it takes the field's `id` so a
+        `<label for>` still reaches it, and it keeps the field in the tab order.
+      -->
+      <button
+        type="button"
+        class="pill-slot"
+        {id}
+        {name}
+        {disabled}
+        aria-label={ariaLabel ? `${ariaLabel}: bound to ${variable}` : `Bound to ${variable}`}
+        on:click={() => dispatch('variableClick', variable)}
+        on:focus={() => (pillFocused = true)}
+        on:blur={() => (pillFocused = false)}
+        on:focus
+        on:blur
+        on:keydown
+      >
+        <VariablePill label={variable} onSelected={pillFocused} {disabled} />
+      </button>
+      {#if !disabled && !hasOptions}
+        <IconButton
+          class="detach"
+          iconName={IconDetach}
+          ariaLabel="Detach {variable}"
+          on:click={() => dispatch('detach', variable)}
         />
       {/if}
-    </span>
-  {/if}
-  {#if variable}
-    <!--
-      A button, not a span: the pill is the field's control while it is bound
-      (clicking it rebinds, as in Figma), it takes the field's `id` so a
-      `<label for>` still reaches it, and it keeps the field in the tab order.
-    -->
-    <button
-      type="button"
-      class="pill-slot"
-      {id}
-      {name}
-      {disabled}
-      aria-label={ariaLabel ? `${ariaLabel}: bound to ${variable}` : `Bound to ${variable}`}
-      on:click={() => dispatch('variableClick', variable)}
-      on:focus
-      on:blur
-      on:keydown
-    >
-      <VariablePill label={variable} {disabled} />
-    </button>
-    {#if !disabled}
-      <IconButton
-        class="detach"
-        iconName={IconDetach}
-        ariaLabel="Detach {variable}"
-        on:click={() => dispatch('detach', variable)}
-      />
-    {/if}
-  {:else}
-    <input
-      bind:this={input}
-      bind:value={text}
-      type="text"
-      inputmode="decimal"
-      role="spinbutton"
-      autocomplete="off"
-      spellcheck="false"
-      {id}
-      {name}
-      {disabled}
-      {placeholder}
-      aria-label={ariaLabel || undefined}
-      aria-valuenow={numeric ?? undefined}
-      aria-valuemin={min ?? undefined}
-      aria-valuemax={max ?? undefined}
-      on:keydown={handleKeydown}
-      on:focus={handleFocus}
-      on:blur={handleBlur}
-      on:mouseup={handleMouseUp}
-      on:focus
-      on:blur
-      on:keydown
-    />
-    {#if unit && text !== ''}
-      <span class="unit" aria-hidden="true">{unit}</span>
-    {/if}
-    {#if options && options.length > 0}
-      <button
-        bind:this={chevron}
-        type="button"
-        class="chevron"
-        tabindex="-1"
-        aria-label="Presets"
-        aria-haspopup="menu"
-        aria-expanded={menuOpen}
+    {:else}
+      <input
+        bind:this={input}
+        bind:value={text}
+        type="text"
+        inputmode="decimal"
+        role="spinbutton"
+        autocomplete="off"
+        spellcheck="false"
+        {id}
+        {name}
         {disabled}
-        on:click={() => (menuOpen = !menuOpen)}
-      >
-        <Icon
-          iconName={IconChevronDown}
-          color={disabled ? '--figma-color-icon-disabled' : '--figma-color-icon-secondary'}
-        />
-      </button>
-      <Menu
-        bind:isOpen={menuOpen}
-        {menuItems}
-        anchorElement={chevron}
-        position="bottom-right"
-        itemVariant="checkmark"
-        on:select={handlePreset}
+        {placeholder}
+        aria-label={ariaLabel || undefined}
+        aria-valuenow={numeric ?? undefined}
+        aria-valuemin={min ?? undefined}
+        aria-valuemax={max ?? undefined}
+        on:keydown={handleKeydown}
+        on:focus={handleFocus}
+        on:blur={handleBlur}
+        on:mouseup={handleMouseUp}
+        on:focus
+        on:blur
+        on:keydown
       />
+      {#if unit && text !== ''}
+        <span class="unit" aria-hidden="true">{unit}</span>
+      {/if}
     {/if}
+  </div>
+  {#if hasOptions}
+    <button
+      bind:this={chevron}
+      type="button"
+      class="chevron"
+      tabindex="-1"
+      aria-label="Presets"
+      aria-haspopup="menu"
+      aria-expanded={menuOpen}
+      {disabled}
+      on:click={() => (menuOpen = !menuOpen)}
+    >
+      <Icon
+        iconName={IconChevronDown}
+        color={disabled ? '--figma-color-icon-disabled' : '--figma-color-icon'}
+      />
+    </button>
+    <Menu
+      bind:isOpen={menuOpen}
+      {menuItems}
+      anchorElement={chevron}
+      position="bottom-right"
+      itemVariant="checkmark"
+      on:select={handlePreset}
+    />
   {/if}
 </div>
 
@@ -300,18 +310,41 @@
     background-color: var(--figma-color-bg-secondary);
   }
 
-  .numeric-input:hover:not(.disabled) {
+  /* The visible edge is drawn over the children, so a fill that runs to the
+     field's edge (the chevron's hover) can't leave a seam against it or hide it.
+     The element keeps its own transparent border for layout. */
+  .numeric-input::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border: 1px solid transparent;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  .numeric-input:hover:not(.disabled)::after {
     border-color: var(--figma-color-border);
   }
 
-  .numeric-input.focused,
-  .numeric-input.focused:hover {
+  /* Focus in the value or the pill; the chevron's own focus doesn't count */
+  .numeric-input:has(.field:focus-within)::after {
     border-color: var(--figma-color-border-selected);
   }
 
   .numeric-input.disabled {
-    border-color: var(--figma-color-border);
     background-color: transparent;
+  }
+
+  .numeric-input.disabled::after {
+    border-color: var(--figma-color-border);
+  }
+
+  .field {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    min-width: 0;
+    height: 100%;
   }
 
   .lead {
@@ -368,6 +401,7 @@
     color: var(--figma-color-text-disabled);
   }
 
+  /* The pill starts where a value's text would: 8px in, or against the lead */
   .pill-slot {
     display: flex;
     flex: 1 1 auto;
@@ -376,16 +410,12 @@
     min-width: 0;
     height: 100%;
     margin: 0;
-    padding: 0 var(--size-xxxsmall);
+    padding: 0 var(--size-xxxsmall) 0 7px; /* 8px from the field's edge, less its border */
     border: 0;
     outline: none;
     background: transparent;
     font: inherit;
     cursor: default;
-  }
-
-  .pill-slot:focus-visible :global(.variable-pill) {
-    border-color: var(--figma-color-border-selected);
   }
 
   .has-lead .pill-slot {
@@ -397,14 +427,20 @@
   }
 
   /* The detach button shows while the field is hovered or holds focus */
-  .numeric-input :global(.detach) {
+  .field :global(.detach) {
     flex: 0 0 auto;
     margin: -1px -1px -1px 0;
     opacity: 0;
   }
 
-  .numeric-input.bound:hover :global(.detach),
-  .numeric-input.bound:focus-within :global(.detach) {
+  /* No fill of its own: it sits in the field, as in Figma */
+  .field :global(.icon-button.detach:hover:not(:disabled)),
+  .field :global(.icon-button.detach:active:not(:disabled)) {
+    background-color: transparent;
+  }
+
+  .bound:hover .field :global(.detach),
+  .field:focus-within :global(.detach) {
     opacity: 1;
   }
 
@@ -421,16 +457,20 @@
     user-select: none;
   }
 
+  /* Its own button, split off by a 1px line in the canvas colour; it runs under
+     the field's edge and darkens on hover and while its menu is open. */
   .chevron {
     display: flex;
     flex: 0 0 auto;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;
     width: var(--size-small);
     height: var(--size-small);
     margin: -1px -1px -1px 0;
     padding: 0;
-    border: 1px solid transparent;
+    border: 0;
+    border-left: 1px solid var(--figma-color-bg);
     border-radius: 0 var(--border-radius-medium) var(--border-radius-medium) 0;
     background: transparent;
   }
@@ -439,16 +479,12 @@
     cursor: inherit;
   }
 
-  .has-options:hover:not(.disabled) .chevron,
-  .has-options.focused .chevron {
-    border-left-color: var(--figma-color-border);
-  }
-
-  .chevron:hover:not(:disabled) {
-    background-color: var(--figma-color-bg-hover);
-  }
-
+  .chevron:hover:not(:disabled),
   .chevron[aria-expanded='true'] {
-    background-color: var(--figma-color-bg-pressed, var(--figma-color-bg-hover));
+    background-color: var(--figma-color-bg-tertiary);
+  }
+
+  .disabled .chevron {
+    border-left-color: var(--figma-color-border);
   }
 </style>

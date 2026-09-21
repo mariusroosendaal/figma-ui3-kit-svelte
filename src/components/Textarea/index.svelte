@@ -67,7 +67,7 @@
     width: 100%;
     min-height: 48px; /* 3 lines minimum (16px * 3) */
     margin: 1px 0 1px 0;
-    padding: var(--size-xxsmall); /* 8px all around */
+    padding: var(--size-xxxsmall) var(--size-xxsmall); /* 4px 8px, UI3's multi-line input */
     color: var(--figma-color-text);
     border: 1px solid var(--figma-color-border);
     border-radius: var(--border-radius-medium); /* 5px */

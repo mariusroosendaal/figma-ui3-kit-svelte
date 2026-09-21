@@ -29,8 +29,17 @@ export const WithUnit = {
 export const Mixed = {
   args: { value: null, label: 'W', placeholder: 'Mixed', ariaLabel: 'Width' },
 };
+// UI3's "Combo input"
 export const WithPresets = {
   args: { value: 16, options: [10, 12, 14, 16, 20, 24, 32], ariaLabel: 'Font size' },
+};
+export const WithPresetsAndVariable = {
+  args: {
+    value: 16,
+    options: [10, 12, 14, 16, 20, 24, 32],
+    variable: 'type/16',
+    ariaLabel: 'Font size',
+  },
 };
 export const Disabled = {
   args: { value: 24, label: 'X', disabled: true, ariaLabel: 'X position' },

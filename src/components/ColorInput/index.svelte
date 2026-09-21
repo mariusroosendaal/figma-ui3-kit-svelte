@@ -236,10 +236,6 @@
     margin: -1px 0 -1px -1px;
   }
 
-  .disabled .chit-cell {
-    opacity: 0.4;
-  }
-
   /* The native picker, invisible over the chit so a click opens it. */
   .picker {
     position: absolute;
