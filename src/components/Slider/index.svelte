@@ -39,12 +39,25 @@
 
   // Check if handle is at default position (for delta variant handle styling)
   $: isAtDefault = variant === 'delta' && value === actualDefaultValue;
+  // UI3's "Stroke (Modified)" handle — a ring whose hole shows the fill and ticks beneath.
+  // Delta at its default, hue and opacity use the plain "Fill (Default)" disc instead.
+  $: stroke = !spectrum && !disabled && !isAtDefault;
 
-  // For delta variant, calculate fill from default to current value
-  $: deltaFillLeft =
-    variant === 'delta' ? (percentage < defaultPercentage ? percentage : defaultPercentage) : 0;
-  $: deltaFillWidth = variant === 'delta' ? Math.abs(percentage - defaultPercentage) : percentage;
-  $: fillHasValue = variant === 'delta' ? deltaFillWidth > 0 : percentage > 0;
+  // The fill, in px from the track's padding box. Range runs from the pill's start (8px before
+  // the track) to the handle; delta from the default to the handle, 8px past each. The handle
+  // covers handleX ± 8, and a fill edge on that outline antialiases into a blue fringe round
+  // the handle, so any edge within 1px of it is pulled 2px inside, under the white ring. The
+  // hole (± 4) still shows the fill.
+  let trackWidth = 0;
+  $: handleX = (percentage / 100) * trackWidth;
+  $: defaultX = (defaultPercentage / 100) * trackWidth;
+  $: rawStart = variant === 'delta' ? Math.min(handleX, defaultX) - 8 : -8;
+  $: rawEnd = variant === 'delta' ? Math.max(handleX, defaultX) + 8 : handleX + 8;
+  $: fillStart = rawStart > handleX - 9 ? handleX - 6 : rawStart;
+  $: fillEnd = rawEnd < handleX + 9 ? handleX + 6 : rawEnd;
+  // Wholly under the handle (range at its minimum, delta at its default): shrink it to a
+  // 12px disc so its top and bottom stay off the outline too.
+  $: fillCompact = fillStart >= handleX - 8 && fillEnd <= handleX + 8;
 
   // Calculate tick marks for stepper variant
   $: tickCount = variant === 'stepper' ? Math.floor((max - min) / step) + 1 : 0;
@@ -55,7 +68,7 @@
           return {
             value: tickValue,
             position: ((tickValue - min) / (max - min)) * 100,
-            isActive: tickValue <= value,
+            isDefault: Math.abs(tickValue - actualDefaultValue) < 1e-9,
           };
         })
       : [];
@@ -90,7 +103,13 @@
 </script>
 
 <div class="slider-container {className}" class:disabled>
-  <div class="slider-track" class:disabled class:spectrum style:--slider-color={color}>
+  <div
+    class="slider-track"
+    class:disabled
+    class:spectrum
+    style:--slider-color={color}
+    bind:clientWidth={trackWidth}
+  >
     {#if spectrum}
       <div class="slider-spectrum {variant}" class:disabled></div>
     {/if}
@@ -119,17 +138,18 @@
       <div
         class="slider-fill"
         class:disabled
-        style="left: {deltaFillLeft}%; width: {deltaFillWidth}%"
+        class:compact={fillCompact}
+        style="left: {fillStart}px; width: {fillEnd - fillStart}px"
       ></div>
-      <!-- Default position indicator (sits on top with z-index: 3) -->
+      <!-- Default position indicator; the handle covers it when the value is at the default -->
       <div class="slider-default-indicator" class:disabled style="left: {defaultPercentage}%"></div>
     {:else if !spectrum}
       <!-- Range/Stepper: fill from start to handle -->
       <div
         class="slider-fill"
         class:disabled
-        class:hasValue={fillHasValue}
-        style="width: {percentage}%"
+        class:compact={fillCompact}
+        style="left: {fillStart}px; width: {fillEnd - fillStart}px"
       ></div>
     {/if}
 
@@ -146,7 +166,7 @@
       {#each tickPositions as tick, index (index)}
         <div
           class="slider-tick"
-          class:active={tick.isActive}
+          class:default={tick.isDefault}
           class:disabled
           style="left: {tick.position}%"
         ></div>
@@ -155,14 +175,7 @@
 
     <!-- Handle (visual only) -->
     <div class="slider-handle-wrapper" style="left: {percentage}%">
-      <div
-        class="slider-handle"
-        class:focused={isFocused}
-        class:disabled
-        class:at-default={isAtDefault}
-        class:modified={variant === 'delta' && !isAtDefault}
-        class:plain={spectrum}
-      ></div>
+      <div class="slider-handle" class:focused={isFocused} class:disabled class:stroke></div>
     </div>
   </div>
 </div>
@@ -190,28 +203,31 @@
     box-sizing: border-box;
   }
 
+  /* Left and width come from the script; -1px top and bottom covers the track's border. */
   .slider-fill {
     position: absolute;
-    left: -1px;
     top: -1px;
     bottom: -1px;
+    border-radius: 8px;
     background-color: var(--figma-color-bg-brand);
     pointer-events: none;
-    border: none;
+    /* Above the track's ::after end cap, which otherwise paints over the fill's right end.
+       Ticks, markers and the handle are also z-index 1 and come later, so they stay on top. */
+    z-index: 1;
+  }
+
+  .slider-fill.compact {
+    top: 1px;
+    bottom: 1px;
+    border-radius: 6px;
   }
 
   .slider-fill.disabled {
     background-color: var(--figma-color-bg-disabled);
   }
 
-  .slider-fill.rounded-delta {
-    border-radius: 8px;
-  }
-
   .slider-track::before,
-  .slider-track::after,
-  .slider-fill::before,
-  .slider-fill::after {
+  .slider-track::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -221,14 +237,12 @@
     background-color: inherit;
     pointer-events: none;
   }
-  .slider-track::before,
-  .slider-fill::before {
+  .slider-track::before {
     left: -8px;
     border-top-left-radius: 8px;
     border-bottom-left-radius: 8px;
   }
-  .slider-track::after,
-  .slider-fill::after {
+  .slider-track::after {
     right: -8px;
     border-top-right-radius: 8px;
     border-bottom-right-radius: 8px;
@@ -312,39 +326,28 @@
 
   .slider-handle {
     position: absolute;
+    box-sizing: border-box;
     width: 16px;
     height: 16px;
     border-radius: 50%;
     background-color: var(--figma-color-icon-onbrand);
     pointer-events: none;
-    box-shadow: var(--elevation-200);
+    box-shadow: var(--elevation-200-canvas);
   }
 
-  /* Inner circle for modified/stroke state */
-  .slider-handle::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: var(--figma-color-bg-brand);
+  /* A 4px ring around an 8px hole; the inset shadow is the hole's 0.5px edge */
+  .slider-handle.stroke {
+    background-color: transparent;
+    border: 4px solid var(--figma-color-icon-onbrand);
+    box-shadow:
+      var(--elevation-300-tooltip),
+      inset 0 0 0 0.5px var(--figma-color-bordertranslucent, var(--color-border-transparent));
   }
 
-  /* Delta variant: at default position - solid blue fill */
-  .slider-handle.at-default {
-    background-color: var(--figma-color-icon-onbrand);
-  }
-
-  .slider-handle.at-default::before {
-    display: none;
-  }
-
-  /* Focused state */
+  /* An outline, so the ring's border and the disc's size are left alone */
   .slider-handle.focused {
-    border: 1px solid var(--figma-color-border-selected);
+    outline: 1px solid var(--figma-color-border-selected);
+    outline-offset: -1px;
   }
 
   .slider-handle.disabled {
@@ -353,10 +356,8 @@
     box-shadow: none;
   }
 
-  .slider-handle.disabled::before {
-    display: none;
-  }
-
+  /* One translucent token for every tick: over the blue fill it composites dark,
+     over the track it reads grey. Only the default value's tick differs. */
   .slider-tick {
     position: absolute;
     top: 50%;
@@ -366,7 +367,11 @@
     border-radius: 50%;
     background-color: var(--figma-color-icon-tertiary);
     pointer-events: none;
-    z-index: 2;
+    z-index: 1;
+  }
+
+  .slider-tick.default {
+    background-color: var(--figma-color-icon);
   }
 
   .slider-tick.disabled {
@@ -380,9 +385,9 @@
     width: 4px;
     height: 4px;
     border-radius: 50%;
-    background-color: var(--figma-color-icon-onbrand);
+    background-color: var(--figma-color-icon-tertiary);
     pointer-events: none;
-    z-index: 3;
+    z-index: 1;
   }
 
   /* HUE AND OPACITY — the track is the colour; the pill spans the end caps too */
@@ -428,10 +433,6 @@
 
   .slider-spectrum.disabled {
     opacity: 0.4;
-  }
-
-  .slider-handle.plain::before {
-    display: none;
   }
 
   /* RANGE MARKER — a reference point on the track */
