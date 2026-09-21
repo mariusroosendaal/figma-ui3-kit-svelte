@@ -13,7 +13,7 @@
 <style>
   .select-heading {
     height: var(--size-small);
-    padding: 0 var(--size-xxsmall); /* 4px horizontal */
+    padding: 0 var(--size-xxsmall); /* 8px; with the menu's 8px, text sits 16px in */
     display: flex;
     align-items: center;
     overflow: hidden;

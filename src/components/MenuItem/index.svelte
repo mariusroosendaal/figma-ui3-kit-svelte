@@ -124,8 +124,9 @@
     padding-left: var(--size-xxxsmall);
   }
 
+  /* A lead icon after the check: UI3's toolbar row puts its 24px icon 20px in
+     and the label at 48px */
   li.has-check .lead {
-    margin-left: var(--size-xxxsmall);
     margin-right: var(--size-xxxsmall);
   }
 

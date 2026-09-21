@@ -1,5 +1,6 @@
 <script>
-  import { tick, onMount } from 'svelte';
+  import { tick, onMount, onDestroy } from 'svelte';
+  import { placeTooltip, arrowStyle } from './position.js';
 
   // Global tooltip state - shared across all Tooltip instances
   // Using window object to ensure true global state across all instances
@@ -32,12 +33,21 @@
   let showTooltip = false;
   let hoverTimeout;
   let tooltipPosition = { top: 0, left: 0 };
+  // The side actually used (it flips when the asked-for side has no room) and the arrow's offset
+  let placedDirection = direction;
+  let arrow = null;
 
   // Arrow SVG paths for different directions
   const arrowPath = 'M6 0L12 6H0L6 0Z';
 
-  async function handleMouseEnter() {
+  const FIRST_DELAY = 1000;
+  const WARM_DELAY = 200;
+
+  function show(delay) {
     if (disabled) return;
+
+    // Hovering then clicking fires mouseenter and focusin: one pending timer, not two
+    clearTimeout(hoverTimeout);
 
     // Clear any existing reset timeout since user is actively hovering
     if (globalTooltipState.resetTimeout) {
@@ -45,10 +55,8 @@
       globalTooltipState.resetTimeout = null;
     }
 
-    // Use shorter delay if user has already seen a tooltip recently
-    const delay = globalTooltipState.hasShownFirstTooltip ? 200 : 1000;
-
     hoverTimeout = setTimeout(async () => {
+      hoverTimeout = null;
       showTooltip = true;
 
       // Mark that we've shown the first tooltip
@@ -62,11 +70,22 @@
     }, delay);
   }
 
-  function handleMouseLeave() {
-    if (hoverTimeout) {
-      clearTimeout(hoverTimeout);
-      hoverTimeout = null;
+  // Use shorter delay if user has already seen a tooltip recently
+  function handleMouseEnter() {
+    show(globalTooltipState.hasShownFirstTooltip ? WARM_DELAY : FIRST_DELAY);
+  }
+
+  // Keyboard focus asked for the element, so it gets the short delay; focus from a
+  // click follows the pointer's timing, which mouseenter already started.
+  function handleFocusIn(event) {
+    if (event.target?.matches?.(':focus-visible')) {
+      show(WARM_DELAY);
     }
+  }
+
+  function handleMouseLeave() {
+    clearTimeout(hoverTimeout);
+    hoverTimeout = null;
     showTooltip = false;
 
     // Start the reset timeout only when user leaves a tooltip
@@ -89,6 +108,8 @@
     if (showTooltip && event.key === 'Escape') handleMouseLeave();
   }
 
+  onDestroy(() => clearTimeout(hoverTimeout));
+
   onMount(() => {
     const trigger = wrapperElement?.querySelector(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -98,63 +119,14 @@
 
   function calculatePosition() {
     if (!wrapperElement || !tooltipElement) return;
-
-    const triggerRect = wrapperElement.getBoundingClientRect();
-    const tooltipRect = tooltipElement.getBoundingClientRect();
-    const viewport = {
-      width: window.innerWidth,
-      height: window.innerHeight,
-    };
-
-    let top = 0;
-    let left = 0;
-
-    switch (direction) {
-      case 'Top':
-        top = triggerRect.top - tooltipRect.height - 8;
-        left = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2;
-        break;
-      case 'TopLeft':
-        top = triggerRect.top - tooltipRect.height - 8;
-        left = triggerRect.left;
-        break;
-      case 'TopRight':
-        top = triggerRect.top - tooltipRect.height - 8;
-        left = triggerRect.right - tooltipRect.width;
-        break;
-      case 'Bottom':
-        top = triggerRect.bottom + 8;
-        left = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2;
-        break;
-      case 'BottomLeft':
-        top = triggerRect.bottom + 8;
-        left = triggerRect.left;
-        break;
-      case 'BottomRight':
-        top = triggerRect.bottom + 8;
-        left = triggerRect.right - tooltipRect.width;
-        break;
-      case 'Left':
-        top = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2;
-        left = triggerRect.left - tooltipRect.width - 8;
-        break;
-      case 'Right':
-        top = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2;
-        left = triggerRect.right + 8;
-        break;
-    }
-
-    // Keep tooltip within viewport bounds
-    if (left < 8) left = 8;
-    if (left + tooltipRect.width > viewport.width - 8) {
-      left = viewport.width - tooltipRect.width - 8;
-    }
-    if (top < 8) top = 8;
-    if (top + tooltipRect.height > viewport.height - 8) {
-      top = viewport.height - tooltipRect.height - 8;
-    }
-
-    tooltipPosition = { top, left };
+    const placed = placeTooltip(
+      direction,
+      wrapperElement.getBoundingClientRect(),
+      tooltipElement.getBoundingClientRect()
+    );
+    tooltipPosition = { top: placed.top, left: placed.left };
+    placedDirection = placed.direction;
+    arrow = placed.arrow;
   }
 </script>
 
@@ -170,7 +142,7 @@
   class="tooltip-wrapper {className}"
   on:mouseenter={handleMouseEnter}
   on:mouseleave={handleMouseLeave}
-  on:focusin={handleMouseEnter}
+  on:focusin={handleFocusIn}
   on:focusout={handleFocusOut}
   style="display: inline-block;"
   role="none"
@@ -181,7 +153,7 @@
 {#if showTooltip}
   <div
     bind:this={tooltipElement}
-    class="tooltip {direction}"
+    class="tooltip {placedDirection}"
     aria-hidden="true"
     style="position: fixed; top: {tooltipPosition.top}px; left: {tooltipPosition.left}px; z-index: 1000;"
   >
@@ -196,7 +168,11 @@
       {/if}
     </div>
 
-    <div class="tooltip-arrow {direction}" aria-hidden="true">
+    <div
+      class="tooltip-arrow {placedDirection}"
+      style={arrowStyle(placedDirection, arrow)}
+      aria-hidden="true"
+    >
       <svg width="12" height="6" viewBox="0 0 12 6" fill="none" aria-hidden="true">
         <path d={arrowPath} fill="var(--color-bg-tooltip)" />
       </svg>
@@ -227,7 +203,12 @@
     background-color: var(--color-bg-tooltip);
     border-radius: var(--border-radius-medium);
     padding: var(--size-xxxsmall) var(--size-xxsmall);
-    box-shadow: var(--elevation-300-tooltip);
+    /* UI3's light tooltip elevation as drop-shadows, so the shadow follows the
+       arrow as well as the body. The dark elevation isn't used: its inset edge
+       would outline the body and stop at the arrow, and a tooltip is dark in
+       both themes anyway. */
+    filter: drop-shadow(0 0 0.5px rgba(0, 0, 0, 0.15)) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1))
+      drop-shadow(0 5px 12px rgba(0, 0, 0, 0.13));
   }
 
   .tooltip-content {
@@ -308,14 +289,14 @@
 
   /* Right - arrow points left (tooltip is to the right of trigger) */
   .tooltip-arrow.Right {
-    left: -6px;
+    left: -9px; /* the 12×6 box turns about its centre: 6px out needs 3px more */
     top: 50%;
     transform: translateY(-50%) rotate(-90deg);
   }
 
   /* Left - arrow points right (tooltip is to the left of trigger) */
   .tooltip-arrow.Left {
-    right: -6px;
+    right: -9px; /* as Right */
     top: 50%;
     transform: translateY(-50%) rotate(90deg);
   }

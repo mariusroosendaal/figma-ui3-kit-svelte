@@ -585,13 +585,10 @@
     min-width: max(140px, var(--menu-min-width, auto));
     max-width: min(300px, calc(100vw - 16px));
     visibility: hidden;
-    border: 1px solid var(--color-border-menu); /* #383838 */
     border-radius: var(--border-radius-large); /* 13px */
     background-color: var(--color-bg-menu); /* #1e1e1e */
-    box-shadow:
-      0px 0px 0.5px 0px rgba(0, 0, 0, 0.12),
-      0px 10px 16px 0px rgba(0, 0, 0, 0.12),
-      0px 2px 5px 0px rgba(0, 0, 0, 0.15);
+    /* UI3's menu panel elevation; on the dark theme its inset 0.5px highlights draw the edge */
+    box-shadow: var(--elevation-400-menu-panel);
     font-family: var(--font-stack);
     font-size: var(--body-medium-font-size);
     font-weight: var(--body-medium-font-weight);
@@ -742,7 +739,7 @@
     width: 100%;
     height: var(--size-small); /* 24px */
     padding: 0 var(--size-xxsmall);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.1); /* UI3's bordertranslucent on the dark menu */
     border-radius: var(--border-radius-medium);
     background: transparent;
     color: var(--color-text-menu);

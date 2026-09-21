@@ -302,10 +302,7 @@
 
   .modal-container {
     background-color: var(--figma-color-bg);
-    box-shadow:
-      0 0 0.5px rgba(0, 0, 0, 0.08),
-      0 2px 5px rgba(0, 0, 0, 0.15),
-      0 10px 24px rgba(0, 0, 0, 0.18);
+    box-shadow: var(--elevation-500-modal-window);
     display: flex;
     flex-direction: column;
     overflow: hidden;

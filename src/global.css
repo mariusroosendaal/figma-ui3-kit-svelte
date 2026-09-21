@@ -19,6 +19,7 @@
   --color-bg-tooltip: #1e1e1e;
   --color-text-tooltip: #ffffff;
   --color-text-tooltip-secondary: rgba(255, 255, 255, 0.7);
+  --color-border-tooltip: #383838;
 
   /* SHIM */
   --text-highlight: rgba(13, 153, 255, 0.4);
@@ -145,6 +146,19 @@
   --size-xlarge: 48px;
   --size-xxlarge: 64px;
   --size-huge: 80px;
+
+  /* ELEVATIONS — UI3's effect styles. Figma injects only --figma-color-* into a
+     plugin, so these are defined here; .figma-dark below swaps in the dark set,
+     whose inset 0.5px highlights draw the edge on a dark background. */
+  --elevation-100-canvas: 0 0 0.5px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.15);
+  --elevation-200-canvas:
+    0 0 0.5px rgba(0, 0, 0, 0.18), 0 3px 8px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1);
+  --elevation-300-tooltip:
+    0 0 0.5px rgba(0, 0, 0, 0.15), 0 5px 12px rgba(0, 0, 0, 0.13), 0 1px 3px rgba(0, 0, 0, 0.1);
+  --elevation-400-menu-panel:
+    0 0 0.5px rgba(0, 0, 0, 0.12), 0 10px 16px rgba(0, 0, 0, 0.12), 0 2px 5px rgba(0, 0, 0, 0.15);
+  --elevation-500-modal-window:
+    0 0 0.5px rgba(0, 0, 0, 0.08), 0 10px 24px rgba(0, 0, 0, 0.18), 0 2px 5px rgba(0, 0, 0, 0.15);
 }
 
 /* Global styles */
@@ -172,15 +186,15 @@ body {
 
 /* Hyperlink styling */
 a {
-  color: var(--figma-text-brand);
+  color: var(--figma-color-text-brand);
   text-decoration: none;
   cursor: pointer;
 }
 a:hover {
-  color: var(--figma-text-brand);
+  color: var(--figma-color-text-brand);
 }
 a:active {
-  color: var(--figma-text-brand);
+  color: var(--figma-color-text-brand);
 }
 a:focus {
   text-decoration: underline;
@@ -191,4 +205,20 @@ a:focus {
   --color-border-transparent: rgba(255, 255, 255, 0.1);
   --color-bg-transparent-hover: rgba(255, 255, 255, 0.05);
   --color-bg-transparent-pressed: rgba(255, 255, 255, 0.1);
+
+  --elevation-100-canvas:
+    0 0 0.5px rgba(0, 0, 0, 0.5), 0 1px 3px rgba(0, 0, 0, 0.4),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.1), inset 0 0 0.5px rgba(255, 255, 255, 0.3);
+  --elevation-200-canvas:
+    0 3px 8px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.5),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.08), inset 0 0 0.5px rgba(255, 255, 255, 0.3);
+  --elevation-300-tooltip:
+    0 5px 12px rgba(0, 0, 0, 0.35), 0 1px 3px rgba(0, 0, 0, 0.5),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.08), inset 0 0 0.5px rgba(255, 255, 255, 0.3);
+  --elevation-400-menu-panel:
+    0 10px 16px rgba(0, 0, 0, 0.35), 0 2px 5px rgba(0, 0, 0, 0.35),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.08), inset 0 0 0.5px rgba(255, 255, 255, 0.35);
+  --elevation-500-modal-window:
+    0 10px 24px rgba(0, 0, 0, 0.45), 0 3px 5px rgba(0, 0, 0, 0.35),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.08), inset 0 0 0.5px rgba(255, 255, 255, 0.35);
 }
