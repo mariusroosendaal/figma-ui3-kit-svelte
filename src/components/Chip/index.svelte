@@ -27,7 +27,7 @@
     }
   }
 
-  function getIconColor() {
+  function getIconColor(disabled, variant) {
     if (disabled) {
       return '--figma-color-icon-disabled';
     }
@@ -38,6 +38,8 @@
         return '--figma-color-icon';
     }
   }
+  // A $: statement, so the colour follows its inputs; a call in the markup would not re-run.
+  $: iconColor = getIconColor(disabled, variant);
 </script>
 
 <div
@@ -57,7 +59,7 @@
 >
   {#if iconName}
     <div class="chip-icon">
-      <Icon {iconName} color={getIconColor()} />
+      <Icon {iconName} color={iconColor} />
     </div>
   {/if}
 
@@ -75,7 +77,7 @@
       {disabled}
       aria-label="Remove {label}"
     >
-      <Icon iconName={IconClose} color={getIconColor()} />
+      <Icon iconName={IconClose} color={iconColor} />
     </button>
   {/if}
 </div>

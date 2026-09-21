@@ -18,6 +18,7 @@ export default {
         'secondary-destructive',
         'inverse',
         'success',
+        'figjam',
         'link',
         'link-danger',
         'ghost',
@@ -110,6 +111,15 @@ export const Success = {
     size: 'default',
     disabled: false,
     label: 'Success',
+  },
+};
+
+export const FigJam = {
+  args: {
+    variant: 'figjam',
+    size: 'default',
+    disabled: false,
+    label: 'FigJam',
   },
 };
 

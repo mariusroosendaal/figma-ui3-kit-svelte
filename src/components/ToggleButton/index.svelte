@@ -117,7 +117,7 @@
 
   .toggle-button.large {
     height: var(--size-medium); /* 32px */
-    padding: 0 var(--size-xsmall); /* 12px */
+    padding: 0 12px; /* as Button; no 12px token */
   }
 
   /* The icon sits on its own 24px cell, so the text lines up with Button's */

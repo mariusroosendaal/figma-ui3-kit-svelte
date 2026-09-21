@@ -2,7 +2,7 @@
   import Icon from './../Icon/index.svelte';
   import { createEventDispatcher } from 'svelte';
 
-  export let variant = 'primary'; // primary, secondary, destructive, secondary-destructive, inverse, success, link, link-danger, ghost
+  export let variant = 'primary'; // primary, secondary, destructive, secondary-destructive, inverse, success, figjam, link, link-danger, ghost
   export let size = 'default'; // default, large, wide
   export let disabled = false;
   export let ariaDisabled = false;
@@ -28,10 +28,16 @@
     }
   }
 
+  // Variants UI3 fills with bg-disabled when disabled; the rest stay transparent
+  const filledVariants = ['primary', 'destructive', 'inverse', 'success', 'figjam'];
+
   // Function to determine the correct icon color based on variant and state
-  function getIconColor() {
+  function getIconColor(disabled, ariaDisabled, variant) {
     if (disabled || ariaDisabled) {
-      return '--figma-color-icon-ondisabled';
+      // White on the grey fill; on a transparent button white would vanish
+      return filledVariants.includes(variant)
+        ? '--figma-color-icon-ondisabled'
+        : '--figma-color-icon-disabled';
     }
 
     switch (variant) {
@@ -40,6 +46,8 @@
         return '--figma-color-icon-onbrand';
       case 'inverse':
         return '--figma-color-icon-oninverse';
+      case 'figjam':
+        return '--figma-color-icon-oncomponent';
       case 'destructive':
         return '--figma-color-icon-onbrand';
       case 'link-danger':
@@ -54,6 +62,8 @@
         return '--figma-color-icon';
     }
   }
+  // A $: statement, so the colour follows its inputs; a call in the markup would not re-run.
+  $: iconColor = getIconColor(disabled, ariaDisabled, variant);
 </script>
 
 <button
@@ -75,13 +85,13 @@
 >
   {#if iconName && iconLead === 'left'}
     <div class="button-icon-left">
-      <Icon {iconName} color={getIconColor()} />
+      <Icon {iconName} color={iconColor} />
     </div>
   {/if}
 
   {#if iconName && iconLead === 'center'}
     <div class="button-icon-center">
-      <Icon {iconName} color={getIconColor()} />
+      <Icon {iconName} color={iconColor} />
     </div>
   {/if}
 
@@ -119,7 +129,7 @@
 
   .button.large {
     height: var(--size-medium); /* 32px */
-    padding: var(--size-xxxsmall) var(--size-xsmall); /* 4px vertical, 12px horizontal */
+    padding: var(--size-xxxsmall) 12px; /* UI3's large button; no 12px token */
   }
 
   .button.wide {
@@ -232,13 +242,13 @@
   .button.primary:disabled,
   .button.primary[aria-disabled='true'] {
     background-color: var(--figma-color-bg-disabled);
-    color: var(--figma-color-text-disabled);
+    color: var(--figma-color-text-ondisabled);
   }
 
   /* SECONDARY VARIANT */
   .button.secondary {
     background-color: transparent;
-    border: 1px solid var(--figma-color-border);
+    border: 1px solid var(--color-border-transparent); /* UI3's bordertranslucent */
     color: var(--figma-color-text);
   }
 
@@ -276,7 +286,7 @@
   .button.destructive:disabled,
   .button.destructive[aria-disabled='true'] {
     background-color: var(--figma-color-bg-disabled);
-    color: var(--figma-color-text-disabled);
+    color: var(--figma-color-text-ondisabled);
   }
 
   /* SECONDARY DESTRUCTIVE VARIANT */
@@ -316,7 +326,7 @@
   .button.inverse:disabled,
   .button.inverse[aria-disabled='true'] {
     background-color: var(--figma-color-bg-disabled);
-    color: var(--figma-color-text-disabled);
+    color: var(--figma-color-text-ondisabled);
   }
 
   /* SUCCESS VARIANT */
@@ -338,7 +348,30 @@
   .button.success:disabled,
   .button.success[aria-disabled='true'] {
     background-color: var(--figma-color-bg-disabled);
-    color: var(--figma-color-text-disabled);
+    color: var(--figma-color-text-ondisabled);
+  }
+
+  /* FIGJAM VARIANT — UI3's bg-figjam and its pressed shade share the component
+     purple's values in both themes, so it borrows those tokens */
+  .button.figjam {
+    background-color: var(--figma-color-bg-component);
+    color: var(--figma-color-text-oncomponent);
+  }
+
+  .button.figjam:active:not(:disabled):not([aria-disabled='true']) {
+    background-color: var(--figma-color-bg-component-pressed);
+  }
+
+  .button.figjam:focus-visible {
+    outline: 1px solid var(--figma-color-border-selected);
+    outline-offset: -1px;
+    box-shadow: 0 0 0 1px inset var(--figma-color-bg);
+  }
+
+  .button.figjam:disabled,
+  .button.figjam[aria-disabled='true'] {
+    background-color: var(--figma-color-bg-disabled);
+    color: var(--figma-color-text-ondisabled);
   }
 
   /* LINK VARIANT */
@@ -416,10 +449,4 @@
     cursor: not-allowed;
   }
 
-  .button:disabled .button-icon-left :global(.icon-component),
-  .button:disabled .button-icon-center :global(.icon-component),
-  .button[aria-disabled='true'] .button-icon-left :global(.icon-component),
-  .button[aria-disabled='true'] .button-icon-center :global(.icon-component) {
-    color: var(--figma-color-icon-ondisabled);
-  }
 </style>

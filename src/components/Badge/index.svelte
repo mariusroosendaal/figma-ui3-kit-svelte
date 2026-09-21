@@ -15,7 +15,7 @@
   export { className as class };
 
   // Function to determine the correct icon color based on variant and state
-  function getIconColor() {
+  function getIconColor(variant, strong) {
     switch (variant) {
       case 'brand':
       case 'component':
@@ -39,6 +39,8 @@
         return '--figma-color-icon';
     }
   }
+  // A $: statement, so the colour follows its inputs; a call in the markup would not re-run.
+  $: iconColor = getIconColor(variant, strong);
 </script>
 
 {#if dot}
@@ -76,7 +78,7 @@
   >
     {#if iconName && (variant === 'variable' || variant === 'variable-selected' || variant === 'feedback' || variant === 'merged' || variant === 'archived')}
       <span class="badge-icon">
-        <Icon {iconName} color={getIconColor()} />
+        <Icon {iconName} color={iconColor} />
       </span>
     {/if}
     <span class="badge-text">

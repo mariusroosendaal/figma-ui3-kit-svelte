@@ -46,12 +46,14 @@
   $: text = label ?? value?.label ?? null;
 
   // Get icon color based on state
-  function getIconColor() {
+  function getIconColor(disabled) {
     if (disabled) {
       return '--figma-color-icon-disabled';
     }
     return '--figma-color-icon';
   }
+  // A $: statement, so the colour follows its inputs; a call in the markup would not re-run.
+  $: iconColor = getIconColor(disabled);
 
   // Sync selected state on menuItems whenever value changes
   $: if (menuItems && menuItems.length > 0) {
@@ -98,7 +100,7 @@
     {#if leadChit}
       <span class="icon"><Chit color={leadChit} /></span>
     {:else if leadIcon}
-      <span class="icon"><Icon iconName={leadIcon} color={getIconColor()} /></span>
+      <span class="icon"><Icon iconName={leadIcon} color={iconColor} /></span>
     {/if}
 
     {#if text}
@@ -112,7 +114,7 @@
     {/if}
 
     <span class="caret" aria-hidden="true">
-      <Icon iconName={IconChevronDown} color={getIconColor()} />
+      <Icon iconName={IconChevronDown} color={iconColor} />
     </span>
   </button>
 
