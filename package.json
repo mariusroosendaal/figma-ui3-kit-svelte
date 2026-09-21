@@ -5,8 +5,14 @@
   "description": "A collection of Svelte 4 components that match Figma UI3 for building plugins",
   "svelte": "./src/index.js",
   "exports": {
-    ".": "./src/index.js",
-    "./icons": "./src/icons.js",
+    ".": {
+      "svelte": "./src/index.js",
+      "default": "./src/index.js"
+    },
+    "./icons": {
+      "svelte": "./src/icons.js",
+      "default": "./src/icons.js"
+    },
     "./package.json": "./package.json",
     "./src/*": "./src/*"
   },

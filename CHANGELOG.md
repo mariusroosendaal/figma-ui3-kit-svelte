@@ -1,13 +1,9 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
 ## [Unreleased]
 
 ### Added
+- `svelte.config.js` — the editor's Svelte language server reads project config from this file only, and there was none. Storybook (webpack5) still does the compiling; the config declares no preprocessing
 - **SegmentedControl** and **Segment** components — single-select control matching UI3's segmented control (formerly "option strip"), with icon and label segments, group and per-segment disabled states, optional tooltips, and arrow-key focus navigation
 - **NumericInput** — UI3's numeric field: lead letter or icon that scrubs on drag, arrow-key steps (Shift ×10), typed arithmetic, `min`/`max`/`precision`, a unit, a `null` placeholder state, and `options` for a presets chevron (UI3's combo input)
 - **ColorInput** — chit, hex and opacity cell; 3/6/8-digit hex, system colour picker from the chit, bound-variable display
@@ -40,11 +36,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **MenuItem** — `selected` now only draws the check; the highlight is separate (`highlighted`), so a menu with several checked rows no longer paints them all blue
 - **Dropdown** — no longer broadcasts its own `dropdown:open` event (Menu already closes other menus); measures the trigger before the menu places itself
 - **Badge** — renders a `<span>` rather than a `<div>`, so it is valid inside a tab button or a menu row; `variant="default"` with `strong` now fills grey, matching UI3's "Badge small alt"
-- **Tabs** — the counter no longer turns blue just because its tab is selected. UI3's `_Tab` reaches for "Count New" on the selected tab and "Count Inactive" everywhere else, which collapses two separate things: a tab is selected or not, and its count is new or not. A tab now takes `unread`, which makes the count blue on any tab; without it the selected tab gets the filled grey "Badge small alt" Default and the rest Count Inactive. An unread count is labelled "N new", since the colour is all that said so
 
 ### Fixed
+- **package.json** — `exports` declares a `svelte` condition for `.` and `./icons`. `exports` overrides the legacy top-level `svelte` field entirely, so resolvers lost the signal that the package ships uncompiled components; vite-plugin-svelte warned on every consumer's build
+- **global.css** — `body` sets `color: var(--figma-color-text)`. Nothing declared a baseline text colour, so any element that did not set its own inherited the UA default black — unreadable on the dark theme
 - **docs** — `Tooltip`'s `direction` is documented with all eight values; the four corner ones (`TopLeft`, `TopRight`, `BottomLeft`, `BottomRight`) were missing, though the component has always implemented them
-- **docs** — the reference documented a `Chip` `active` prop that does not exist and left out `variant`, `label`, `iconName`, `closable`, `focused` and the `close` event; gave `Text`'s `color` as keywords when it takes a Figma token name or any CSS colour; imported `IconMore` from the package root, where it is not exported; and had no entry at all for `ModalHeader` or `ModalFooter`. The install and icon import blocks listed 29 of 39 components and 37 of 44 named icons, omitting icons the page's own examples use. Events were missing for `Dropdown`, `Slider`, `Chip`, `Disclosure` and `DisclosureItem`, and `element` bindings for `Button` and `IconButton`
 - **Badge** — every badge now reserves a 1px transparent border instead of only the outlined variants carrying one, so swapping a variant no longer changes the badge's width. A counter that switched with a toggle or a tab moved the layout by 2px
 - **Menu** — headings and dividers render inside `<li>` elements, so the list's markup is valid
 - **Tabs** — an unselected tab's hover uses UI3's `bg-hover` fill

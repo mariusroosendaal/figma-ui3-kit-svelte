@@ -208,7 +208,6 @@
       `<label for>` still reaches it, and it keeps the field in the tab order.
     -->
     <button
-      bind:this={input}
       type="button"
       class="pill-slot"
       {id}
