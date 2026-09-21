@@ -3,55 +3,55 @@
 ## [Unreleased]
 
 ### Added
-- `svelte.config.js` — the editor's Svelte language server reads project config from this file only, and there was none. Storybook (webpack5) still does the compiling; the config declares no preprocessing
-- **SegmentedControl** and **Segment** components — single-select control matching UI3's segmented control (formerly "option strip"), with icon and label segments, group and per-segment disabled states, optional tooltips, and arrow-key focus navigation
-- **NumericInput** — UI3's numeric field: lead letter or icon that scrubs on drag, arrow-key steps (Shift ×10), typed arithmetic, `min`/`max`/`precision`, a unit, a `null` placeholder state, and `options` for a presets chevron (UI3's combo input)
-- **ColorInput** — chit, hex and opacity cell; 3/6/8-digit hex, system colour picker from the chit, bound-variable display
-- **Chit** — UI3's colour swatch as a component: 24px cell, 14px square or 16px circle, opacity split over the checkerboard, gradients, images and multi-mode slices
-- **IconToggle** — UI3's icon toggle buttons: icon swap (with a Highlighted variant) or a single icon on the selected fill; `aria-pressed`
-- **SplitButton** — icon action with a chevron menu of alternatives
-- **ToggleButton** — a labelled button that stays pressed: the selected fill while on, as UI3's icon dialog toggle, with a lead icon, a filled "Badge small alt" counter that reads as an unselected tab's count at rest and moves to the on-selected fill while pressed, a `"secondary"` variant and two sizes; `aria-pressed`
-- **Menu** — per-item `type` (`check`, `checkbox`, `toggle`) with `checked` (incl. `mixed`); `iconName`, `chit`, `detail` and `badge` on items; `disabled` items; `section`; `searchable` with `searchPlaceholder`; `footerLabel` with a `footer` event (UI3's multi-select menu)
-- **MenuItem** — `checkbox` and `toggle` variants, `iconName`, `chit`, `detail`, `badge`, `highlighted`, `role`
-- **Dropdown** — `searchable` and `searchPlaceholder`
-- **Dropdown** — `badge`/`badgeVariant` (a Badge between the label and the chevron), `chit` (a lead chit when no chosen item carries one), and `label` (button text distinct from the chosen item's menu label)
-- Named icons `IconSwatchSmall`, `IconEyeSmall`, `IconHiddenSmall`, `IconLinkBroken`, `IconLinkConnected`, `IconStyles`, `IconPlay`
-- **Avatar** — UI3's avatar: initial on a multiplayer colour (stable per name), photo or org image with fallback, overflow count (`unread`), three sizes, circle or square. The tooltip is its accessible name; `ariaLabel` is for when it should read as something else
-- **NumericInputMulti** — several numbers behind one lead (corner radii, paddings); per-cell or whole-field disabling; the lead scrubs every cell. Every cell is named, numbered off `ariaLabel` (or `label`) when `ariaLabels` is left out
-- **VariablePill** — the pill Figma shows for a value bound to a variable; **NumericInput** takes `variable` to show one, with a detach button. A bound field stays a control: the pill is a button carrying the field's `id`, `name` and `ariaLabel`, so a `<label for>` reaches it and it keeps its place in the tab order, and it fires `variableClick` when picked
-- **Tree** — a nested list for browsing, picking (`mode="single"`) or ticking (`mode="check"`, with tri-state parents); tree keyboard pattern, and collapsing a parent moves the keyboard onto it rather than onto a row that is gone
-- **Badge** — `count` and `count-inactive` variants, `size="large"`, and `dot`
-- **Checkbox**, **Switch** — `description` line, linked with `aria-describedby`
-- **Tabs** — per-tab `badge` counts
+- New components, each matching its UI3 counterpart:
+  - **Avatar** — initial on a multiplayer colour, photo or org image, overflow count; three sizes, circle or square
+  - **Chit** — colour swatch: solid, opacity split, gradient, image, multi-mode
+  - **ColorInput** — chit, hex and opacity cell, system picker, bound-variable display
+  - **IconToggle** — icon swap or a single icon on the selected fill; `aria-pressed`
+  - **LinkTooltip** — interactive link tooltip: main action and further actions, or a URL field; anchors to an element or a selection rect
+  - **NumericInput** — scrubbable lead, arrow-key steps, typed arithmetic, `min`/`max`/`precision`, unit, placeholder, presets (combo input), bound `variable` pill with detach
+  - **NumericInputMulti** — several numbers behind one lead (radii, paddings), per-cell disabling
+  - **SegmentedControl** / **Segment** — icon and label segments, disabled states, tooltips, arrow-key navigation
+  - **SplitButton** — icon action with a chevron menu of alternatives
+  - **ToggleButton** — labelled button that stays pressed, with lead icon, count badge, `secondary` variant and two sizes
+  - **Tree** — nested list for browsing, single pick or tri-state checking, with the tree keyboard pattern
+  - **VariablePill** — the pill for a value bound to a variable
+- **Button** — `variant="figjam"`
+- **Badge** — `count` and `count-inactive` variants, `size="large"`, `dot`
+- **Checkbox**, **Switch** — `description`, linked with `aria-describedby`
+- **Dropdown** — `size="large"`, `stroke={false}`, `searchable`, `badge`, `chit`, `label`, and the chosen item's icon or chit in the button
+- **Menu** / **MenuItem** — `check`, `checkbox` and `toggle` items (incl. `mixed`), icons, chits, avatars, detail text, badges, disabled items, sections, search, footer (button or row), and overflow arrows for tall menus
+- **Modal** / **ModalHeader** — navigation, tabs and custom headers
 - **Radio** — `variant="button"`; **RadioGroup** — `direction="horizontal"`
-- **Dropdown** — `size="large"`, `stroke={false}`, and the chosen item's icon or chit in the button
-- **Slider** — `hue` and `opacity` variants (with `color`); a range slider shows a marker at `defaultValue`
-- **Modal** / **ModalHeader** — Navigation (back arrow, `onBack`), Tabs (`headerTabs`, bindable `selectedTab`) and custom (`header` slot) headers
-- **Menu** — overflow arrows instead of a scrollbar for tall menus (UI3's Menu row/Expand), `footerVariant="row"` (UI3's Menu row/Footer), `avatar` on items; **MenuItem** — `avatar` lead
-- Static tokens for multiplayer colours and `--color-bg-menu-hover`
+- **Slider** — `hue` and `opacity` variants; a range slider marks `defaultValue`
+- **Tabs** — per-tab `badge` counts
+- Named icons `IconSwatchSmall`, `IconEyeSmall`, `IconHiddenSmall`, `IconLinkBroken`, `IconLinkConnected`, `IconStyles`, `IconPlay`
+- Tokens: UI3's five elevations (`--elevation-100-canvas` … `-500-modal-window`, light and dark), multiplayer colours, `--color-bg-menu-hover`, `--color-border-tooltip`
+- `svelte.config.js` for the editor's Svelte language server
 
 ### Changed
-- **Dropdown** — the open menu now marks the trigger with a selected border, matching UI3's Active state (it previously styled focus and disabled only), and a disabled trigger uses `--figma-color-border-disabled`; `aria-label` no longer falls back to `placeholder`, so the button is named by what it shows unless `ariaLabel` is set
-- **Menu** — rewritten on `aria-activedescendant`: one highlight shared by pointer and keyboard, focus stays in the list (or the search field) instead of moving between rows, disabled rows are skipped, sub-menus open with ArrowRight/Enter and close with ArrowLeft, focus returns to the trigger after a keyboard pick. The menu flips above its trigger and scrolls when there isn't room, and closes when anything behind it scrolls instead of locking body scroll. Items are no longer given an `id`.
-- **MenuItem** — `selected` now only draws the check; the highlight is separate (`highlighted`), so a menu with several checked rows no longer paints them all blue
-- **Dropdown** — no longer broadcasts its own `dropdown:open` event (Menu already closes other menus); measures the trigger before the menu places itself
-- **Badge** — renders a `<span>` rather than a `<div>`, so it is valid inside a tab button or a menu row; `variant="default"` with `strong` now fills grey, matching UI3's "Badge small alt"
+- **Menu** — rebuilt on `aria-activedescendant`: one highlight for pointer and keyboard, disabled rows skipped, sub-menus on ArrowRight/ArrowLeft, focus back to the trigger after a keyboard pick; flips and scrolls when short of room, and closes when the page scrolls. Items no longer get an `id`
+- **MenuItem** — `selected` only draws the check; the highlight is the separate `highlighted`
+- **Menu**, **Modal** — shadows use the elevation tokens, so the dark theme gets UI3's edge highlight; the menu's 1px border is gone
+- **Tooltip** — flips to the other side when short of room; the arrow keeps pointing at the trigger and shares the body's shadow; keyboard focus uses the short (200ms) delay
+- **Dropdown** — the open menu gives the trigger a selected border; `aria-label` no longer falls back to `placeholder`
+- **Badge** — renders a `<span>`; `default` with `strong` fills grey (UI3's "Badge small alt")
 
 ### Fixed
-- **Slider** — handles follow UI3's two handle components. Range, stepper and a delta slider away from its default use "Stroke (Modified)": a white ring around a transparent 8px hole with a 0.5px `bordertranslucent` edge, on `--elevation-300-tooltip`, so the fill and the tick beneath show through. Delta at its default, hue and opacity keep "Fill (Default)", a white disc on `--elevation-200-canvas`. Before, every handle sat on `--elevation-200` (the dark-toolbar shadow) and the stroke state was a painted blue dot
-- **Slider** — the fill is one box from the pill's start (or delta's default) to the handle's outer edge. It was a body shifted `left: -1px` plus two 8px pseudo-element caps, which put it a pixel off the pill at the left end and a pixel short of the handle at the right, so the track showed round the ring's edge. It also stacks above the track's `::after` end cap, which painted over the fill's right end — at the maximum, the ring's hole showed the cap's straight grey edge
-- **Slider** — no fill edge lands on the handle's outline. Where the fill would end on it — always on the handle's side, and on the far side too for a range at its minimum or a delta at its default — it stops 2px inside, under the white ring; wholly hidden, it shrinks to a 12px disc. Two shapes sharing one antialiased edge left a faint blue fringe round the handle that Figma's vector compositing doesn't have. The fill is measured in px from the track's width to do this
-- **Slider** — focus is a 1px `border-selected` outline inset on the handle's edge, as UI3's focused handles draw it. It was a `border`, which fought the ring and, without `border-box`, grew the disc to 18px
-- **Slider** — the stepper's tick at the default value (`defaultValue`, else the midpoint) is `--figma-color-icon`; every other tick stays `icon-tertiary`, which composites dark over the fill and grey over the track. The delta default indicator is `icon-tertiary` too; it was white. Both now sit under the handle, as in UI3 — the indicator was stacked above it, so a delta slider at its default showed a dot on the white disc
-- **Slider** — dropped dead code: `hasValue` and `active` (set in markup, no rule matched), their computations, and `.slider-fill.rounded-delta` (a rule with no markup)
-- **package.json** — `exports` declares a `svelte` condition for `.` and `./icons`. `exports` overrides the legacy top-level `svelte` field entirely, so resolvers lost the signal that the package ships uncompiled components; vite-plugin-svelte warned on every consumer's build
-- **global.css** — `body` sets `color: var(--figma-color-text)`. Nothing declared a baseline text colour, so any element that did not set its own inherited the UA default black — unreadable on the dark theme
-- **docs** — `Tooltip`'s `direction` is documented with all eight values; the four corner ones (`TopLeft`, `TopRight`, `BottomLeft`, `BottomRight`) were missing, though the component has always implemented them
-- **Badge** — every badge now reserves a 1px transparent border instead of only the outlined variants carrying one, so swapping a variant no longer changes the badge's width. A counter that switched with a toggle or a tab moved the layout by 2px
-- **Menu** — headings and dividers render inside `<li>` elements, so the list's markup is valid
-- **Tabs** — an unselected tab's hover uses UI3's `bg-hover` fill
-- **Modal** — one dialog body instead of two copies for with and without an overlay
-- **ModalHeader** — the second icon button takes `icon2AriaLabel`; **Modal** passes `icon2AriaLabel` and `backAriaLabel` through, so a dialog's own icon buttons can be named
+- **Button**, **Dropdown**, **Checkbox**, **Chip**, **Badge** — icon colours now update when `disabled` or `variant` change; they kept the colour they were mounted with
+- **Button** — disabled colours match UI3 (white on filled variants; the icon no longer vanishes on transparent ones); large pads 12px, not 16px; `secondary` uses the translucent border
+- **Checkbox**, **Radio** — mixed and focus borders use `border-selected-strong` (was a different blue on dark); disabled unchecked is an outline, not a grey fill; `ghost` no longer turns white on dark
+- **Switch** — focus ring on an on switch is `border-selected-strong`
+- **Slider** — handles, fill, ticks and focus redrawn to match UI3's handle components, with no seams or fringes at the handle
+- **Tooltip** — a second show timer could leave the tooltip up after the pointer left; `Left`/`Right` arrows sat half under the body
+- **Textarea** — 4px vertical padding, as UI3's multi-line input
+- **Badge** — a constant 1px border, so switching variants no longer shifts layout by 2px
+- **Tabs** — unselected hover uses `bg-hover`
+- **Modal** / **ModalHeader** — one dialog body instead of two copies; `icon2AriaLabel` and `backAriaLabel` name the header's buttons
+- **Menu** — headings and dividers render inside `<li>`; footer button edge is white at 10%; check rows with an icon sit 4px further left, as UI3
+- **global.css** — `body` sets a baseline text colour; links use the defined `--figma-color-text-brand`
+- **package.json** — `exports` declares the `svelte` condition, silencing vite-plugin-svelte's warning
+- **docs** — Tooltip's four corner directions are documented
 
 ## [0.5.2] - 2026-05-13
 
