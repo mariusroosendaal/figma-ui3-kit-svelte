@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-09-21
+
 ### Added
 - New components, each matching its UI3 counterpart:
   - **Avatar** — initial on a multiplayer colour, photo or org image, overflow count; three sizes, circle or square
