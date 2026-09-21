@@ -159,6 +159,10 @@
     0 0 0.5px rgba(0, 0, 0, 0.12), 0 10px 16px rgba(0, 0, 0, 0.12), 0 2px 5px rgba(0, 0, 0, 0.15);
   --elevation-500-modal-window:
     0 0 0.5px rgba(0, 0, 0, 0.08), 0 10px 24px rgba(0, 0, 0, 0.18), 0 2px 5px rgba(0, 0, 0, 0.15);
+
+  /* The tooltip elevation as a filter, so it follows a tooltip's arrow too */
+  --elevation-300-tooltip-filter: drop-shadow(0 0 0.5px rgba(0, 0, 0, 0.15))
+    drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1)) drop-shadow(0 5px 12px rgba(0, 0, 0, 0.13));
 }
 
 /* Global styles */
@@ -221,4 +225,11 @@ a:focus {
   --elevation-500-modal-window:
     0 10px 24px rgba(0, 0, 0, 0.45), 0 3px 5px rgba(0, 0, 0, 0.35),
     inset 0 0.5px 0 rgba(255, 255, 255, 0.08), inset 0 0 0.5px rgba(255, 255, 255, 0.35);
+  /* A filter can't inset, so the dark set's 0.5px highlight becomes a hairline
+     round the outside, which traces the arrow as well as the body. Chained
+     drop-shadows compound, so the shadows sit well under UI3's 50% and 35%,
+     and they drop further (2px and 8px, UI3: 1px and 5px) so the light reads as
+     coming from above rather than evenly all round. */
+  --elevation-300-tooltip-filter: drop-shadow(0 0 0.5px rgba(255, 255, 255, 0.3))
+    drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3)) drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15));
 }

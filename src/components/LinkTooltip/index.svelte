@@ -204,9 +204,8 @@
     position: fixed;
     z-index: 1000;
     visibility: hidden;
-    /* UI3's light tooltip elevation as drop-shadows, so it follows the arrow too */
-    filter: drop-shadow(0 0 0.5px rgba(0, 0, 0, 0.15)) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1))
-      drop-shadow(0 5px 12px rgba(0, 0, 0, 0.13));
+    /* A filter, not box-shadow, so the shadow follows the arrow as well as the body */
+    filter: var(--elevation-300-tooltip-filter);
     font-family: var(--font-stack);
     font-size: var(--body-medium-font-size);
     font-weight: var(--body-medium-font-weight);

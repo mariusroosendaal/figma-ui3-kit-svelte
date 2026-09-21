@@ -26,7 +26,7 @@
 - **Slider** — `hue` and `opacity` variants; a range slider marks `defaultValue`
 - **Tabs** — per-tab `badge` counts
 - Named icons `IconSwatchSmall`, `IconEyeSmall`, `IconHiddenSmall`, `IconLinkBroken`, `IconLinkConnected`, `IconStyles`, `IconPlay`
-- Tokens: UI3's five elevations (`--elevation-100-canvas` … `-500-modal-window`, light and dark), multiplayer colours, `--color-bg-menu-hover`, `--color-border-tooltip`
+- Tokens: UI3's five elevations (`--elevation-100-canvas` … `-500-modal-window`, light and dark) and `--elevation-300-tooltip-filter` (the tooltip one as a filter, for shapes with an arrow), multiplayer colours, `--color-bg-menu-hover`, `--color-border-tooltip`
 - `svelte.config.js` for the editor's Svelte language server
 
 ### Changed

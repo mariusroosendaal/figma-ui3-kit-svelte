@@ -203,12 +203,8 @@
     background-color: var(--color-bg-tooltip);
     border-radius: var(--border-radius-medium);
     padding: var(--size-xxxsmall) var(--size-xxsmall);
-    /* UI3's light tooltip elevation as drop-shadows, so the shadow follows the
-       arrow as well as the body. The dark elevation isn't used: its inset edge
-       would outline the body and stop at the arrow, and a tooltip is dark in
-       both themes anyway. */
-    filter: drop-shadow(0 0 0.5px rgba(0, 0, 0, 0.15)) drop-shadow(0 1px 3px rgba(0, 0, 0, 0.1))
-      drop-shadow(0 5px 12px rgba(0, 0, 0, 0.13));
+    /* A filter, not box-shadow, so the shadow follows the arrow as well as the body */
+    filter: var(--elevation-300-tooltip-filter);
   }
 
   .tooltip-content {
