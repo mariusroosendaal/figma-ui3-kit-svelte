@@ -163,6 +163,12 @@
     box-shadow: 0 0 0 1px inset var(--white);
   }
 
+  /* On the brand fill the ring is the strong selection blue */
+  input:enabled:focus-visible + .switch-label .switch-track.checked,
+  input:enabled:focus-visible + .switch-label .switch-track.mixed {
+    border-color: var(--figma-color-border-selected-strong);
+  }
+
   input:enabled:focus-visible + .switch-label .switch-knob {
     width: 14px;
     height: 14px;

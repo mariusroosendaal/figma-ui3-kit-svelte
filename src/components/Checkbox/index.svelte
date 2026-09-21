@@ -23,7 +23,7 @@
   $: if (inputEl) inputEl.indeterminate = mixed;
 
   // Function to determine the correct icon color based on state
-  function getIconColor() {
+  function getIconColor(disabled, muted, ghost) {
     if (disabled) {
       return '--figma-color-icon-ondisabled';
     } else if (muted) {
@@ -34,6 +34,8 @@
       return '--figma-color-icon-onbrand';
     }
   }
+  // A $: statement, so the colour follows its inputs; a call in the markup would not re-run.
+  $: iconColor = getIconColor(disabled, muted, ghost);
 </script>
 
 <div
@@ -60,9 +62,9 @@
   <label for={uniqueId} class="checkbox-label">
     <div class="checkbox-box" class:checked class:mixed class:disabled>
       {#if mixed}
-        <Icon iconName={Icon16Mixed} color={getIconColor()} />
+        <Icon iconName={Icon16Mixed} color={iconColor} />
       {:else if checked}
-        <Icon iconName={Icon16Check} color={getIconColor()} />
+        <Icon iconName={Icon16Check} color={iconColor} />
       {/if}
     </div>
     <span class="checkbox-text">
@@ -156,21 +158,11 @@
   /* Mixed state */
   .checkbox-box.mixed {
     background-color: var(--figma-color-bg-brand);
-    border-color: var(--figma-color-bg-brand-hover);
+    border-color: var(--figma-color-border-selected-strong);
   }
 
   .checkbox-box.mixed :global(.icon-component) {
     color: var(--figma-color-icon-onbrand);
-  }
-
-  /* Disabled state */
-  .checkbox-box.disabled {
-    background-color: var(--figma-color-bg-disabled);
-    border-color: var(--figma-color-border-disabled);
-  }
-
-  .checkbox-box.disabled :global(.icon-component) {
-    color: var(--figma-color-icon-ondisabled);
   }
 
   .checkbox-container:has(input:disabled) .checkbox-text {
@@ -179,7 +171,7 @@
 
   /* Focus state — keyboard only */
   input:enabled:focus-visible + .checkbox-label .checkbox-box {
-    border-color: var(--figma-color-bg-brand-hover);
+    border-color: var(--figma-color-border-selected-strong);
     box-shadow: 0 0 0 1px inset var(--figma-color-bg);
   }
 
@@ -207,15 +199,15 @@
     color: var(--figma-color-icon);
   }
 
-  /* Ghost variant */
+  /* Ghost variant — the static menu fill: it sits in dark menus in both themes */
   .checkbox-container.ghost .checkbox-box {
-    background-color: var(--figma-color-bg-inverse);
+    background-color: var(--color-bg-menu);
     border-color: transparent;
   }
 
   .checkbox-container.ghost .checkbox-box.checked {
-    background-color: var(--figma-color-bg-inverse);
-    border-color: var(--figma-color-bg-brand-hover);
+    background-color: var(--color-bg-menu);
+    border-color: transparent;
   }
 
   .checkbox-container.ghost .checkbox-box.checked :global(.icon-component) {
@@ -223,8 +215,8 @@
   }
 
   .checkbox-container.ghost .checkbox-box.mixed {
-    background-color: var(--figma-color-bg-inverse);
-    border-color: var(--figma-color-bg-brand-hover);
+    background-color: var(--color-bg-menu);
+    border-color: transparent;
   }
 
   .checkbox-container.ghost .checkbox-box.mixed :global(.icon-component) {
@@ -233,7 +225,20 @@
 
   /* Focus for ghost variant — keyboard only */
   .checkbox-container.ghost input:enabled:focus-visible + .checkbox-label .checkbox-box {
-    border-color: var(--figma-color-bg-brand-hover);
-    box-shadow: 0 0 0 1px inset var(--figma-color-bg);
+    border-color: var(--figma-color-border-selected);
+    box-shadow: none;
+  }
+
+  /* Disabled — last, so it wins over muted and ghost. Unchecked is an empty
+     outline; checked and mixed sit on the grey fill. */
+  .checkbox-container .checkbox-box.disabled {
+    background-color: transparent;
+    border-color: var(--figma-color-border-disabled);
+  }
+
+  .checkbox-container .checkbox-box.disabled.checked,
+  .checkbox-container .checkbox-box.disabled.mixed {
+    background-color: var(--figma-color-bg-disabled);
+    border-color: transparent;
   }
 </style>
