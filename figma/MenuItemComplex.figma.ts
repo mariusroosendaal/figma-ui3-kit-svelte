@@ -28,7 +28,7 @@ const trail = instance.getEnum('🎛️ Trail', {
   'Mixed': 'detail+checkbox',
 })
 
-// An avatar lead: its initial and colour (the Avatar template reports both).
+// An avatar lead: its initial and color (the Avatar template reports both).
 let avatar = null
 if (lead === 'avatar') {
   const person = instance.findInstance('Avatar')

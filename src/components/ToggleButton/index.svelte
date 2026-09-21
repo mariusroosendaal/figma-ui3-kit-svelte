@@ -4,7 +4,7 @@
   the plugin keeps open.
 
   Takes an optional lead icon and a trailing Badge, e.g. how many items the
-  filter matches. Text and icon keep their default colour on the fill, as UI3's
+  filter matches. Text and icon keep their default color on the fill, as UI3's
   On state does; the badge is filled rather than outlined — the quiet count an
   unselected tab carries, and the on-selected fill while pressed, so it still
   reads on the blue.
@@ -161,7 +161,7 @@
   }
 
   /* ON: the selected fill, as IconToggle's dialog toggle. The label keeps its
-     own colour — UI3 changes only the fill. */
+     own color — UI3 changes only the fill. */
   .toggle-button.pressed {
     background-color: var(--figma-color-bg-selected);
   }

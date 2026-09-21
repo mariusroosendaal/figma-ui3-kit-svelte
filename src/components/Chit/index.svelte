@@ -1,17 +1,17 @@
 <!--
-  Chit: UI3's colour swatch (`_Chit 24` in the UI3 file) — a 24px cell holding a
+  Chit: UI3's color swatch (`_Chit 24` in the UI3 file) — a 24px cell holding a
   14px square or a 16px circle, so it lines up with icons.
 
-  - A solid colour gets a translucent 1px edge, so white still reads.
-  - A translucent colour splits like Figma's: opaque on the left, the real alpha
-    over the checkerboard on the right. Alpha comes from the colour (#RRGGBBAA,
+  - A solid color gets a translucent 1px edge, so white still reads.
+  - A translucent color splits like Figma's: opaque on the left, the real alpha
+    over the checkerboard on the right. Alpha comes from the color (#RRGGBBAA,
     rgba()) and/or `opacity` (0–100).
   - A CSS gradient fills the square as is; `image` fills it over the checkerboard.
-  - Several colours draw as equal slices, left to right — a variable's modes,
-    when which one renders is not known. No colour draws an empty, dashed chit.
+  - Several colors draw as equal slices, left to right — a variable's modes,
+    when which one renders is not known. No color draws an empty, dashed chit.
 -->
 <script>
-  /** @type {string | string[] | null} any CSS colour or gradient, or several colours */
+  /** @type {string | string[] | null} any CSS color or gradient, or several colors */
   export let color = null;
   /** 0–100, multiplied with any alpha in `color` */
   export let opacity = 100;
@@ -19,7 +19,7 @@
   export let image = null;
   /** @type {'square' | 'circle'} */
   export let shape = 'square';
-  /** @type {string | null} set when the colour is information and not decoration */
+  /** @type {string | null} set when the color is information and not decoration */
   export let ariaLabel = null;
 
   let className = '';
@@ -45,7 +45,7 @@
     .map((c, i) => `${c} ${(i / colors.length) * 100}% ${((i + 1) / colors.length) * 100}%`)
     .join(', ');
 
-  // The opaque colour and its alpha, for hex and rgb()/rgba(). Anything else
+  // The opaque color and its alpha, for hex and rgb()/rgba(). Anything else
   // (a name, a var()) is taken as opaque.
   function split(value) {
     const hex = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(value.trim());
@@ -121,7 +121,7 @@
     border-radius: 50%;
   }
 
-  /* The translucent edge, drawn over the colour so it fills the whole square. */
+  /* The translucent edge, drawn over the color so it fills the whole square. */
   .swatch.fill::after,
   .swatch.image::after,
   .swatch.modes::after {

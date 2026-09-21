@@ -6,7 +6,7 @@
   export let max = 100;
   export let step = 1;
   export let variant = 'range'; // 'delta' | 'range' | 'stepper' | 'hue' | 'opacity'
-  /** Opacity variant: the colour faded over the checkerboard. */
+  /** Opacity variant: the color faded over the checkerboard. */
   export let color = '#000000';
   export let disabled = false;
   export let tabindex = 0;
@@ -33,7 +33,7 @@
   $: actualDefaultValue = defaultValue !== null ? defaultValue : (min + max) / 2;
   $: defaultPercentage = ((actualDefaultValue - min) / (max - min)) * 100;
 
-  // Hue and opacity draw a colour track with a plain white knob instead of a fill
+  // Hue and opacity draw a color track with a plain white knob instead of a fill
   $: spectrum = variant === 'hue' || variant === 'opacity';
   $: showMarker = variant === 'range' && defaultValue !== null;
 
@@ -390,7 +390,7 @@
     z-index: 1;
   }
 
-  /* HUE AND OPACITY — the track is the colour; the pill spans the end caps too */
+  /* HUE AND OPACITY — the track is the color; the pill spans the end caps too */
   .slider-track.spectrum,
   .slider-track.spectrum::before,
   .slider-track.spectrum::after {

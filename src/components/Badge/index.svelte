@@ -39,7 +39,7 @@
         return '--figma-color-icon';
     }
   }
-  // A $: statement, so the colour follows its inputs; a call in the markup would not re-run.
+  // A $: statement, so the color follows its inputs; a call in the markup would not re-run.
   $: iconColor = getIconColor(variant, strong);
 </script>
 
@@ -160,7 +160,7 @@
     color: var(--figma-color-text-secondary);
   }
 
-  /* DOT — a 5px brand dot on a 9px canvas-coloured square */
+  /* DOT — a 5px brand dot on a 9px canvas-colored square */
   .badge-dot {
     position: relative;
     display: inline-block;

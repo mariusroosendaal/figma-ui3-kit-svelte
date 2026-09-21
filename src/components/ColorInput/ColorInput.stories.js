@@ -8,7 +8,7 @@ export default {
     value: { control: 'color', description: '#RRGGBB' },
     opacity: { control: 'number', description: '0–100; null hides the opacity cell' },
     variable: { control: 'text', description: 'Bound variable name, shown instead of the hex' },
-    pickable: { control: 'boolean', description: 'Chit opens the system colour picker' },
+    pickable: { control: 'boolean', description: 'Chit opens the system color picker' },
     disabled: { control: 'boolean' },
     ariaLabel: { control: 'text' },
     class: { table: { disable: true } },

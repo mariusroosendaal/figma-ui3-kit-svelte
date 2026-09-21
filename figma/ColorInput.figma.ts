@@ -27,7 +27,7 @@ const hex = texts.find((t) => /^[0-9a-f]{6}$/i.test(t)) || ''
 const opacity = texts.find((t) => /^\d{1,3}$/.test(t)) || ''
 const name = texts.find((t) => t !== hex && t !== opacity && t !== '%') || ''
 
-// Image and Gradient fills have no kit equivalent; they render as a colour.
+// Image and Gradient fills have no kit equivalent; they render as a color.
 export default {
   example:
     type === 'variable'

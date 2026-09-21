@@ -8,12 +8,12 @@ export default {
     color: {
       control: 'text',
       description:
-        'Any CSS colour or gradient, or an array of colours drawn as slices (a variable’s modes)',
+        'Any CSS color or gradient, or an array of colors drawn as slices (a variable’s modes)',
     },
     opacity: { control: { type: 'range', min: 0, max: 100 }, description: '0–100' },
     image: { control: 'text', description: 'Image URL, for image fills' },
     shape: { control: 'select', options: ['square', 'circle'] },
-    ariaLabel: { control: 'text', description: 'Set when the colour is information' },
+    ariaLabel: { control: 'text', description: 'Set when the color is information' },
     class: { table: { disable: true } },
   },
 };

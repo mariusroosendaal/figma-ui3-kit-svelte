@@ -1,9 +1,9 @@
 <!--
   Avatar: UI3's "Avatar" — a person (photo, or their initial on a multiplayer
-  colour), an organisation's image, or an overflow count ("+3").
+  color), an organisation's image, or an overflow count ("+3").
 
   Without a `color`, one is picked from the name, so the same person keeps the
-  same colour. `count` draws the overflow avatar (blue when `unread`).
+  same color. `count` draws the overflow avatar (blue when `unread`).
 -->
 <script>
   export let name = '';

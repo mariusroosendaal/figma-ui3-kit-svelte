@@ -35,7 +35,7 @@ if (lead === 'icon') {
 // Badge small alt exposes no text property in UI3, so the label is an instance
 // override — read it off the layer rather than through getString. Count Inactive
 // is what the button carries, and the On variants only override its fill, so the
-// colour comes from `pressed` in code rather than from a badgeVariant here.
+// color comes from `pressed` in code rather than from a badgeVariant here.
 let badgeText = '';
 let badgeVariant = 'default';
 if (trail === 'badge') {

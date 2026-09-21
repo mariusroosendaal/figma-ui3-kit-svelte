@@ -68,7 +68,7 @@ export const WithBadges = {
   render: (args) => ({ Component: TabsWrapper, props: { ...args } }),
 };
 
-// `unread` takes the count blue on either tab — a new count is worth the colour
+// `unread` takes the count blue on either tab — a new count is worth the color
 // whether or not its tab is open.
 export const UnreadCounts = {
   args: {

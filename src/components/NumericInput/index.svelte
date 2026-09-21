@@ -457,7 +457,7 @@
     user-select: none;
   }
 
-  /* Its own button, split off by a 1px line in the canvas colour; it runs under
+  /* Its own button, split off by a 1px line in the canvas color; it runs under
      the field's edge and darkens on hover and while its menu is open. */
   .chevron {
     display: flex;

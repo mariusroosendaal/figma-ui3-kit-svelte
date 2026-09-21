@@ -17,7 +17,7 @@ const type = instance.getEnum('🐣 Type', {
   'Instance': 'instance',
 })
 
-// Code Connect can't read a fill, so the colour is left to the code.
+// Code Connect can't read a fill, so the color is left to the code.
 const source =
   type === 'image'
     ? figma.code` image={imageUrl}`
@@ -27,7 +27,7 @@ const source =
         ? figma.code` color={color} opacity={opacity}`
         : figma.code` color={color}`
 
-// 🐣 Type Instance is a component thumbnail, not a colour, and has no equivalent.
+// 🐣 Type Instance is a component thumbnail, not a color, and has no equivalent.
 export default {
   example: figma.code`<Chit${source}${shape === 'circle' ? ' shape="circle"' : ''} />`,
   imports,

@@ -26,7 +26,7 @@ The templates double as the reverse mapping: to mock up a Svelte layout, create 
 | Badge small | `2012:35027` | Label is the first text layer (no text property). `warning` ↔ `Warn`. |
 | Badge small alt | `2012:35077` | → `Badge`: Count New ↔ `variant="count"`, Count Inactive ↔ `count-inactive`, Default ↔ `default strong`, Strong ↔ `invert strong`. |
 | Badge large, Badge Dot | `2012:35016`, `2012:35086` | → `Badge size="large"` (Default/Strong/Merged/Archived), `Badge dot`. |
-| Avatar | `2012:32015` | Colour variants ↔ `color` (initial as `name`), Photo/Org ↔ `src`, Overflow ↔ `count` (+ `unread`), Size, Shape, Disabled. `_Avatar status` isn't modelled. |
+| Avatar | `2012:32015` | Color variants ↔ `color` (initial as `name`), Photo/Org ↔ `src`, Overflow ↔ `count` (+ `unread`), Size, Shape, Disabled. `_Avatar status` isn't modelled. |
 | Checkbox | `2012:55461` | Label is the `Value` text layer; `👁️ Description` ↔ `description` (its layer is `Description > Value`). Plain unchecked needs `🎛️ Muted=True` — no non-muted unchecked variant exists. |
 | Switch | `2015:24697` | Label is the `Value` text layer; `👁️  Description` (two spaces) ↔ `description`. `🐣 Type`: On ↔ `checked`, Mixed ↔ `mixed`. |
 | Radio button | `2015:20365` | Selection is `bind:group` in code. The Button variant ↔ `variant="button"` (its Active state is the chosen one); a RadioGroup of them gets `direction="horizontal"`. |
@@ -38,7 +38,7 @@ The templates double as the reverse mapping: to mock up a Svelte layout, create 
 | Slider | `2015:23280` | Slider (centre fill) ↔ `delta`, Stepper ↔ `stepper`, Color Range ↔ `hue`, Fill ↔ `opacity`, Corner Radius ↔ `range` with `defaultValue` (the marker), Range ↔ `range`. Gradient (a gradient-stop editor) has no kit equivalent. Knob position is the value. |
 | Tooltip | `2015:39095` | Center directions ↔ `Top`/`Bottom`, corners and sides map 1:1. Wraps a trigger in code. |
 | Menu row/Simple, /Checkmark | `2327:96028`, `2327:96252` | → `MenuItem` (Checkmark ↔ `variant="checkmark"`, `🎛️ On` ↔ `selected`, Dot ↔ `selected="mixed"`). Shortcut → `detail`. In a Menu: `type: 'check'`. |
-| Menu row/Complex | `2327:96049` | → `MenuItem`. Lead Icon ↔ `iconName`, Avatar ↔ `avatar` (initial and colour); Trail Shortcut ↔ `detail`, Badge ↔ `badge`, Checkbox ↔ `variant="checkbox"`, Mixed ↔ both. |
+| Menu row/Complex | `2327:96049` | → `MenuItem`. Lead Icon ↔ `iconName`, Avatar ↔ `avatar` (initial and color); Trail Shortcut ↔ `detail`, Badge ↔ `badge`, Checkbox ↔ `variant="checkbox"`, Mixed ↔ both. |
 | Menu row/Toggle, /Toolbar | `2327:96288`, `2327:96311` | → `MenuItem` `variant="toggle"` / `variant="checkmark"` with `iconName`. In a Menu: `type: 'toggle'` / `type: 'check'`. |
 | Menu row/Heading, /Divider | `2327:96347`, `2327:96331` | → `MenuHeading`, `MenuDivider`. |
 | Menu row/Footer | `2327:96342` | → Menu `footerLabel` with `footerVariant="row"`. Menu row/Expand is the overflow arrow, which Menu draws itself; it has no template. |
@@ -48,8 +48,8 @@ The templates double as the reverse mapping: to mock up a Svelte layout, create 
 | Numeric input multi | `2028:79619` | → `NumericInputMulti`; the cells' numbers → `values`, Partial Disable ↔ `disabled` on the last cell. |
 | Chip variable | `2028:79753` | → `VariablePill`: Selected ↔ `selected`, On Selected ↔ `onSelected`, Soft Deleted / Value Not Rendered ↔ `muted`, Disabled ↔ `disabled`. |
 | Combo input | `2028:79408` | → `NumericInput` with `options`. |
-| Color input | `2028:79525` | → `ColorInput`. Hex and opacity are read from the text layers; Variable ↔ `variable`. Image and Gradient render as a colour. |
-| Chit 24 | `2028:79673` | → `Chit`. Circle ↔ `shape="circle"`; Opacity ↔ `opacity`. Code Connect can't read fills, so the colour stays a placeholder. |
+| Color input | `2028:79525` | → `ColorInput`. Hex and opacity are read from the text layers; Variable ↔ `variable`. Image and Gradient render as a color. |
+| Chit 24 | `2028:79673` | → `Chit`. Circle ↔ `shape="circle"`; Opacity ↔ `opacity`. Code Connect can't read fills, so the color stays a placeholder. |
 | Button icon toggle | `2324:46776` | → `IconToggle` with `iconName` + `iconNameOn`; Highlighted ↔ `highlighted`. |
 | Button icon dialog toggle | `2324:46817` | → `IconToggle` with one `iconName`; `🎛️ On` ↔ `pressed`. |
 | Button icon split | `2324:46856` | → `SplitButton`; the menu's items live in code. |

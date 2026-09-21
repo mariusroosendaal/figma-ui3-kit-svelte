@@ -32,7 +32,7 @@ if (lead === 'icon') {
   if (icon && icon.type === 'INSTANCE') iconCode = render(icon);
 }
 
-// The chit renders through its own template, which reports the colour as code.
+// The chit renders through its own template, which reports the color as code.
 let chitCode;
 if (lead === 'chit') {
   const chit = instance.findInstance('Chit 24');

@@ -10,7 +10,7 @@ export default {
     color: {
       control: 'select',
       options: [null, 'purple', 'blue', 'pink', 'red', 'yellow', 'green', 'grey'],
-      description: 'Multiplayer colour; picked from the name when null',
+      description: 'Multiplayer color; picked from the name when null',
     },
     size: { control: 'select', options: ['small', 'default', 'large'] },
     shape: { control: 'select', options: ['circle', 'square'] },

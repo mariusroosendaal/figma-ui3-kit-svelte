@@ -243,7 +243,7 @@
     cursor: default;
   }
 
-  /* Cells split the rest evenly; a canvas-coloured line between them, as in UI3. */
+  /* Cells split the rest evenly; a canvas-colored line between them, as in UI3. */
   .cell {
     flex: 1 1 0;
     min-width: 0;

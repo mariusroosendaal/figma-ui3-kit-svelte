@@ -136,7 +136,7 @@ export const Hue = {
   }),
 };
 
-// UI3's "Fill": opacity of a colour over the checkerboard
+// UI3's "Fill": opacity of a color over the checkerboard
 export const Opacity = {
   args: { variant: 'opacity', color: '#9747ff', value: 80, ariaLabel: 'Opacity' },
   render: (args) => ({

@@ -1,10 +1,10 @@
 <!--
-  ColorInput: UI3's colour field ("Color input" in the UI3 file) — a chit, the hex
+  ColorInput: UI3's color field ("Color input" in the UI3 file) — a chit, the hex
   and, when `opacity` is set, an opacity cell.
 
   - The hex takes 3, 6 or 8 digits, with or without `#`; eight digits also set
     the opacity. An unreadable entry reverts.
-  - The chit opens the system colour picker (`pickable`), which fires `input`
+  - The chit opens the system color picker (`pickable`), which fires `input`
     while it moves and `change` when it closes.
   - `variable` shows a bound variable's name instead of the hex, as Figma does;
     it isn't editable here.
@@ -215,7 +215,7 @@
     border-color: var(--figma-color-border-selected);
   }
 
-  /* A bound variable reads as a pill on the canvas colour, as in UI3. */
+  /* A bound variable reads as a pill on the canvas color, as in UI3. */
   .color-input.bound {
     border-color: var(--figma-color-border);
     background-color: var(--figma-color-bg);

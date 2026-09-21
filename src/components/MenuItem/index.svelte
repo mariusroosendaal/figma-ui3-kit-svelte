@@ -20,7 +20,7 @@
   export let highlighted = null;
   export let hasSubMenu = false; // Whether this item has a nested sub-menu
   export let disabled = false;
-  /** Lead visual after the check column: an icon (SVG import) or a colour chit. */
+  /** Lead visual after the check column: an icon (SVG import) or a color chit. */
   export let iconName = null;
   /** @type {string | string[] | null} */
   export let chit = null;

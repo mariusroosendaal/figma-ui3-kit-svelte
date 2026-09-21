@@ -52,7 +52,7 @@
     }
     return '--figma-color-icon';
   }
-  // A $: statement, so the colour follows its inputs; a call in the markup would not re-run.
+  // A $: statement, so the color follows its inputs; a call in the markup would not re-run.
   $: iconColor = getIconColor(disabled);
 
   // Sync selected state on menuItems whenever value changes
@@ -206,7 +206,7 @@
     text-align: left;
   }
 
-  /* No colour of its own: UI3's Dropdown draws Value at full strength in every
+  /* No color of its own: UI3's Dropdown draws Value at full strength in every
      state and has no placeholder variant, so dimming it reads as disabled —
      doubly so with stroke={false}, where there is no border to carry the shape. */
 

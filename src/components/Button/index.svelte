@@ -62,7 +62,7 @@
         return '--figma-color-icon';
     }
   }
-  // A $: statement, so the colour follows its inputs; a call in the markup would not re-run.
+  // A $: statement, so the color follows its inputs; a call in the markup would not re-run.
   $: iconColor = getIconColor(disabled, ariaDisabled, variant);
 </script>
 
