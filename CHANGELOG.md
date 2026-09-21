@@ -6,8 +6,8 @@
 
 ### Added
 - New components, each matching its UI3 counterpart:
-  - **Avatar** — initial on a multiplayer colour, photo or org image, overflow count; three sizes, circle or square
-  - **Chit** — colour swatch: solid, opacity split, gradient, image, multi-mode
+  - **Avatar** — initial on a multiplayer color, photo or org image, overflow count; three sizes, circle or square
+  - **Chit** — color swatch: solid, opacity split, gradient, image, multi-mode
   - **ColorInput** — chit, hex and opacity cell, system picker, bound-variable display
   - **IconToggle** — icon swap or a single icon on the selected fill; `aria-pressed`
   - **LinkTooltip** — interactive link tooltip: main action and further actions, or a URL field; anchors to an element or a selection rect
@@ -28,7 +28,7 @@
 - **Slider** — `hue` and `opacity` variants; a range slider marks `defaultValue`
 - **Tabs** — per-tab `badge` counts
 - Named icons `IconSwatchSmall`, `IconEyeSmall`, `IconHiddenSmall`, `IconLinkBroken`, `IconLinkConnected`, `IconStyles`, `IconPlay`
-- Tokens: UI3's five elevations (`--elevation-100-canvas` … `-500-modal-window`, light and dark) and `--elevation-300-tooltip-filter` (the tooltip one as a filter, for shapes with an arrow), multiplayer colours, `--color-bg-menu-hover`, `--color-border-tooltip`
+- Tokens: UI3's five elevations (`--elevation-100-canvas` … `-500-modal-window`, light and dark) and `--elevation-300-tooltip-filter` (the tooltip one as a filter, for shapes with an arrow), multiplayer colors, `--color-bg-menu-hover`, `--color-border-tooltip`
 - `svelte.config.js` for the editor's Svelte language server
 
 ### Changed
@@ -40,8 +40,8 @@
 - **Badge** — renders a `<span>`; `default` with `strong` fills grey (UI3's "Badge small alt")
 
 ### Fixed
-- **Button**, **Dropdown**, **Checkbox**, **Chip**, **Badge** — icon colours now update when `disabled` or `variant` change; they kept the colour they were mounted with
-- **Button** — disabled colours match UI3 (white on filled variants; the icon no longer vanishes on transparent ones); large pads 12px, not 16px; `secondary` uses the translucent border
+- **Button**, **Dropdown**, **Checkbox**, **Chip**, **Badge** — icon colors now update when `disabled` or `variant` change; they kept the color they were mounted with
+- **Button** — disabled colors match UI3 (white on filled variants; the icon no longer vanishes on transparent ones); large pads 12px, not 16px; `secondary` uses the translucent border
 - **Checkbox**, **Radio** — mixed and focus borders use `border-selected-strong` (was a different blue on dark); disabled unchecked is an outline, not a grey fill; `ghost` no longer turns white on dark
 - **Switch** — focus ring on an on switch is `border-selected-strong`
 - **Slider** — handles, fill, ticks and focus redrawn to match UI3's handle components, with no seams or fringes at the handle
@@ -51,7 +51,7 @@
 - **Tabs** — unselected hover uses `bg-hover`
 - **Modal** / **ModalHeader** — one dialog body instead of two copies; `icon2AriaLabel` and `backAriaLabel` name the header's buttons
 - **Menu** — headings and dividers render inside `<li>`; footer button edge is white at 10%; check rows with an icon sit 4px further left, as UI3
-- **global.css** — `body` sets a baseline text colour; links use the defined `--figma-color-text-brand`
+- **global.css** — `body` sets a baseline text color; links use the defined `--figma-color-text-brand`
 - **package.json** — `exports` declares the `svelte` condition, silencing vite-plugin-svelte's warning
 - **docs** — Tooltip's four corner directions are documented
 
