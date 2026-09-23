@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- **NumericInput** — a value the parent sets in answer to `change` shows at once, even while the field has focus, so arrow keys step from it
+
 ## [0.6.0] - 2026-09-21
 
 ### Added

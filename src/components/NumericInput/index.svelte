@@ -13,7 +13,7 @@
   `input` fires while scrubbing, `change` whenever a value is committed.
 -->
 <script>
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, tick } from 'svelte';
   import Icon from '../Icon/index.svelte';
   import IconButton from '../IconButton/index.svelte';
   import Menu from '../Menu/index.svelte';
@@ -98,6 +98,14 @@
     if (next !== numeric || typeof value !== 'number') {
       value = next;
       dispatch('change', value);
+      // A parent may answer the change with another value — snapping to a
+      // preset, say. Show it even though the field still has focus, so the
+      // next arrow key steps from what the parent kept.
+      tick().then(() => {
+        if (!focused) return;
+        text = format(numeric);
+        if (document.activeElement === input) input.select();
+      });
     }
   }
 
