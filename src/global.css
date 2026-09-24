@@ -171,6 +171,16 @@
   box-sizing: border-box;
 }
 
+/* The plugin window is the viewport, and the layout fills it: without a
+   height here, height: 100% on the layout resolves to auto, the document
+   grows with its content, and the whole window scrolls — footer included —
+   instead of the content area. */
+html,
+body,
+#app {
+  height: 100%;
+}
+
 body {
   position: relative;
   box-sizing: border-box;
