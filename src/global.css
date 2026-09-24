@@ -174,11 +174,22 @@
 /* The plugin window is the viewport, and the layout fills it: without a
    height here, height: 100% on the layout resolves to auto, the document
    grows with its content, and the whole window scrolls — footer included —
-   instead of the content area. */
+   instead of the content area.
+
+   #app also clips, and is the containing block for anything positioned
+   inside it, so nothing can hang below the window and make the document
+   scrollable — not even a focus or scrollIntoView, which still move a
+   plain overflow: hidden box. Scrolling belongs to the layout's content
+   area. Menus and tooltips are position: fixed and unaffected. */
 html,
 body,
 #app {
   height: 100%;
+}
+
+#app {
+  position: relative;
+  overflow: clip;
 }
 
 body {
