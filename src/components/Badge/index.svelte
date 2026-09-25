@@ -8,7 +8,7 @@
   export let ariaLabel = null; // Use when badge text alone doesn't convey the status type (WCAG 4.1.2)
   /** @type {'small' | 'large'} large uses body-large text (UI3's "Badge large") */
   export let size = 'small';
-  /** UI3's "Badge Dot": an unread marker with no text. Set ariaLabel when it carries meaning. */
+  /** UI3's "Badge Dot": an unread marker with no text, brand unless `variant` is danger, success or warning. Set ariaLabel when it carries meaning. */
   export let dot = false;
 
   let className = '';
@@ -46,6 +46,9 @@
 {#if dot}
   <span
     class="badge-dot {className}"
+    class:danger={variant === 'danger'}
+    class:success={variant === 'success'}
+    class:warning={variant === 'warning'}
     role={ariaLabel ? 'img' : undefined}
     aria-label={ariaLabel || undefined}
     aria-hidden={ariaLabel ? undefined : 'true'}
@@ -180,6 +183,18 @@
     height: 5px;
     border-radius: 3px;
     background-color: var(--figma-color-bg-brand);
+  }
+
+  .badge-dot.danger::after {
+    background-color: var(--figma-color-bg-danger);
+  }
+
+  .badge-dot.success::after {
+    background-color: var(--figma-color-bg-success);
+  }
+
+  .badge-dot.warning::after {
+    background-color: var(--figma-color-bg-warning);
   }
 
   /* BRAND VARIANT */

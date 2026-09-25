@@ -68,3 +68,4 @@ export const Large = { args: { size: 'large', variant: 'default', strong: true, 
 
 // UI3's "Badge Dot": an unread marker
 export const Dot = { args: { dot: true, ariaLabel: 'Unread' } };
+export const DotWarning = { args: { dot: true, variant: 'warning', ariaLabel: 'Changed' } };
