@@ -15,13 +15,11 @@
   let open = false;
   let url = 'https://google.com';
   let value = '';
-  let last = '';
 
   $: host = url.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
   $: shownLabel = label === 'Open google.com' ? `Open ${host}` : label;
 
   function handleAction(event) {
-    last = `action: ${event.detail.value}`;
     if (event.detail.value === 'edit') {
       value = url;
       input = true;
@@ -29,16 +27,13 @@
   }
 
   function handleSubmit(event) {
-    last = `submit: ${event.detail}`;
     if (!event.detail) return;
     url = /^[a-z]+:/i.test(event.detail) ? event.detail : `https://${event.detail}`;
     input = false;
   }
 </script>
 
-<div
-  style="padding: 64px 16px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start;"
->
+<div style="padding: 64px 16px;">
   <span bind:this={anchor} style="display: inline-block;">
     <Button
       variant="secondary"
@@ -46,7 +41,6 @@
       on:click={() => (open = !open)}
     />
   </span>
-  <span style="font-size: 11px; color: var(--figma-color-text-secondary);">{last}</span>
 </div>
 
 <LinkTooltip
@@ -58,7 +52,6 @@
   {actions}
   {input}
   {direction}
-  on:primary={() => (last = `primary: ${url}`)}
   on:action={handleAction}
   on:submit={handleSubmit}
 />
