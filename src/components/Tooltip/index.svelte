@@ -205,6 +205,11 @@
     padding: var(--size-xxxsmall) var(--size-xxsmall);
     /* A filter, not box-shadow, so the shadow follows the arrow as well as the body */
     filter: var(--elevation-300-tooltip-filter);
+    /* The body sits where the trigger does, so it would inherit its text
+       layout: inside a nowrap cell the label ran past the body's edge. */
+    white-space: normal;
+    text-align: left;
+    overflow-wrap: break-word;
   }
 
   .tooltip-content {
