@@ -4,6 +4,8 @@
 
 ### Added
 - **Badge** — a `dot` takes the `danger`, `success` and `warning` variants' colors; any other variant stays brand
+- **Dropdown**, **Menu** / **MenuItem** — `badge` takes a list for several badges, each a text or `{ text, variant?, strong? }`
+- **NumericInput** — `invalid`: a red edge and `aria-invalid`, as Input has
 
 ### Fixed
 - **Tooltip** — the label wraps inside the body wherever the trigger sits: it inherited the surrounding text layout, so in a `nowrap` table cell it ran past the body's edge

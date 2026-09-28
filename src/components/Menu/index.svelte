@@ -2,7 +2,8 @@
   Menu: UI3's dark menu, built from data.
 
   Items are `{ label, value?, group?, section?, showHeading?, disabled?, type?,
-  checked?, selected?, iconName?, chit?, detail?, badge?, subMenu? }`:
+  checked?, selected?, iconName?, chit?, detail?, badge?, subMenu? }`,
+  `badge` as MenuItem takes it, one or several:
 
   - `type` makes a row a control. 'check' draws a leading checkmark (`checked:
     'mixed'` draws a dot) and closes the menu like any action; 'checkbox' and

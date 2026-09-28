@@ -24,9 +24,11 @@
   /** @type {string | null} button text when it should not be the chosen item's menu label — a menu
       row can carry more than the button has room for. `''` shows the placeholder whatever is chosen. */
   export let label = null;
-  /** Badge between the label and the chevron; the kit Badge's `text` */
+  /** Badge between the label and the chevron: the kit Badge's `text`, or a list of
+      texts and `{ text, variant?, strong? }` for several */
+  /** @type {string | { text: string, variant?: string, strong?: boolean } | Array<string | { text: string, variant?: string, strong?: boolean }>} */
   export let badge = '';
-  /** the kit Badge's `variant` */
+  /** the kit Badge's `variant`, for badges that give none */
   export let badgeVariant = 'default';
 
   let className = '';
@@ -44,6 +46,9 @@
   $: leadIcon = !leadChit && value && value.iconName ? value.iconName : leadChit ? null : iconName;
   // `label` overrides what the button says, including `''` for "always the placeholder"
   $: text = label ?? value?.label ?? null;
+  $: badges = (Array.isArray(badge) ? badge : [badge])
+    .filter(Boolean)
+    .map((b) => (typeof b === 'string' ? { text: b } : b));
 
   // Get icon color based on state
   function getIconColor(disabled) {
@@ -109,8 +114,12 @@
       <span class="label placeholder">{placeholder}</span>
     {/if}
 
-    {#if badge}
-      <span class="badge"><Badge variant={badgeVariant} text={badge} /></span>
+    {#if badges.length}
+      <span class="badge">
+        {#each badges as b (b.text)}
+          <Badge variant={b.variant ?? badgeVariant} strong={b.strong ?? false} text={b.text} />
+        {/each}
+      </span>
     {/if}
 
     <span class="caret" aria-hidden="true">
@@ -213,6 +222,7 @@
   .badge {
     display: flex;
     flex: 0 0 auto;
+    gap: var(--size-xxxsmall);
     margin-left: var(--size-xxxsmall);
   }
 

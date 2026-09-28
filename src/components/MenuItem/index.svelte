@@ -29,7 +29,9 @@
   export let avatar = null;
   /** Right-aligned secondary text: a shortcut, a count, a value. */
   export let detail = '';
-  /** Right-aligned badge text. */
+  /** Right-aligned badge text, or a list of texts and `{ text, variant?, strong? }`
+      for several. */
+  /** @type {string | { text: string, variant?: string, strong?: boolean } | Array<string | { text: string, variant?: string, strong?: boolean }>} */
   export let badge = '';
   /** Overrides the ARIA role, e.g. 'menuitemradio' for a single-choice list. */
   export let role = null;
@@ -38,6 +40,9 @@
   export { className as class };
 
   $: ariaRole = role || (variant === 'default' ? 'menuitem' : 'menuitemcheckbox');
+  $: badges = (Array.isArray(badge) ? badge : [badge])
+    .filter(Boolean)
+    .map((b) => (typeof b === 'string' ? { text: b } : b));
   $: checkable = ariaRole === 'menuitemcheckbox' || ariaRole === 'menuitemradio';
 </script>
 
@@ -80,8 +85,12 @@
   {#if detail}
     <span class="detail">{detail}</span>
   {/if}
-  {#if badge}
-    <span class="badge"><Badge variant="menu" text={badge} /></span>
+  {#if badges.length}
+    <span class="badge">
+      {#each badges as b (b.text)}
+        <Badge variant={b.variant ?? 'menu'} strong={b.strong ?? false} text={b.text} />
+      {/each}
+    </span>
   {/if}
   {#if variant === 'checkbox'}
     <span class="checkbox" class:on={selected}>
@@ -218,6 +227,10 @@
   .badge,
   .checkbox {
     margin-left: auto;
+  }
+
+  .badge {
+    gap: var(--size-xxxsmall);
   }
 
   .label + .checkbox {

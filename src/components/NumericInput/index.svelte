@@ -40,6 +40,8 @@
   export let unit = '';
   export let placeholder = '';
   export let disabled = false;
+  /** A red edge, as Input's: the value is part of a problem shown elsewhere. */
+  export let invalid = false;
   /** Presets for the chevron menu: numbers, or `{ label, value }`. */
   /** @type {Array<number | { label: string, value: number }> | null} */
   export let options = null;
@@ -200,6 +202,7 @@
 <div
   class="numeric-input {className}"
   class:disabled
+  class:invalid
   class:has-options={hasOptions}
   class:bound={variable}
 >
@@ -269,6 +272,7 @@
         {disabled}
         {placeholder}
         aria-label={ariaLabel || undefined}
+        aria-invalid={invalid || undefined}
         aria-valuenow={numeric ?? undefined}
         aria-valuemin={min ?? undefined}
         aria-valuemax={max ?? undefined}
@@ -346,6 +350,13 @@
   /* Focus in the value or the pill; the chevron's own focus doesn't count */
   .numeric-input:has(.field:focus-within)::after {
     border-color: var(--figma-color-border-selected);
+  }
+
+  /* Red at rest, hovered and focused, as Input's invalid border. */
+  .numeric-input.invalid::after,
+  .numeric-input.invalid:hover::after,
+  .numeric-input.invalid:has(.field:focus-within)::after {
+    border-color: var(--figma-color-border-danger-strong);
   }
 
   .numeric-input.disabled {
