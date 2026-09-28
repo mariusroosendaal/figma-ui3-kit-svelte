@@ -9,9 +9,9 @@
   `change` hands back `{ values, index }` (the cell that changed; -1 for all).
 -->
 <script>
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onDestroy } from 'svelte';
   import Icon from '../Icon/index.svelte';
-  import { evaluate } from '../NumericInput/numeric.js';
+  import { endScrub, evaluate, scrubOffset, startScrub } from '../NumericInput/numeric.js';
 
   /** @type {Array<number | null>} */
   export let values = [0, 0, 0, 0];
@@ -113,15 +113,15 @@
     if (allDisabled || event.button !== 0) return;
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
-    scrub = { x: event.clientX, start: [...values], moved: false };
+    scrub = startScrub(event, [...values]);
   }
 
   function scrubMove(event) {
     if (!scrub) return;
-    const dx = Math.round(event.clientX - scrub.x);
-    if (dx === 0 && !scrub.moved) return;
-    scrub.moved = true;
-    const delta = dx * step * (event.shiftKey ? 10 : 1);
+    // Let go outside the plugin's window, where the release went unheard
+    if (event.buttons === 0) return scrubEnd(event);
+    const delta = scrubOffset(scrub, event, step);
+    if (delta == null) return;
     values = scrub.start.map((v, i) => (cellDisabled[i] ? v : clamp((v ?? 0) + delta)));
     // A focused cell keeps its own text, so scrubbing has to rewrite it or it
     // would sit on a stale number until blur.
@@ -131,13 +131,18 @@
     dispatch('input', { values, index: -1 });
   }
 
-  function scrubEnd() {
-    if (!scrub) return;
+  function scrubEnd(event) {
+    if (!scrub || event.pointerId !== scrub.id) return;
     const moved = scrub.moved;
     scrub = null;
+    endScrub();
     if (moved) dispatch('change', { values, index: -1 });
   }
+
+  onDestroy(() => scrub && endScrub());
 </script>
+
+<svelte:window on:pointermove={scrubMove} on:pointerup={scrubEnd} on:pointercancel={scrubEnd} />
 
 <div
   class="numeric-input-multi {className}"
@@ -151,9 +156,6 @@
     <span
       class="lead"
       on:pointerdown={scrubStart}
-      on:pointermove={scrubMove}
-      on:pointerup={scrubEnd}
-      on:pointercancel={scrubEnd}
     >
       {#if iconName}
         <Icon
@@ -233,6 +235,14 @@
     margin: -1px 0 -1px -1px;
     cursor: ew-resize;
     touch-action: none;
+    user-select: none;
+  }
+
+  /* Set on the page while a lead is dragged (see numeric.js) */
+  :global(html.numeric-scrubbing),
+  :global(html.numeric-scrubbing *) {
+    cursor: ew-resize !important;
+    user-select: none !important;
   }
 
   .lead :global(.icon-component) {

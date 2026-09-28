@@ -9,6 +9,7 @@
 - **Tooltip** — the label wraps inside the body wherever the trigger sits: it inherited the surrounding text layout, so in a `nowrap` table cell it ran past the body's edge
 - `html`, `body` and `#app` fill the plugin window, and `#app` clips, so a layout's `height: 100%` holds and nothing can make the document scrollable: the content area scrolls and the footer stays at the bottom, where the whole window used to scroll past it
 - **NumericInput** — a value the parent sets in answer to `change` shows at once, even while the field has focus, so arrow keys step from it
+- **NumericInput**, **NumericInputMulti** — scrubbing the lead is steadier: the drag carries on once the pointer leaves the lead, where it could stop dead when the plugin's iframe dropped the pointer capture, and holds the scrub cursor with no text selection wherever it goes; it waits for 3px of drag, so a click that jiggles still focuses the field; pressing or letting go of Shift mid-drag changes the rate from there instead of rescaling the whole drag; and a single field held at `min` or `max` turns back at once. Scrubbing a focused NumericInput no longer snaps back to its typed text on blur
 
 ## [0.6.0] - 2026-09-21
 

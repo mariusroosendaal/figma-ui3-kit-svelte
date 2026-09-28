@@ -2,7 +2,7 @@
   NumericInput: UI3's numeric field ("Numeric input" in the UI3 file).
 
   - A lead cell holds a letter (`label="W"`) or an icon; dragging it scrubs the
-    value, one `step` per pixel (Shift: ×10).
+    value, one `step` per pixel (Shift: ×10) past 3px of slack.
   - ArrowUp/ArrowDown step the value (Shift: ×10); Enter commits and keeps focus,
     Escape reverts. Simple arithmetic is accepted: `24*2`, `100/3`, `16+8`.
   - The value is clamped to `min`/`max` and rounded to `precision` decimals. An
@@ -13,14 +13,14 @@
   `input` fires while scrubbing, `change` whenever a value is committed.
 -->
 <script>
-  import { createEventDispatcher, tick } from 'svelte';
+  import { createEventDispatcher, onDestroy, tick } from 'svelte';
   import Icon from '../Icon/index.svelte';
   import IconButton from '../IconButton/index.svelte';
   import Menu from '../Menu/index.svelte';
   import VariablePill from '../VariablePill/index.svelte';
   import IconChevronDown from './../../icons/24/icon.24.chevron.down.svg';
   import IconDetach from './../../icons/24/icon.24.detach.small.svg';
-  import { evaluate } from './numeric.js';
+  import { endScrub, evaluate, scrubOffset, startScrub } from './numeric.js';
 
   /** @type {number | null} */
   export let value = null;
@@ -61,7 +61,7 @@
   let text = '';
   let focused = false;
   let menuOpen = false;
-  let scrub = null; // { x, start, moved }
+  let scrub = null; // startScrub's
   let selectOnMouseUp = false;
   let pillFocused = false;
 
@@ -149,28 +149,38 @@
     if (disabled || variable || event.button !== 0) return;
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
-    scrub = { x: event.clientX, start: numeric ?? evaluate(text) ?? 0, moved: false };
+    // A focused field keeps its own text, which blur would commit over the
+    // scrubbed value: commit what's typed now, and scrub from it.
+    if (focused) input.blur();
+    const start = typeof value === 'number' ? value : (numeric ?? evaluate(text) ?? 0);
+    scrub = startScrub(event, start);
   }
 
   function scrubMove(event) {
     if (!scrub) return;
-    const dx = Math.round(event.clientX - scrub.x);
-    if (dx === 0 && !scrub.moved) return;
-    scrub.moved = true;
-    const next = clamp(scrub.start + dx * step * (event.shiftKey ? 10 : 1));
+    // Let go outside the plugin's window, where the release went unheard
+    if (event.buttons === 0) return scrubEnd(event);
+    const offset = scrubOffset(scrub, event, step);
+    if (offset == null) return;
+    const next = clamp(scrub.start + offset);
+    // Held at min or max, the drag turns back from there, not from past it.
+    scrub.offset = next - scrub.start;
     if (next !== value) {
       value = next;
       dispatch('input', value);
     }
   }
 
-  function scrubEnd() {
-    if (!scrub) return;
+  function scrubEnd(event) {
+    if (!scrub || event.pointerId !== scrub.id) return;
     const { moved, start } = scrub;
     scrub = null;
+    endScrub();
     if (moved && value !== start) dispatch('change', value);
     if (!moved) input.focus();
   }
+
+  onDestroy(() => scrub && endScrub());
 
   // PRESETS
 
@@ -180,6 +190,8 @@
     commit(event.detail.value);
   }
 </script>
+
+<svelte:window on:pointermove={scrubMove} on:pointerup={scrubEnd} on:pointercancel={scrubEnd} />
 
 <!--
   With `options` this is UI3's combo input: one box whose hover and focus borders
@@ -199,9 +211,6 @@
         class:scrubbing={scrub?.moved}
         class:static={variable}
         on:pointerdown={scrubStart}
-        on:pointermove={scrubMove}
-        on:pointerup={scrubEnd}
-        on:pointercancel={scrubEnd}
       >
         {#if iconName}
           <Icon
@@ -365,6 +374,14 @@
     margin: -1px 0 -1px -1px; /* sits on the border, as in UI3 */
     cursor: ew-resize;
     touch-action: none;
+    user-select: none;
+  }
+
+  /* Set on the page while a lead is dragged (see numeric.js) */
+  :global(html.numeric-scrubbing),
+  :global(html.numeric-scrubbing *) {
+    cursor: ew-resize !important;
+    user-select: none !important;
   }
 
   .lead :global(.icon-component) {

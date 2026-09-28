@@ -46,3 +46,41 @@ export function evaluate(source) {
     return null;
   }
 }
+
+// Scrubbing, as Figma does it: a few pixels of slack first, so a click that
+// jiggles is still a click, then a step per pixel, ten with Shift. Each move
+// adds to the drag so far at the rate it moved at, so pressing or letting go
+// of Shift mid-drag changes the rate from there instead of rescaling the
+// whole drag, and a value jumps.
+//
+// The drag is followed on the window, not just the lead: pointer capture
+// doesn't always take in a plugin's iframe, and without it the lead only hears
+// moves over itself. While it lasts, the page shows the scrub cursor and
+// selects no text, wherever the pointer goes.
+const SLACK = 3;
+const SCRUBBING = 'numeric-scrubbing';
+
+export function startScrub(event, start) {
+  document.documentElement.classList.add(SCRUBBING);
+  return { id: event.pointerId, x: event.clientX, start, offset: 0, moved: false };
+}
+
+export function endScrub() {
+  document.documentElement.classList.remove(SCRUBBING);
+}
+
+/** The drag's offset from its start after this move, or null for none yet. */
+export function scrubOffset(scrub, event, step) {
+  if (event.pointerId !== scrub.id) return null;
+  if (!scrub.moved) {
+    if (Math.abs(event.clientX - scrub.x) < SLACK) return null;
+    scrub.moved = true;
+    scrub.x = event.clientX;
+    return scrub.offset;
+  }
+  const px = Math.round(event.clientX - scrub.x);
+  if (px === 0) return null;
+  scrub.x += px;
+  scrub.offset += px * step * (event.shiftKey ? 10 : 1);
+  return scrub.offset;
+}
