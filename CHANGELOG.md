@@ -4,7 +4,7 @@
 
 ### Added
 - **Badge** — a `dot` takes the `danger`, `success` and `warning` variants' colors; any other variant stays brand
-- **Dropdown**, **Menu** / **MenuItem** — `badge` takes a list for several badges, each a text or `{ text, variant?, strong? }`
+- **Dropdown**, **Menu** / **MenuItem** — `badge` takes a list for several badges, each a text or `{ text, variant?, strong? }`. A menu row's badges draw in the dark theme's colors, since the menu is dark in either theme, and on the blue highlight an outlined badge takes the dark fill of UI3's menu badge so its text stays readable
 - **NumericInput** — `invalid`: a red edge and `aria-invalid`, as Input has
 
 ### Fixed

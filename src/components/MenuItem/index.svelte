@@ -229,8 +229,55 @@
     margin-left: auto;
   }
 
+  /* The menu is dark in either theme, so its badges take the dark theme's
+     colors: the tokens Badge reads are set here to Figma's dark values, and
+     every variant draws its dark self rather than light-theme text on a dark
+     panel. */
   .badge {
     gap: var(--size-xxxsmall);
+    --figma-color-bg: #2c2c2c;
+    --figma-color-bg-brand: #0c8ce9;
+    --figma-color-bg-component: #8a38f5;
+    --figma-color-bg-danger: #e03e1a;
+    --figma-color-bg-hover: #383838;
+    --figma-color-bg-inverse: #ffffff;
+    --figma-color-bg-onselected: #667799;
+    --figma-color-bg-selected: #4a5878;
+    --figma-color-bg-success: #198f51;
+    --figma-color-bg-tertiary: #444444;
+    --figma-color-bg-warning: #f3c11b;
+    --figma-color-border: #444444;
+    --figma-color-border-brand: #105cad;
+    --figma-color-border-component: #652ca8;
+    --figma-color-border-danger: #963323;
+    --figma-color-border-disabled: #444444;
+    --figma-color-border-onselected: #667799;
+    --figma-color-border-success: #0a5c35;
+    --figma-color-border-warning: #925711;
+    --figma-color-text: #ffffff;
+    --figma-color-text-brand: #7cc4f8;
+    --figma-color-text-component: #d1a8ff;
+    --figma-color-text-danger: #fca397;
+    --figma-color-text-onbrand: #ffffff;
+    --figma-color-text-oncomponent: #ffffff;
+    --figma-color-text-ondanger: #ffffff;
+    --figma-color-text-oninverse: #000000e5;
+    --figma-color-text-onselected: #ffffffe5;
+    --figma-color-text-onsuccess: #ffffff;
+    --figma-color-text-onwarning: #000000e5;
+    --figma-color-text-secondary: #ffffffb2;
+    --figma-color-text-selected: #7cc4f8;
+    --figma-color-text-success: #79d297;
+    --figma-color-text-tertiary: #ffffff66;
+    --figma-color-text-warning: #f7d15f;
+  }
+
+  /* An outlined badge is see-through, and its colored text is lost on the blue
+     highlight. UI3's menu badge is a solid dark chip in both states, so on the
+     highlight the others take that fill and keep their own text and edge. The
+     class is doubled to outrank Badge's own variant rules. */
+  .highlight .badge :global(.badge.badge:not(.strong)) {
+    background-color: var(--figma-color-bg);
   }
 
   .label + .checkbox {
