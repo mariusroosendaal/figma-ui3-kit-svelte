@@ -24,10 +24,13 @@ const value = instance.findText('Value')
 if (value && value.type === 'TEXT') text = value.textContent
 
 // The lead is a letter drawn as an icon (icon.24.prop-text) or a real icon.
+// With neither, its container is hidden; findLayers skips hidden layers, so a
+// lead it can't find isn't drawn.
 let label = ''
 let iconCode
 const lead = instance.getInstanceSwap('🎛️ Icon Lead')
-if (lead && lead.type === 'INSTANCE') {
+const leadShown = lead && lead.type === 'INSTANCE' && instance.findLayers((node) => node.type === 'INSTANCE' && node.name === lead.name).length > 0
+if (leadShown) {
   if (lead.name === 'icon.24.prop-text') {
     const glyph = lead.findText('Icon')
     if (glyph && glyph.type === 'TEXT') label = glyph.textContent
