@@ -58,7 +58,10 @@
     color: currentColor;
   }
 
-  :global(.icon-component svg *) {
+  /* A mask's shapes say what shows by their luminance, so they keep the fills
+     they're drawn with: painted the icon's color, they hid most of it
+     (lock.small, heart). */
+  :global(.icon-component svg *:not(mask, mask *)) {
     fill: currentColor !important;
     color: currentColor;
   }

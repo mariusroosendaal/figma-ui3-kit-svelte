@@ -8,6 +8,8 @@
 - **NumericInput** — `invalid`: a red edge and `aria-invalid`, as Input has
 
 ### Fixed
+- **Icon** — icons drawn through an SVG mask show: every shape in the SVG took the icon's color, the mask's included, and a mask shows only where it's light, so `lock.small`, `lock.open.small`, `heart`, `boolean.union`, `layout-overlay-center` and `autolayout.alignment.baseline` drew nothing or next to nothing
+- **Icons** — `text.line-height` and `text.letter-spacing` have their A again, `al.height-minmax` its H, `missing-font` its A? and `attention.small` its !: the letters are text in Figma and were left out of the SVGs, which are now exported with the text outlined
 - **Tooltip** — the label wraps inside the body wherever the trigger sits: it inherited the surrounding text layout, so in a `nowrap` table cell it ran past the body's edge
 - `html`, `body` and `#app` fill the plugin window, and `#app` clips, so a layout's `height: 100%` holds and nothing can make the document scrollable: the content area scrolls and the footer stays at the bottom, where the whole window used to scroll past it
 - **NumericInput** — a value the parent sets in answer to `change` shows at once, even while the field has focus, so arrow keys step from it
