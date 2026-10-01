@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- **SidebarRow** — UI3's Sidebar row comment, for lists of comments, notifications and the like: a `lead` slot (avatars, an icon), `meta`, `title` with `detail`, `message` (cut after `lines` if set) and a `link` line firing `link`. The row is a button firing `click`, with the hover fill, unless `clickable={false}`; `selected` takes the selected fill, `unread` the blue dot and a blue link, and an `actions` slot of icon buttons shows on hover, focus and selection
 - **Badge** — a `dot` takes the `danger`, `success` and `warning` variants' colors; any other variant stays brand
 - **Dropdown**, **Menu** / **MenuItem** — `badge` takes a list for several badges, each a text or `{ text, variant?, strong? }`. A menu row's badges draw in the dark theme's colors, since the menu is dark in either theme, and on the blue highlight an outlined badge takes the dark fill of UI3's menu badge so its text stays readable
 - **NumericInput** — `invalid`: a red edge and `aria-invalid`, as Input has

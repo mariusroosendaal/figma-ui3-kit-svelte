@@ -53,6 +53,7 @@ The templates double as the reverse mapping: to mock up a Svelte layout, create 
 | Button icon toggle | `2324:46776` | → `IconToggle` with `iconName` + `iconNameOn`; Highlighted ↔ `highlighted`. |
 | Button icon dialog toggle | `2324:46817` | → `IconToggle` with one `iconName`; `🎛️ On` ↔ `pressed`. |
 | Button icon split | `2324:46856` | → `SplitButton`; the menu's items live in code. |
+| Sidebar row comment | `2012:63744` | → `SidebarRow`: `NumPage` ↔ `meta`, `Name` ↔ `title`, `Timestamp` ↔ `detail`, `Message` ↔ `message`, `Reply Count` ↔ `link` (when `🎛️  Replies`); `🎛️  Unread` ↔ `unread`, Selected ↔ `selected` (Hover is runtime). The avatars go in the `lead` slot, the hover icons in `actions` as IconButtons. |
 
 Built on the **Kit additions** page, because UI3 has no equivalent or its API differs too much from the kit:
 

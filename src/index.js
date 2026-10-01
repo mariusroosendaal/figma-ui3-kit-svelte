@@ -33,6 +33,7 @@ import Radio from './components/Radio/index.svelte';
 import RadioGroup from './components/RadioGroup/index.svelte';
 import Segment from './components/Segment/index.svelte';
 import SegmentedControl from './components/SegmentedControl/index.svelte';
+import SidebarRow from './components/SidebarRow/index.svelte';
 import Slider from './components/Slider/index.svelte';
 import SplitButton from './components/SplitButton/index.svelte';
 import Switch from './components/Switch/index.svelte';
@@ -75,6 +76,7 @@ export {
   RadioGroup,
   Segment,
   SegmentedControl,
+  SidebarRow,
   Slider,
   SplitButton,
   Switch,

@@ -79,6 +79,7 @@ All components accept a `class` prop for custom styling.
 - NumericInput / NumericInputMulti
 - Radio / RadioGroup
 - SegmentedControl / Segment
+- SidebarRow
 - Slider
 - SplitButton
 - Switch
