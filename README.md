@@ -68,6 +68,7 @@ All components accept a `class` prop for custom styling.
 - ColorInput
 - Disclosure / DisclosureItem
 - Dropdown
+- Dropzone
 - Icon
 - IconButton
 - IconToggle

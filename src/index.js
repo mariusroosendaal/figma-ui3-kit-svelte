@@ -13,6 +13,7 @@ import Chit from './components/Chit/index.svelte';
 import ColorInput from './components/ColorInput/index.svelte';
 import Disclosure from './components/Disclosure/index.svelte';
 import DisclosureItem from './components/DisclosureItem/index.svelte';
+import Dropzone from './components/Dropzone/index.svelte';
 import Dropdown from './components/Dropdown/index.svelte';
 import Icon from './components/Icon/index.svelte';
 import IconButton from './components/IconButton/index.svelte';
@@ -57,6 +58,7 @@ export {
   Disclosure,
   DisclosureItem,
   Dropdown,
+  Dropzone,
   Icon,
   IconButton,
   IconToggle,
