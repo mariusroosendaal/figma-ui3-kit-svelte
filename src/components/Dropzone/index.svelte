@@ -23,6 +23,11 @@
   export let errorMessage = '';
   export let id = null;
   export let ariaLabel = '';
+  /**
+   * One row with no illustration, for when files are already in and listed
+   * below: the button turns secondary, leaving the primary action to the page.
+   */
+  export let compact = false;
 
   let className = '';
   export { className as class };
@@ -55,9 +60,8 @@
     });
   }
 
-  /** @param {FileList | null | undefined} list */
-  function take(list) {
-    const all = Array.from(list || []);
+  /** @param {File[]} all */
+  function take(all) {
     if (all.length === 0) return;
     const accepted = all.filter(matches);
     const rejected = all.filter((f) => !matches(f));
@@ -94,13 +98,20 @@
     if (!carriesFiles(e)) return;
     e.preventDefault();
     depth = 0;
-    if (!disabled) take(e.dataTransfer?.files);
+    if (disabled || !e.dataTransfer) return;
+    // A dropped folder arrives as a file that can't be read, so it's left out
+    const files = Array.from(e.dataTransfer.items)
+      .filter((item) => item.kind === 'file' && !item.webkitGetAsEntry?.()?.isDirectory)
+      .map((item) => item.getAsFile())
+      .filter(Boolean);
+    take(files);
   }
 
-  function handleChange() {
-    take(input.files);
+  /** @param {HTMLInputElement} picker */
+  function handleChange(picker) {
+    take(Array.from(picker.files || []));
     // Picking the same file again still fires change
-    input.value = '';
+    picker.value = '';
   }
 
   $: describedBy = [hint ? hintId : '', invalid && errorMessage ? errorId : '']
@@ -114,6 +125,7 @@
     class:dragging
     class:invalid
     class:disabled
+    class:compact
     role="group"
     aria-label={ariaLabel || undefined}
     aria-describedby={describedBy || undefined}
@@ -122,17 +134,21 @@
     on:dragleave={handleDragLeave}
     on:drop={handleDrop}
   >
-    <slot>
-      {#if iconName}
-        <Icon
-          {iconName}
-          size={48}
-          color={disabled ? '--figma-color-icon-disabled' : '--figma-color-icon-tertiary'}
-          class="dropzone__icon"
-        />
-      {/if}
-    </slot>
-    <Button variant="primary" {disabled} on:click={() => input.click()}>{buttonLabel}</Button>
+    {#if !compact}
+      <slot>
+        {#if iconName}
+          <Icon
+            {iconName}
+            size={48}
+            color={disabled ? '--figma-color-icon-disabled' : '--figma-color-icon-tertiary'}
+            class="dropzone__icon"
+          />
+        {/if}
+      </slot>
+    {/if}
+    <Button variant={compact ? 'secondary' : 'primary'} {disabled} on:click={() => input.click()}
+      >{buttonLabel}</Button
+    >
     {#if hint}
       <span class="hint" id={hintId}>{hint}</span>
     {/if}
@@ -145,7 +161,7 @@
       {disabled}
       tabindex="-1"
       aria-hidden="true"
-      on:change={handleChange}
+      on:change={() => handleChange(input)}
     />
   </div>
   {#if invalid && errorMessage}
@@ -154,7 +170,14 @@
 </div>
 
 <style>
+  /* Given a height through `class`, the dashed area fills it */
+  .dropzone-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
   .dropzone {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -167,6 +190,12 @@
     transition:
       background-color 0.1s,
       border-color 0.1s;
+  }
+
+  .dropzone.compact {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: var(--size-xxsmall);
   }
 
   .dropzone.dragging {

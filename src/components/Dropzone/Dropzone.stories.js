@@ -13,6 +13,10 @@ export default {
       control: 'boolean',
       description: 'Whether more than one file can be taken at a time',
     },
+    compact: {
+      control: 'boolean',
+      description: 'One row with no illustration, for when files are listed below it',
+    },
     buttonLabel: {
       control: 'text',
       description: 'The button label',
@@ -70,5 +74,14 @@ export const Disabled = {
   args: {
     buttonLabel: 'Choose files',
     disabled: true,
+  },
+};
+
+export const Compact = {
+  args: {
+    accept: '.md,image/png,image/jpeg,image/gif',
+    buttonLabel: 'Choose files',
+    hint: 'or drop more here',
+    compact: true,
   },
 };
