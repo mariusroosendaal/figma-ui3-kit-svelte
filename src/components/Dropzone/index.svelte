@@ -184,7 +184,7 @@
     justify-content: center;
     gap: var(--size-xxsmall);
     padding: var(--size-small) var(--size-xsmall);
-    border: 1px dashed var(--figma-color-border-strong);
+    border: 1px dashed var(--figma-color-border);
     border-radius: var(--border-radius-medium);
     background-color: transparent;
     transition:
@@ -208,7 +208,7 @@
   }
 
   .dropzone.disabled {
-    border-color: var(--figma-color-border-disabled-strong);
+    border-color: var(--figma-color-border-disabled);
   }
 
   /* The icons are drawn at 24px; the illustration scales one up */
