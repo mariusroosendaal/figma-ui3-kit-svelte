@@ -70,6 +70,7 @@ Built on the **Kit additions** page, because UI3 has no equivalent or its API di
 | Tree row | `1027222:26144` | Depth 0–3 (indent) × Twisty None/Closed/Open × Selected; `🎛️ Label`, `👁️/🎛️ Detail`, `👁️/↪ Icon`, `👁️ Checkbox` (a UI3 Checkbox; its Type is the tick). |
 | Tree | `1027222:26241` | `Rows slot` of Tree rows; the template nests them by Depth into `nodes`, and derives `mode`, `expanded`, `selected` and `checked`. |
 | Menu | `1027206:366` | Fill `Items slot` with UI3 menu rows. The kit's Menu is data-driven, so rows become `menuItems` (with `type`, `checked`, `iconName`, `detail`, `badge` from each row); headings and dividers start groups. |
+| Dropzone | `1028012:479` | Size Default/Compact ↔ `compact` × State Default/Dragging/Disabled/Invalid (Dragging is the drag-over look, drawn at runtime). `🎛️ Hint` (+ `👁️ Hint`) ↔ `hint`, `👁️ Icon` + `↪ Icon` ↔ `iconName` (hidden ↔ `{null}`; Compact has none), `🎛️ Error` ↔ `errorMessage` on Invalid. The button is an exposed UI3 Button; its label ↔ `buttonLabel`. `accept` and `multiple` live in code. |
 
 ## Adding a component
 
