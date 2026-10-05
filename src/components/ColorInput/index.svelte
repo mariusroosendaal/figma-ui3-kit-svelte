@@ -4,8 +4,9 @@
 
   - The hex takes 3, 6 or 8 digits, with or without `#`; eight digits also set
     the opacity. An unreadable entry reverts.
-  - The chit opens the system color picker (`pickable`), which fires `input`
-    while it moves and `change` when it closes.
+  - The chit opens a color picker (`pickable`), which fires `input` while it
+    moves and `change` when it settles: the system's, or with `picker="panel"`
+    the kit's ColorPicker, Figma's own, offering `swatches`.
   - `variable` shows a bound variable's name instead of the hex, as Figma does;
     it isn't editable here.
 
@@ -14,6 +15,8 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import Chit from '../Chit/index.svelte';
+  import ColorPicker from '../ColorPicker/index.svelte';
+  import { parseHex } from '../ColorPicker/color.js';
 
   export let value = '#000000';
   /** 0–100; null hides the opacity cell. */
@@ -22,6 +25,10 @@
   /** @type {string | null} a bound variable's name, shown instead of the hex */
   export let variable = null;
   export let pickable = true;
+  /** @type {'system' | 'panel'} the system picker, or the kit's ColorPicker */
+  export let picker = 'system';
+  /** @type {Array<any>} the ColorPicker's swatches, with `picker="panel"` */
+  export let swatches = [];
   export let disabled = false;
   export let id = null;
   export let ariaLabel = 'Color';
@@ -35,6 +42,8 @@
   let opacityText = '';
   let hexFocused = false;
   let opacityFocused = false;
+  let root;
+  let panelOpen = false;
 
   $: hex = normalize(value)?.hex ?? '#000000';
   $: if (!hexFocused) hexText = hex.slice(1).toUpperCase();
@@ -42,13 +51,9 @@
 
   /** '#RGB', 'RRGGBB', '#RRGGBBAA'… → { hex: '#rrggbb', alpha: 0–100 | null } */
   function normalize(input) {
-    const match = /^#?([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(String(input ?? '').trim());
-    if (!match) return null;
-    let digits = match[1].toLowerCase();
-    if (digits.length === 3) digits = [...digits].map((c) => c + c).join('');
-    const alpha =
-      digits.length === 8 ? Math.round((parseInt(digits.slice(6), 16) / 255) * 100) : null;
-    return { hex: `#${digits.slice(0, 6)}`, alpha };
+    const parsed = parseHex(input);
+    if (!parsed) return null;
+    return { hex: parsed.hex, alpha: parsed.alpha == null ? null : Math.round(parsed.alpha * 100) };
   }
 
   // Reads `value`, not the derived `hex`, which only catches up after the update.
@@ -121,10 +126,28 @@
     value = event.currentTarget.value;
     emit(kind);
   }
+
+  function handlePanel(event, kind) {
+    value = event.detail.value;
+    if (opacity != null) opacity = event.detail.opacity;
+    dispatch(kind, { value, opacity });
+  }
 </script>
 
-<div class="color-input {className}" class:disabled class:bound={variable}>
-  {#if pickable && !disabled && !variable}
+<div bind:this={root} class="color-input {className}" class:disabled class:bound={variable}>
+  {#if pickable && !disabled && !variable && picker === 'panel'}
+    <button
+      type="button"
+      class="chit-cell pickable chit-button"
+      title="Pick a color"
+      aria-label="{ariaLabel} picker"
+      aria-haspopup="dialog"
+      aria-expanded={panelOpen}
+      on:click={() => (panelOpen = !panelOpen)}
+    >
+      <Chit color={hex} opacity={opacity ?? 100} />
+    </button>
+  {:else if pickable && !disabled && !variable}
     <label class="chit-cell pickable" title="Pick a color">
       <Chit color={hex} opacity={opacity ?? 100} />
       <input
@@ -192,6 +215,18 @@
   {/if}
 </div>
 
+{#if picker === 'panel'}
+  <ColorPicker
+    bind:isOpen={panelOpen}
+    anchorElement={root}
+    value={hex}
+    {opacity}
+    {swatches}
+    on:input={(e) => handlePanel(e, 'input')}
+    on:change={(e) => handlePanel(e, 'change')}
+  />
+{/if}
+
 <style>
   .color-input {
     display: flex;
@@ -252,10 +287,22 @@
     cursor: default;
   }
 
+  .chit-button {
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: default;
+  }
+
   .pickable:focus-within {
     outline: 1px solid var(--figma-color-border-selected);
     outline-offset: -3px;
     border-radius: var(--border-radius-medium);
+  }
+
+  /* The panel's chit is a button: its ring is for the keyboard only */
+  .chit-button:focus:not(:focus-visible) {
+    outline: none;
   }
 
   input.hex,

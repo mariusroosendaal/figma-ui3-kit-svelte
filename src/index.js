@@ -11,6 +11,7 @@ import Checkbox from './components/Checkbox/index.svelte';
 import Chip from './components/Chip/index.svelte';
 import Chit from './components/Chit/index.svelte';
 import ColorInput from './components/ColorInput/index.svelte';
+import ColorPicker from './components/ColorPicker/index.svelte';
 import Disclosure from './components/Disclosure/index.svelte';
 import DisclosureItem from './components/DisclosureItem/index.svelte';
 import Dropzone from './components/Dropzone/index.svelte';
@@ -55,6 +56,7 @@ export {
   Chip,
   Chit,
   ColorInput,
+  ColorPicker,
   Disclosure,
   DisclosureItem,
   Dropdown,

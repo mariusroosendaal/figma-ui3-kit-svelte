@@ -66,6 +66,7 @@ All components accept a `class` prop for custom styling.
 - Chip
 - Chit
 - ColorInput
+- ColorPicker
 - Disclosure / DisclosureItem
 - Dropdown
 - Dropzone
