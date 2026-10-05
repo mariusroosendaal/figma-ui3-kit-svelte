@@ -13,6 +13,8 @@
     which a dropdown switches between, as Figma's "On this page".
   - The eyedropper is the browser's EyeDropper, left out where there is none.
   - `opacity={null}` leaves out the opacity slider and field.
+  - `compact` makes the square 144px tall, the least it shrinks to in a short
+    window, for a plugin with little room.
 -->
 <script>
   import { createEventDispatcher, onDestroy, tick } from 'svelte';
@@ -46,6 +48,8 @@
   /** @type {Array<any>} colors, or `{ label, colors }` groups */
   export let swatches = [];
   export let title = 'Color picker';
+  /** true: the square 144px tall instead of 208px */
+  export let compact = false;
 
   let className = '';
   export { className as class };
@@ -453,6 +457,7 @@
     class="color-picker {className}"
     class:floating={!inline}
     class:placed
+    class:compact
     role="dialog"
     aria-labelledby={titleId}
     tabindex="-1"
@@ -643,8 +648,13 @@
     flex: 0 0 auto;
   }
 
-  /* Only the swatches give way; in a window too short even for the rest, the
-     whole body scrolls */
+  /* Figma's Custom tab is bold text alone, without the selected fill */
+  .color-picker :global(.tab.single-tab) {
+    background-color: transparent;
+  }
+
+  /* In a short plugin window the swatches give way first, down to a row, then
+     the square, down to 144px tall; shorter still, the whole body scrolls */
   .body {
     display: flex;
     flex: 1 1 auto;
@@ -656,18 +666,26 @@
   /* ── Square and sliders ── */
 
   .spectrum-wrap {
-    flex: none;
+    display: flex;
+    flex: 0 1 auto;
+    flex-direction: column;
+    min-height: 160px; /* the square's 144px and its 16px top */
     padding: var(--size-xsmall) var(--size-xsmall) 0;
   }
 
   .spectrum {
     position: relative;
-    height: 208px;
+    flex: 0 1 208px;
+    min-height: 144px;
     border-radius: var(--border-radius-medium); /* 5px */
     outline: 1px solid var(--figma-color-bordertranslucent, rgba(0, 0, 0, 0.1));
     background:
       linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, var(--picker-hue));
     touch-action: none;
+  }
+
+  .compact .spectrum {
+    flex-basis: 144px;
   }
 
   .slider {
@@ -891,9 +909,10 @@
 
   /* ── Swatches ── */
 
+  /* Shrinks a thousand times faster than the square, so all but first */
   .library {
     display: flex;
-    flex: 1 1 auto;
+    flex: 1 1000 auto;
     flex-direction: column;
     min-height: 76px;
     padding-top: 11px;

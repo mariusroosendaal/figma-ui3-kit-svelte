@@ -29,6 +29,8 @@
   export let picker = 'system';
   /** @type {Array<any>} the ColorPicker's swatches, with `picker="panel"` */
   export let swatches = [];
+  /** the ColorPicker's `compact`, with `picker="panel"`: a 144px square */
+  export let compactPicker = false;
   export let disabled = false;
   export let id = null;
   export let ariaLabel = 'Color';
@@ -222,6 +224,7 @@
     value={hex}
     {opacity}
     {swatches}
+    compact={compactPicker}
     on:input={(e) => handlePanel(e, 'input')}
     on:change={(e) => handlePanel(e, 'change')}
   />

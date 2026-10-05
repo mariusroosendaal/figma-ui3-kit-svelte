@@ -10,7 +10,7 @@ export default {
     variable: { control: 'text', description: 'Bound variable name, shown instead of the hex' },
     pickable: { control: 'boolean', description: 'Chit opens a color picker' },
     picker: { control: 'select', options: ['system', 'panel'] },
-    swatches: { control: 'object', description: 'The panel picker\'s swatches' },
+    swatches: { control: 'object', description: "The panel picker's swatches" },
     disabled: { control: 'boolean' },
     ariaLabel: { control: 'text' },
     class: { table: { disable: true } },
