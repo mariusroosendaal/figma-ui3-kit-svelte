@@ -123,6 +123,8 @@
       commit(evaluate(text));
       input.select();
     } else if (event.key === 'Escape') {
+      // Undoes the field alone: a modal it's in stays open
+      event.stopPropagation();
       text = format(numeric);
       input.blur();
     }

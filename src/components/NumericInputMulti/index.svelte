@@ -94,6 +94,8 @@
       commit(index, evaluate(texts[index]));
       input.select();
     } else if (event.key === 'Escape') {
+      // Undoes the field alone: a modal it's in stays open
+      event.stopPropagation();
       texts[index] = format(values[index]);
       input.blur();
     }

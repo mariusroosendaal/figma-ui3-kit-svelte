@@ -8,8 +8,11 @@
 - **Badge** — a `dot` takes the `danger`, `success` and `warning` variants' colors; any other variant stays brand
 - **Dropdown**, **Menu** / **MenuItem** — `badge` takes a list for several badges, each a text or `{ text, variant?, strong? }`. A menu row's badges draw in the dark theme's colors, since the menu is dark in either theme, and on the blue highlight an outlined badge takes the dark fill of UI3's menu badge so its text stays readable
 - **NumericInput** — `invalid`: a red edge and `aria-invalid`, as Input has
+- **Modal** — `beforeClose`, asked before X, Escape or a click outside closes it: return false, or a promise of false, to keep it open, as to confirm discarding edits
 
 ### Fixed
+- **Modal** — with one modal open over another, as a confirmation, only the top one answers Escape and Tab: Escape closed both, and each trapped focus in itself. Closing gives focus back to where it was only if that's still on the page
+- **ColorInput**, **NumericInput**, **NumericInputMulti** — Escape in a field undoes the typing without closing the modal it's in, and so throwing away the modal's other edits
 - **Menu**, **Dropdown** — the menu stays inside a short plugin window and scrolls with its overflow arrows: it was never less than 120px tall, and below a trigger with less room than that it ran off the window's bottom edge. Now it moves up over its trigger to fit
 - **Icon** — icons drawn through an SVG mask show: every shape in the SVG took the icon's color, the mask's included, and a mask shows only where it's light, so `lock.small`, `lock.open.small`, `heart`, `boolean.union`, `layout-overlay-center` and `autolayout.alignment.baseline` drew nothing or next to nothing
 - **Icons** — `text.line-height` and `text.letter-spacing` have their A again, `al.height-minmax` its H, `missing-font` its A? and `attention.small` its !: the letters are text in Figma and were left out of the SVGs, which are now exported with the text outlined

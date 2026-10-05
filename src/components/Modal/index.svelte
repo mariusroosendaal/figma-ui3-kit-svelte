@@ -1,7 +1,13 @@
+<script context="module">
+  // The open modals, the last opened on top: only it answers Escape and Tab,
+  // so a confirmation over a modal closes alone.
+  const openModals = [];
+</script>
+
 <script>
   import ModalHeader from '../ModalHeader/index.svelte';
   import ModalFooter from '../ModalFooter/index.svelte';
-  import { createEventDispatcher, tick } from 'svelte';
+  import { createEventDispatcher, onDestroy, tick } from 'svelte';
 
   export let isOpen = false;
   export let title = '';
@@ -21,6 +27,9 @@
   export let closeOnOverlayClick = true;
   export let closeOnEscape = true;
   export let onClose = null;
+  // Asked before X, Escape or a click outside closes the modal: return false,
+  // or a promise of false, to keep it open (to confirm discarding edits, say).
+  export let beforeClose = null;
   export let width = 'medium'; // "small" (240px), "medium" (320px), "large" (480px), or custom string
   export let height = 'auto'; // "auto" (hugs content), "50vh", "80vh", or custom string
   export let position = 'center'; // "center" (default), "left", "right", "bottom"
@@ -31,6 +40,8 @@
   export { className as class };
   let modalElement;
   let previousActiveElement = null;
+  const self = {};
+  let closing = false;
   const dispatch = createEventDispatcher();
   let modalTitleId = 'modal-title--' + (Math.random() * 10000000).toFixed(0).toString();
 
@@ -111,11 +122,16 @@
     }
   }
 
-  function handleKeydown(event) {
-    if (!isOpen) return;
+  const isTop = () => openModals[openModals.length - 1] === self;
 
-    if (closeOnEscape && event.key === 'Escape') {
-      closeModal();
+  function handleKeydown(event) {
+    if (!isOpen || !isTop()) return;
+
+    if (event.key === 'Escape') {
+      // Handled by a modal that has since closed, as a confirmation on top
+      if (event.defaultPrevented) return;
+      event.preventDefault();
+      if (closeOnEscape) closeModal();
       return;
     }
 
@@ -154,7 +170,18 @@
     dispatch('tabChange', selectedTab);
   }
 
-  function closeModal() {
+  async function closeModal() {
+    if (closing) return;
+    if (beforeClose) {
+      closing = true;
+      let close;
+      try {
+        close = await beforeClose();
+      } finally {
+        closing = false;
+      }
+      if (!close || !isOpen) return;
+    }
     if (onClose) {
       onClose();
     }
@@ -165,6 +192,7 @@
   // Focus management and body scroll lock
   $: if (typeof document !== 'undefined') {
     if (isOpen) {
+      if (!openModals.includes(self)) openModals.push(self);
       previousActiveElement = document.activeElement;
       document.body.style.overflow = 'hidden';
       tick().then(() => {
@@ -178,13 +206,20 @@
         }
       });
     } else {
-      document.body.style.overflow = '';
-      if (previousActiveElement) {
-        previousActiveElement.focus();
-        previousActiveElement = null;
-      }
+      removeFromStack();
+      if (!openModals.length) document.body.style.overflow = '';
+      // Not when it went with a modal underneath that closed too
+      if (previousActiveElement?.isConnected) previousActiveElement.focus();
+      previousActiveElement = null;
     }
   }
+
+  function removeFromStack() {
+    const index = openModals.indexOf(self);
+    if (index !== -1) openModals.splice(index, 1);
+  }
+
+  onDestroy(removeFromStack);
 </script>
 
 <svelte:window on:keydown={handleKeydown} />

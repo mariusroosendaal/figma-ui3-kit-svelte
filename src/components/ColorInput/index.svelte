@@ -92,6 +92,8 @@
       commitHex();
       event.currentTarget.select();
     } else if (event.key === 'Escape') {
+      // Undoes the field alone: a modal it's in stays open
+      event.stopPropagation();
       hexText = hex.slice(1).toUpperCase();
       event.currentTarget.blur();
     }
@@ -108,6 +110,8 @@
       commitOpacity(parseFloat(opacityText));
       event.currentTarget.select();
     } else if (event.key === 'Escape') {
+      // Undoes the field alone: a modal it's in stays open
+      event.stopPropagation();
       opacityText = String(Math.round(opacity ?? 100));
       event.currentTarget.blur();
     }
