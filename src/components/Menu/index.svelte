@@ -282,12 +282,15 @@
     const above = anchor.top - GAP - MARGIN;
     const prefersUp = position.startsWith('top');
     const up = prefersUp ? wanted <= above || above >= below : !(wanted <= below || below >= above);
-    const maxHeight = Math.max(120, up ? above : below);
+    // At least 120px tall, but never taller than the window; in a short window
+    // the menu moves over its trigger to stay inside, and scrolls.
+    const maxHeight = Math.min(vh - MARGIN * 2, Math.max(120, up ? above : below));
     const height = Math.min(wanted, maxHeight);
+    const top = up ? anchor.top - GAP - height : anchor.bottom + GAP;
     let left = position.endsWith('right') ? anchor.right - width : anchor.left;
     left = Math.min(left, vw - width - MARGIN);
     place_ = {
-      top: up ? anchor.top - GAP - height : anchor.bottom + GAP,
+      top: Math.max(MARGIN, Math.min(top, vh - MARGIN - height)),
       left: Math.max(MARGIN, left),
       maxHeight,
     };
