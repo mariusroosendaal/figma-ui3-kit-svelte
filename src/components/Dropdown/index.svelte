@@ -60,8 +60,9 @@
   // A $: statement, so the color follows its inputs; a call in the markup would not re-run.
   $: iconColor = getIconColor(disabled);
 
-  // Sync selected state on menuItems whenever value changes
-  $: if (menuItems && menuItems.length > 0) {
+  // Mark the chosen item on menuItems as the menu opens: dropdowns can share one
+  // list, and marking it whenever value changes left the last one's choice in all
+  $: if (isOpen && menuItems && menuItems.length > 0) {
     menuItems.forEach((item) => {
       item.selected =
         item === value ||

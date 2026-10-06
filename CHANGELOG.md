@@ -13,6 +13,7 @@
 - **Modal** — `beforeClose`, asked before X, Escape or a click outside closes it: return false, or a promise of false, to keep it open, as to confirm discarding edits
 
 ### Fixed
+- **Dropdown** — dropdowns given the same `menuItems` check their own choice in the menu: each marked its choice on the shared items, so every one of them checked whichever was set last
 - **Modal** — with one modal open over another, as a confirmation, only the top one answers Escape and Tab: Escape closed both, and each trapped focus in itself. Closing gives focus back to where it was only if that's still on the page
 - **ColorInput**, **NumericInput**, **NumericInputMulti** — Escape in a field undoes the typing without closing the modal it's in, and so throwing away the modal's other edits
 - **Menu**, **Dropdown** — the menu stays inside a short plugin window and scrolls with its overflow arrows: it was never less than 120px tall, and below a trigger with less room than that it ran off the window's bottom edge. Now it moves up over its trigger to fit
