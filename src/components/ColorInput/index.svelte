@@ -6,7 +6,8 @@
     the opacity. An unreadable entry reverts.
   - The chit opens a color picker (`pickable`), which fires `input` while it
     moves and `change` when it settles: the system's, or with `picker="panel"`
-    the kit's ColorPicker, Figma's own, offering `swatches`.
+    the kit's ColorPicker, Figma's own, offering `swatches`, by the chit or,
+    with `pickerPosition="bottom"`, along the window's bottom.
   - `variable` shows a bound variable's name instead of the hex, as Figma does;
     it isn't editable here.
 
@@ -31,6 +32,8 @@
   export let swatches = [];
   /** the ColorPicker's `compact`, with `picker="panel"`: a 144px square */
   export let compactPicker = false;
+  /** @type {'anchor' | 'bottom'} the ColorPicker's `position`, with `picker="panel"` */
+  export let pickerPosition = 'anchor';
   export let disabled = false;
   export let id = null;
   export let ariaLabel = 'Color';
@@ -225,6 +228,7 @@
     {opacity}
     {swatches}
     compact={compactPicker}
+    position={pickerPosition}
     on:input={(e) => handlePanel(e, 'input')}
     on:change={(e) => handlePanel(e, 'change')}
   />

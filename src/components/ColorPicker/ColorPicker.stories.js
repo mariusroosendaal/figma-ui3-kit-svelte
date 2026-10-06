@@ -23,6 +23,7 @@ export default {
     format: { control: 'select', options: ['hex', 'rgb', 'css', 'hsl', 'hsb'] },
     swatches: { control: 'object', description: 'Colors, or `{ label, colors }` groups' },
     inline: { control: 'boolean', description: 'Drawn in the flow instead of floating' },
+    position: { table: { disable: true } },
     isOpen: { table: { disable: true } },
     anchorElement: { table: { disable: true } },
     class: { table: { disable: true } },

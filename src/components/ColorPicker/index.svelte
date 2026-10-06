@@ -4,7 +4,9 @@
   with its fields, and swatches.
 
   - It floats by `anchorElement` while `isOpen`, below it or else above, and
-    closes on X, Escape or a click outside. `inline` draws it in the flow.
+    closes on X, Escape or a click outside. `position="bottom"` docks it along
+    the window's bottom edge, full width, as a bottom Modal; so does a window
+    too narrow for it. `inline` draws it in the flow.
   - Dragging fires `input`; letting go, a field, a swatch, the eyedropper or a
     key fires `change`. Both hand back `{ value, opacity }`; `value` is always
     `#RRGGBB`.
@@ -43,6 +45,8 @@
   export let anchorElement = null;
   /** true: drawn in the flow, always open */
   export let inline = false;
+  /** @type {'anchor' | 'bottom'} by `anchorElement`, or along the window's bottom, full width */
+  export let position = 'anchor';
   /** @type {'hex' | 'rgb' | 'css' | 'hsl' | 'hsb'} */
   export let format = 'hex';
   /** @type {Array<any>} colors, or `{ label, colors }` groups */
@@ -384,6 +388,7 @@
   let top = 0;
   let left = 0;
   let placed = false;
+  let docked = false;
   let wasOpen = false;
   /** @type {HTMLElement | null} where focus was when the picker opened */
   let opener = null;
@@ -396,14 +401,24 @@
     placed = false;
     if (!open) return;
     opener = /** @type {HTMLElement | null} */ (document.activeElement);
+    await reposition();
+    panel?.focus({ preventScroll: true });
+  }
+
+  // Docked when asked, or when the window can't fit the picker's 240px and its margins
+  async function reposition() {
+    docked = position === 'bottom' || window.innerWidth < 240 + 16;
     await tick();
     place();
-    panel?.focus({ preventScroll: true });
   }
 
   // Below the anchor, or above it, or as low as fits; inside the window either way
   function place() {
     if (!panel || inline) return;
+    if (docked) {
+      placed = true;
+      return;
+    }
     const gap = 8;
     const margin = 8;
     const vw = window.innerWidth;
@@ -448,7 +463,7 @@
   }
 </script>
 
-<svelte:window on:pointerdown|capture={handleOutside} on:resize={() => isOpen && place()} />
+<svelte:window on:pointerdown|capture={handleOutside} on:resize={() => isOpen && reposition()} />
 
 {#if inline || isOpen}
   <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
@@ -457,12 +472,13 @@
     class="color-picker {className}"
     class:floating={!inline}
     class:placed
+    class:docked
     class:compact
     role="dialog"
     aria-labelledby={titleId}
     tabindex="-1"
-    style:top={inline ? null : `${top}px`}
-    style:left={inline ? null : `${left}px`}
+    style:top={inline || docked ? null : `${top}px`}
+    style:left={inline || docked ? null : `${left}px`}
     style:--picker-hue={hueHex}
     style:--picker-color={hex}
     style:--picker-rgb={rgbChannels}
@@ -642,6 +658,14 @@
 
   .floating.placed {
     visibility: visible;
+  }
+
+  /* As a bottom Modal: the window's width, 8px in from its sides and bottom */
+  .floating.docked {
+    right: 8px;
+    bottom: 8px;
+    left: 8px;
+    width: auto;
   }
 
   .color-picker > :global(.modal-header) {
