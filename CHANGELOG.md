@@ -5,26 +5,27 @@
 ## [0.7.0] - 2026-10-07
 
 ### Added
-- **ColorPicker** — Figma's color picker, measured off its own in both themes: the saturation and brightness square, hue and opacity sliders, the eyedropper (the browser's EyeDropper, left out where there is none), Hex, RGB, CSS, HSL and HSB fields, and `swatches` — colors, or `{ label, colors }` sets a dropdown switches between, as "On this page". It floats by `anchorElement` while `isOpen`, below it or else above, and closes on X, Escape or a click outside; `position="bottom"`, or a window narrower than 256px, docks it along the window's bottom, full width, as a bottom Modal; in a short plugin window the swatches give way to a row, then the square to 144px tall, and `compact` makes it that short anyway; `inline` draws it in the flow. Dragging fires `input`, and letting go, a field, a swatch or a key fires `change`, each with `{ value, opacity }`; `opacity={null}` leaves the opacity controls out
-- **ColorInput** — `picker="panel"` opens the ColorPicker from the chit, with `swatches`, `compactPicker` and `pickerPosition`, in place of the system picker
-- **Dropzone** — a dashed area that takes files dropped on it or picked with its button, as on Figma's publish screen: `accept` (MIME types, `image/*` wildcards or `.ext`), `multiple`, `buttonLabel`, `compact` (one row, for when the files are listed below it), `hint`, an illustration (`iconName`, or the default slot), `disabled`, and `invalid` with `errorMessage`. It turns selected-blue while files are dragged over it, and fires `files` with the matching files and `reject` with the rest; a dropped folder is left out
-- **SidebarRow** — UI3's Sidebar row comment, for lists of comments, notifications and the like: a `lead` slot (avatars, an icon), `meta`, `title` with `detail`, `message` (cut after `lines` if set) and a `link` line firing `link`. The row is a button firing `click`, with the hover fill, unless `clickable={false}`; `selected` takes the selected fill, `unread` the blue dot and a blue link, and an `actions` slot of icon buttons shows on hover, focus and selection
-- **Badge** — a `dot` takes the `danger`, `success` and `warning` variants' colors; any other variant stays brand
-- **Dropdown**, **Menu** / **MenuItem** — `badge` takes a list for several badges, each a text or `{ text, variant?, strong? }`. A menu row's badges draw in the dark theme's colors, since the menu is dark in either theme, and on the blue highlight an outlined badge takes the dark fill of UI3's menu badge so its text stays readable
-- **NumericInput** — `invalid`: a red edge and `aria-invalid`, as Input has
-- **Modal** — `beforeClose`, asked before X, Escape or a click outside closes it: return false, or a promise of false, to keep it open, as to confirm discarding edits
+- New components, each matching its UI3 counterpart:
+  - **ColorPicker** — saturation square, hue and opacity sliders, eyedropper, Hex/RGB/CSS/HSL/HSB fields and `swatches`; floats by `anchorElement`, docks to the bottom in a narrow window, or draws `inline`; `compact` for short windows
+  - **Dropzone** — drop or pick files: `accept`, `multiple`, `compact`, `hint`, `invalid` with `errorMessage`; fires `files` and `reject`
+  - **SidebarRow** — a comment or notification row: `lead` slot, `meta`, `title`, `message`, `link`, `selected`, `unread` and hover `actions`
+- **ColorInput** — `picker="panel"` opens the ColorPicker in place of the system picker
+- **Badge** — a `dot` takes the `danger`, `success` and `warning` colors
+- **Dropdown**, **Menu** / **MenuItem** — `badge` takes a list of badges, each a text or `{ text, variant?, strong? }`
+- **NumericInput** — `invalid`
+- **Modal** — `beforeClose`: return false, or a promise of false, to keep it open, as to confirm discarding edits
 
 ### Fixed
-- **Dropdown** — dropdowns given the same `menuItems` check their own choice in the menu: each marked its choice on the shared items, so every one of them checked whichever was set last
-- **Modal** — with one modal open over another, as a confirmation, only the top one answers Escape and Tab: Escape closed both, and each trapped focus in itself. Closing gives focus back to where it was only if that's still on the page
-- **ColorInput**, **NumericInput**, **NumericInputMulti** — Escape in a field undoes the typing without closing the modal it's in, and so throwing away the modal's other edits
-- **Menu**, **Dropdown** — the menu stays inside a short plugin window and scrolls with its overflow arrows: it was never less than 120px tall, and below a trigger with less room than that it ran off the window's bottom edge. Now it moves up over its trigger to fit
-- **Icon** — icons drawn through an SVG mask show: every shape in the SVG took the icon's color, the mask's included, and a mask shows only where it's light, so `lock.small`, `lock.open.small`, `heart`, `boolean.union`, `layout-overlay-center` and `autolayout.alignment.baseline` drew nothing or next to nothing
-- **Icons** — `text.line-height` and `text.letter-spacing` have their A again, `al.height-minmax` its H, `missing-font` its A? and `attention.small` its !: the letters are text in Figma and were left out of the SVGs, which are now exported with the text outlined
-- **Tooltip** — the label wraps inside the body wherever the trigger sits: it inherited the surrounding text layout, so in a `nowrap` table cell it ran past the body's edge
-- `html`, `body` and `#app` fill the plugin window, and `#app` clips, so a layout's `height: 100%` holds and nothing can make the document scrollable: the content area scrolls and the footer stays at the bottom, where the whole window used to scroll past it
-- **NumericInput** — a value the parent sets in answer to `change` shows at once, even while the field has focus, so arrow keys step from it
-- **NumericInput**, **NumericInputMulti** — scrubbing the lead is steadier: the drag carries on once the pointer leaves the lead, where it could stop dead when the plugin's iframe dropped the pointer capture, and holds the scrub cursor with no text selection wherever it goes; it waits for 3px of drag, so a click that jiggles still focuses the field; pressing or letting go of Shift mid-drag changes the rate from there instead of rescaling the whole drag; and a single field held at `min` or `max` turns back at once. Scrubbing a focused NumericInput no longer snaps back to its typed text on blur
+- **Dropdown** — dropdowns sharing `menuItems` each check their own choice
+- **Modal** — over another modal, only the top one answers Escape and Tab
+- **ColorInput**, **NumericInput**, **NumericInputMulti** — Escape undoes the typing without closing the modal
+- **Menu**, **Dropdown** — the menu fits a short plugin window, moving up over its trigger if needed
+- **Icon** — icons drawn with an SVG mask show; `lock.small`, `heart` and others drew nothing
+- **Icons** — letters missing from `text.line-height`, `text.letter-spacing`, `al.height-minmax`, `missing-font` and `attention.small` are back
+- **Tooltip** — the label wraps inside the window, also from a `nowrap` cell
+- `html`, `body` and `#app` fill the plugin window, so the content scrolls and the footer stays at the bottom
+- **NumericInput** — a value the parent sets on `change` shows at once, even with focus
+- **NumericInput**, **NumericInputMulti** — scrubbing keeps going outside the lead, starts after 3px, rescales from where Shift is pressed, and turns back at `min` or `max`
 
 ## [0.6.0] - 2026-09-21
 
