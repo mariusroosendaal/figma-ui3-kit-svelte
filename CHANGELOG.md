@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-07
+
 ### Added
 - **ColorPicker** — Figma's color picker, measured off its own in both themes: the saturation and brightness square, hue and opacity sliders, the eyedropper (the browser's EyeDropper, left out where there is none), Hex, RGB, CSS, HSL and HSB fields, and `swatches` — colors, or `{ label, colors }` sets a dropdown switches between, as "On this page". It floats by `anchorElement` while `isOpen`, below it or else above, and closes on X, Escape or a click outside; `position="bottom"`, or a window narrower than 256px, docks it along the window's bottom, full width, as a bottom Modal; in a short plugin window the swatches give way to a row, then the square to 144px tall, and `compact` makes it that short anyway; `inline` draws it in the flow. Dragging fires `input`, and letting go, a field, a swatch or a key fires `change`, each with `{ value, opacity }`; `opacity={null}` leaves the opacity controls out
 - **ColorInput** — `picker="panel"` opens the ColorPicker from the chit, with `swatches`, `compactPicker` and `pickerPosition`, in place of the system picker
