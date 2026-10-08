@@ -148,10 +148,11 @@
     color: var(--figma-color-text-danger);
     cursor: default;
     user-select: none;
-    font-size: var(--body-medium-font-size);
-    font-weight: var(--body-medium-font-weight);
-    letter-spacing: var(--body-medium-letter-spacing);
-    line-height: var(--body-medium-line-height);
+    /* A small FieldGroup sets --field-error-* to body-small */
+    font-size: var(--field-error-font-size, var(--body-medium-font-size));
+    font-weight: var(--field-error-font-weight, var(--body-medium-font-weight));
+    letter-spacing: var(--field-error-letter-spacing, var(--body-medium-letter-spacing));
+    line-height: var(--field-error-line-height, var(--body-medium-line-height));
     padding-top: var(--size-xxxsmall);
   }
 </style>
