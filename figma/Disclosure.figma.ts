@@ -13,6 +13,15 @@ const render = (handle) => {
   if (nested) nested.forEach((i) => imports.includes(i) || imports.push(i))
   return result.example
 }
+// A nested child's code can span lines; indent each, not only the first.
+const indented = (sections, indent) =>
+  sections.map((s) =>
+    s.type === 'CODE'
+      ? { ...s, code: s.code.replace(/\n/g, `\n${indent}`) }
+      : s.type === 'INSTANCE' && s.resultSections
+        ? { ...s, resultSections: indented(s.resultSections, indent) }
+        : s,
+  )
 
 // Render the slot's connected children inline; getSlot() is the fallback for
 // unconnected content (it makes Dev Mode emit helper functions). Icons are
@@ -22,7 +31,7 @@ function slot(name, indent) {
   if (!children.length) return instance.getSlot(name)
   let code
   children.forEach((child) => {
-    const example = render(child)
+    const example = indented(render(child), indent)
     code = code ? figma.code`${code}\n${indent}${example}` : example
   })
   return code
