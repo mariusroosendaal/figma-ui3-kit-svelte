@@ -195,11 +195,12 @@
 
   .error {
     color: var(--figma-color-text-danger);
+    cursor: default;
+    user-select: none;
     font-size: var(--body-medium-font-size);
     font-weight: var(--body-medium-font-weight);
     letter-spacing: var(--body-medium-letter-spacing);
     line-height: var(--body-medium-line-height);
     padding-top: var(--size-xxxsmall);
-    padding-bottom: var(--size-xxsmall);
   }
 </style>

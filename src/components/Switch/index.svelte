@@ -66,6 +66,8 @@
     margin: 0;
     padding-left: 40px /* track 32 + gap 8 */;
     color: var(--figma-color-text-secondary);
+    cursor: default;
+    user-select: none;
     font-family: var(--font-stack);
     font-size: var(--body-medium-font-size);
     font-weight: var(--body-medium-font-weight);

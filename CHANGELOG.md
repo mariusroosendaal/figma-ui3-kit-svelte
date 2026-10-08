@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Added
+- **Dropdown** — `invalid` and `errorMessage`, as on Input: the danger border, and the message under the dropdown
+
+### Changed
+- **Checkbox**, **Switch** — `description`; **Dropzone** — `hint`; and **Input**, **Textarea**, **Dropzone** — `errorMessage` can't be selected, as labels can't
+- **Input**, **Textarea** — `errorMessage` has no space under it, so a FieldGroup's `hint` follows at the group's gap
+
 ## [0.7.0] - 2026-10-07
 
 ### Added

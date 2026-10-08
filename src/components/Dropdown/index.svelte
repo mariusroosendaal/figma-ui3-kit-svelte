@@ -11,6 +11,9 @@
   export let menuItems = []; //pass data in via this prop to generate menu items
   export let showGroupLabels = false; //default prop, true will show option group labels
   export let disabled = false;
+  /** Draws the danger border, and shows `errorMessage` under the dropdown */
+  export let invalid = false;
+  export let errorMessage = '';
   export let iconName = null;
   export let ariaLabel = '';
   /** false: no border until hovered (UI3's Stroke=False, for dense panels) */
@@ -98,6 +101,9 @@
     aria-haspopup="menu"
     aria-controls="dropdown-{dropdownId}-menu"
     aria-label={ariaLabel || undefined}
+    aria-invalid={invalid || undefined}
+    aria-describedby={invalid && errorMessage ? `dropdown-${dropdownId}-error` : undefined}
+    class:invalid
     class:selected={isOpen}
     class:borderless={!stroke}
     class:large={size === 'large'}
@@ -141,6 +147,9 @@
     on:select={handleSelect}
     on:close={handleClose}
   />
+  {#if invalid && errorMessage}
+    <div class="error" id="dropdown-{dropdownId}-error">{errorMessage}</div>
+  {/if}
 </div>
 
 <style>
@@ -229,6 +238,24 @@
 
   button.borderless:not(:hover):not(:focus-visible):not(.selected) {
     border-color: transparent;
+  }
+
+  /* As Input: the danger edge stays while open, and on a borderless one too */
+  button.invalid,
+  button.invalid.borderless:not(:hover):not(:focus-visible):not(.selected) {
+    border-color: var(--figma-color-border-danger-strong);
+  }
+
+  .error {
+    padding-top: var(--size-xxxsmall);
+    color: var(--figma-color-text-danger);
+    cursor: default;
+    user-select: none;
+    font-family: var(--font-stack);
+    font-size: var(--body-medium-font-size);
+    font-weight: var(--body-medium-font-weight);
+    letter-spacing: var(--body-medium-letter-spacing);
+    line-height: var(--body-medium-line-height);
   }
 
   button.large {
