@@ -1,5 +1,5 @@
 // Color math for ColorPicker. The picker holds HSV (h 0–360, s and v 0–1) so
-// the hue survives a trip through grey or black; RGB channels are 0–255.
+// the hue survives a trip through gray or black; RGB channels are 0–255.
 
 export const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 

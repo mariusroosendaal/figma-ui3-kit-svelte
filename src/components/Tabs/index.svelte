@@ -20,7 +20,7 @@
   // UI3's "Badge small alt" carries three counter looks, and a tab picks one
   // from two axes at once — selected or not, new or not. New wins on either
   // tab, since that is what the blue count is for; otherwise the selected tab
-  // gets the filled grey Default and the rest the quieter Count Inactive.
+  // gets the filled gray Default and the rest the quieter Count Inactive.
   function counterVariant(tab, selected) {
     if (tab.unread) return 'count'; // "Count New"
     return selected ? 'default' : 'count-inactive';

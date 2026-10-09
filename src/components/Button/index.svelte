@@ -34,7 +34,7 @@
   // Function to determine the correct icon color based on variant and state
   function getIconColor(disabled, ariaDisabled, variant) {
     if (disabled || ariaDisabled) {
-      // White on the grey fill; on a transparent button white would vanish
+      // White on the gray fill; on a transparent button white would vanish
       return filledVariants.includes(variant)
         ? '--figma-color-icon-ondisabled'
         : '--figma-color-icon-disabled';

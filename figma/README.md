@@ -35,7 +35,7 @@ The templates double as the reverse mapping: to mock up a Svelte layout, create 
 | Dropdown | `2028:36589` | Trigger text → `placeholder`; menu items live in code. Size Large ↔ `size="large"`, Stroke False ↔ `stroke={false}`. |
 | Tabs | `2015:27780` | One `_Tab` per tab: label is its `Text` property, `🐣 Selected` → `selectedTab`, `🎛️ Badge` → the tab's `badge` count. |
 | Segmented control | `2015:20960` | One `_Segment` per segment: `🎛️ Label` (label variant) or `🎛️ Icon` + `🎛️ Text` tooltip (icon variant). |
-| Slider | `2015:23280` | Slider (centre fill) ↔ `delta`, Stepper ↔ `stepper`, Color Range ↔ `hue`, Fill ↔ `opacity`, Corner Radius ↔ `range` with `defaultValue` (the marker), Range ↔ `range`. Gradient (a gradient-stop editor) has no kit equivalent. Knob position is the value. |
+| Slider | `2015:23280` | Slider (center fill) ↔ `delta`, Stepper ↔ `stepper`, Color Range ↔ `hue`, Fill ↔ `opacity`, Corner Radius ↔ `range` with `defaultValue` (the marker), Range ↔ `range`. Gradient (a gradient-stop editor) has no kit equivalent. Knob position is the value. |
 | Tooltip | `2015:39095` | Center directions ↔ `Top`/`Bottom`, corners and sides map 1:1. Wraps a trigger in code. |
 | Menu row/Simple, /Checkmark | `2327:96028`, `2327:96252` | → `MenuItem` (Checkmark ↔ `variant="checkmark"`, `🎛️ On` ↔ `selected`, Dot ↔ `selected="mixed"`). Shortcut → `detail`. In a Menu: `type: 'check'`. |
 | Menu row/Complex | `2327:96049` | → `MenuItem`. Lead Icon ↔ `iconName`, Avatar ↔ `avatar` (initial and color); Trail Shortcut ↔ `detail`, Badge ↔ `badge`, Checkbox ↔ `variant="checkbox"`, Mixed ↔ both. |

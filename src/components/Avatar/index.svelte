@@ -1,13 +1,13 @@
 <!--
   Avatar: UI3's "Avatar" — a person (photo, or their initial on a multiplayer
-  color), an organisation's image, or an overflow count ("+3").
+  color), an organization's image, or an overflow count ("+3").
 
   Without a `color`, one is picked from the name, so the same person keeps the
   same color. `count` draws the overflow avatar (blue when `unread`).
 -->
 <script>
   export let name = '';
-  /** @type {string | null} photo or organisation image URL */
+  /** @type {string | null} photo or organization image URL */
   export let src = null;
   /** @type {'purple' | 'blue' | 'pink' | 'red' | 'yellow' | 'green' | 'grey' | null} */
   export let color = null;

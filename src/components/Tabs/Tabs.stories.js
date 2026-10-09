@@ -58,7 +58,7 @@ export const ManyTabs = {
   }),
 };
 
-// UI3's _Tab badge: a count beside the label. Filled grey on the selected tab,
+// UI3's _Tab badge: a count beside the label. Filled gray on the selected tab,
 // quieter on the rest.
 export const WithBadges = {
   args: {

@@ -27,7 +27,7 @@ let iconCode
 const icon = instance.getInstanceSwap('🎛️  Icon Lead')
 if (icon && icon.type === 'INSTANCE') iconCode = render(icon)
 
-// Partial Disable greys out the last cell only.
+// Partial Disable grays out the last cell only.
 const disabledAttr = partial
   ? ` disabled={[${values.map((_, i) => i === values.length - 1).join(', ')}]}`
   : disabled

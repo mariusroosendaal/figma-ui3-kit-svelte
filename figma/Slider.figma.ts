@@ -8,7 +8,7 @@ const instance = figma.selectedInstance
 // import list in metadata.props.imports for parent templates to merge.
 const imports = ["import { Slider } from 'figma-ui3-kit-svelte'"]
 
-// UI3's Slider variant fills from the centre (the kit's delta); Range is the plain
+// UI3's Slider variant fills from the center (the kit's delta); Range is the plain
 // left-filled slider. Color Range is the hue slider, Fill the opacity slider, and
 // Corner Radius a range slider with a marker (defaultValue). Gradient is a
 // gradient-stop editor, which the kit doesn't have; it renders as a range.

@@ -140,7 +140,7 @@
     color: var(--figma-color-text);
   }
 
-  /* Active — raised against the control's grey track */
+  /* Active — raised against the control's gray track */
   .segment.active {
     --segment-icon-color: var(--figma-color-icon);
     background-color: var(--figma-color-bg);

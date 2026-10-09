@@ -10,6 +10,10 @@
 - **Input**, **Textarea** — `errorMessage` has no space under it, so a FieldGroup's `hint` follows at the group's gap
 - **Input**, **Textarea**, **Dropdown**, **Dropzone** — `errorMessage` is body-small in a small FieldGroup, which sets the `--field-error-*` properties it reads
 
+### Fixed
+- **Dropdown**, **SplitButton**, **NumericInput** — clicking the trigger of an open menu closes it. The menu closed as focus left it for the trigger, and the click then opened it again
+- **Modal** — unmounting an open modal, as a parent's `{#if}` does, unlocks the page's scroll and returns focus, as closing it does
+
 ## [0.7.0] - 2026-10-07
 
 ### Added
@@ -70,12 +74,12 @@
 - **Menu**, **Modal** — shadows use the elevation tokens, so the dark theme gets UI3's edge highlight; the menu's 1px border is gone
 - **Tooltip** — flips to the other side when short of room; the arrow keeps pointing at the trigger and shares the body's shadow; keyboard focus uses the short (200ms) delay
 - **Dropdown** — the open menu gives the trigger a selected border; `aria-label` no longer falls back to `placeholder`
-- **Badge** — renders a `<span>`; `default` with `strong` fills grey (UI3's "Badge small alt")
+- **Badge** — renders a `<span>`; `default` with `strong` fills gray (UI3's "Badge small alt")
 
 ### Fixed
 - **Button**, **Dropdown**, **Checkbox**, **Chip**, **Badge** — icon colors now update when `disabled` or `variant` change; they kept the color they were mounted with
 - **Button** — disabled colors match UI3 (white on filled variants; the icon no longer vanishes on transparent ones); large pads 12px, not 16px; `secondary` uses the translucent border
-- **Checkbox**, **Radio** — mixed and focus borders use `border-selected-strong` (was a different blue on dark); disabled unchecked is an outline, not a grey fill; `ghost` no longer turns white on dark
+- **Checkbox**, **Radio** — mixed and focus borders use `border-selected-strong` (was a different blue on dark); disabled unchecked is an outline, not a gray fill; `ghost` no longer turns white on dark
 - **Switch** — focus ring on an on switch is `border-selected-strong`
 - **Slider** — handles, fill, ticks and focus redrawn to match UI3's handle components, with no seams or fringes at the handle
 - **Tooltip** — a second show timer could leave the tooltip up after the pointer left; `Left`/`Right` arrows sat half under the body

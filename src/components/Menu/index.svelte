@@ -45,7 +45,7 @@
   export let searchPlaceholder = 'Search';
   /** Label of a full-width button under the list, e.g. "Clear all"; fires `footer`. */
   export let footerLabel = '';
-  /** @type {'button' | 'row'} button: a bordered button (multi-select menus); row: a centred "+ label" row (UI3's Menu row/Footer) */
+  /** @type {'button' | 'row'} button: a bordered button (multi-select menus); row: a centered "+ label" row (UI3's Menu row/Footer) */
   export let footerVariant = 'button';
   /** Row footer's icon; a plus by default */
   export let footerIconName = null;
@@ -439,6 +439,10 @@
 
   function onFocusOut(event) {
     const next = event.relatedTarget;
+    // Focus moving to the trigger is a click on it, which toggles the menu
+    // itself; closing here too would have that click open it again. Tab, the
+    // keyboard's way there, closes the menu on keydown.
+    if (anchorElement?.contains(next)) return;
     if (isOpen && nestingLevel === 0 && next && wrapper && !wrapper.contains(next)) close();
   }
 </script>

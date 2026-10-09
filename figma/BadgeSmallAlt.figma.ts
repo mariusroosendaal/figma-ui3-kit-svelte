@@ -8,7 +8,7 @@ const instance = figma.selectedInstance
 // import list in metadata.props.imports for parent templates to merge.
 const imports = ["import { Badge } from 'figma-ui3-kit-svelte'"]
 
-// Tab and list counts. Default is the filled grey badge, Strong the inverse one.
+// Tab and list counts. Default is the filled gray badge, Strong the inverse one.
 const [variant, strong] = instance.getEnum('👥 Variant', {
   'Default': ['default', true],
   'Count New': ['count', false],

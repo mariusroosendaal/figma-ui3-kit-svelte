@@ -290,7 +290,7 @@
 
   /* Right - arrow points left (tooltip is to the right of trigger) */
   .tooltip-arrow.Right {
-    left: -9px; /* the 12×6 box turns about its centre: 6px out needs 3px more */
+    left: -9px; /* the 12×6 box turns about its center: 6px out needs 3px more */
     top: 50%;
     transform: translateY(-50%) rotate(-90deg);
   }

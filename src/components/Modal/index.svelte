@@ -219,7 +219,14 @@
     if (index !== -1) openModals.splice(index, 1);
   }
 
-  onDestroy(removeFromStack);
+  // Unmounted while open, as by a parent's {#if}: undo the lock and focus
+  // move that closing would have
+  onDestroy(() => {
+    if (!openModals.includes(self)) return;
+    removeFromStack();
+    if (!openModals.length) document.body.style.overflow = '';
+    if (previousActiveElement?.isConnected) previousActiveElement.focus();
+  });
 </script>
 
 <svelte:window on:keydown={handleKeydown} />

@@ -101,7 +101,6 @@
     aria-haspopup="menu"
     aria-controls="dropdown-{dropdownId}-menu"
     aria-label={ariaLabel || undefined}
-    aria-invalid={invalid || undefined}
     aria-describedby={invalid && errorMessage ? `dropdown-${dropdownId}-error` : undefined}
     class:invalid
     class:selected={isOpen}
@@ -264,7 +263,7 @@
     padding-right: var(--size-xxxsmall);
   }
 
-  /* Large: the lead sits on a 24px grey tile inside a 32px cell */
+  /* Large: the lead sits on a 24px gray tile inside a 32px cell */
   button.large.has-lead {
     padding-left: 0;
   }

@@ -144,7 +144,7 @@
     border-color: var(--figma-color-border);
   }
 
-  /* Filled grey, as in UI3's "Badge small alt" and "Badge large" defaults */
+  /* Filled gray, as in UI3's "Badge small alt" and "Badge large" defaults */
   .badge.default.strong {
     background-color: var(--figma-color-bg-tertiary);
     border-color: transparent;
@@ -276,7 +276,7 @@
     border-color: var(--figma-color-border-onselected);
   }
 
-  /* Filled, for a badge sitting on the selected fill itself, where grey reads as
+  /* Filled, for a badge sitting on the selected fill itself, where gray reads as
      a foreign chip and an outline as a seam. */
   .badge.selected.strong {
     background-color: var(--figma-color-bg-onselected);

@@ -91,7 +91,7 @@
   // Dropdown marks its items selected, so each picker has its own
   const formatItems = FORMATS.map((f) => ({ ...f }));
 
-  // HSV, so a grey keeps its hue and black its saturation
+  // HSV, so a gray keeps its hue and black its saturation
   let h = 0;
   let s = 0;
   let v = 0;
@@ -111,7 +111,7 @@
   $: formatItem = formatItems.find((f) => f.value === format) ?? formatItems[0];
 
   // Takes value and opacity from outside unless they're what the picker last
-  // set: a hex can't hold the reticle's exact spot, or a grey's hue.
+  // set: a hex can't hold the reticle's exact spot, or a gray's hue.
   function sync(val, op) {
     const parsed = parseHex(val);
     if (!parsed) return;
@@ -122,7 +122,7 @@
     if (parsed.hex !== rgbToHex(hsvToRgb({ h, s, v }))) set(keep(rgbToHsv(hexToRgb(parsed.hex))));
   }
 
-  /** an HSV from a color, keeping the current hue for a grey and saturation for black */
+  /** an HSV from a color, keeping the current hue for a gray and saturation for black */
   function keep(next) {
     return {
       h: next.s > 0 && next.v > 0 ? next.h : h,
@@ -219,7 +219,7 @@
     s: clamp((e.clientX - r.left) / r.width, 0, 1),
     v: 1 - clamp((e.clientY - r.top) / r.height, 0, 1),
   });
-  // A thumb's centre runs from 8px in at one end of the track to 8px in at the other
+  // A thumb's center runs from 8px in at one end of the track to 8px in at the other
   const along = (e, r) => clamp((e.clientX - r.left - 8) / (r.width - 16), 0, 1);
   const readHue = (e, r) => ({ h: along(e, r) * 360 });
   const readAlpha = (e, r) => ({ a: along(e, r) });
@@ -282,7 +282,7 @@
       const hsl = hsvToHsl({ h, s, v });
       hsl[channel] = channel === 'h' ? amount : amount / 100;
       const next = hslToHsv(hsl);
-      // The typed hue holds even for a grey
+      // The typed hue holds even for a gray
       apply({ h: hsl.h, s: next.v > 0 ? next.s : s, v: next.v });
     } else {
       const next = hsvToRgb({ h, s, v });
@@ -732,7 +732,7 @@
     outline-color: var(--figma-color-border-selected);
   }
 
-  /* Red sits under the thumb's centre at either end */
+  /* Red sits under the thumb's center at either end */
   .hue {
     background-image: linear-gradient(
       90deg,

@@ -46,7 +46,7 @@ export default {
     footerVariant: {
       control: 'select',
       options: ['button', 'row'],
-      description: 'button (multi-select menus) or a centred "+ label" row',
+      description: 'button (multi-select menus) or a centered "+ label" row',
     },
     menuItems: {
       control: 'object',

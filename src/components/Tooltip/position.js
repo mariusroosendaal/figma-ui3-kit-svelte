@@ -2,7 +2,7 @@
 
 const GAP = 8; // trigger to tooltip body; the 6px arrow sits in it
 const MARGIN = 8; // kept clear of the window edge
-const ARROW_INSET = 12; // an arrow's centre stays this far from the body's corners
+const ARROW_INSET = 12; // an arrow's center stays this far from the body's corners
 
 const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
 
@@ -12,9 +12,9 @@ const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
  * @param {DOMRect} tip the tooltip's own box
  * @returns {{ top: number, left: number, direction: string, arrow: number | null }}
  *   `direction` is the side actually used: it flips when the asked-for side has no
- *   room and the other does. `arrow` is the arrow centre along the body's edge, set
- *   for the centred directions so the arrow still points at the trigger when the
- *   body is pushed off-centre by the window edge; null otherwise.
+ *   room and the other does. `arrow` is the arrow center along the body's edge, set
+ *   for the centered directions so the arrow still points at the trigger when the
+ *   body is pushed off-center by the window edge; null otherwise.
  */
 export function placeTooltip(direction, trigger, tip) {
   const vw = window.innerWidth;

@@ -6,7 +6,7 @@ export default {
   tags: ['autodocs'],
   argTypes: {
     name: { control: 'text' },
-    src: { control: 'text', description: 'Photo or organisation image URL' },
+    src: { control: 'text', description: 'Photo or organization image URL' },
     color: {
       control: 'select',
       options: [null, 'purple', 'blue', 'pink', 'red', 'yellow', 'green', 'grey'],
