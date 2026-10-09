@@ -46,7 +46,7 @@
     class:code={variant === 'code'}
   ></textarea>
   {#if invalid}
-    <div class="error" id={errorId}>
+    <div class="error" id={errorId} role="alert">
       {errorMessage}
     </div>
   {/if}

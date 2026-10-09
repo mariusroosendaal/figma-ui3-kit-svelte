@@ -165,7 +165,7 @@
     />
   </div>
   {#if invalid && errorMessage}
-    <div class="error" id={errorId}>{errorMessage}</div>
+    <div class="error" id={errorId} role="alert">{errorMessage}</div>
   {/if}
 </div>
 

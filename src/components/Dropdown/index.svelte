@@ -147,7 +147,7 @@
     on:close={handleClose}
   />
   {#if invalid && errorMessage}
-    <div class="error" id="dropdown-{dropdownId}-error">{errorMessage}</div>
+    <div class="error" id="dropdown-{dropdownId}-error" role="alert">{errorMessage}</div>
   {/if}
 </div>
 

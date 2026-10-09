@@ -56,7 +56,7 @@
       class:large={size === 'large'}
     />
     {#if invalid}
-      <div class="error" id={errorId}>
+      <div class="error" id={errorId} role="alert">
         {errorMessage}
       </div>
     {/if}
@@ -83,7 +83,7 @@
       class:large={size === 'large'}
     />
     {#if invalid}
-      <div class="error" id={errorId}>
+      <div class="error" id={errorId} role="alert">
         {errorMessage}
       </div>
     {/if}

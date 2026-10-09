@@ -3,9 +3,10 @@
 ## [Unreleased]
 
 ### Added
-- **Dropdown** — `invalid` and `errorMessage`, as on Input: the danger border, and the message under the dropdown
+- **Dropdown** — `invalid` and `errorMessage`, as on Input: the danger border, and the message under the dropdown, announced as an alert
 
 ### Changed
+- **Input**, **Textarea**, **Dropzone** — `errorMessage` has `role="alert"`, so assistive tech announces it when it appears
 - **Checkbox**, **Switch** — `description`; **Dropzone** — `hint`; and **Input**, **Textarea**, **Dropzone** — `errorMessage` can't be selected, as labels can't
 - **Input**, **Textarea** — `errorMessage` has no space under it, so a FieldGroup's `hint` follows at the group's gap
 - **Input**, **Textarea**, **Dropdown**, **Dropzone** — `errorMessage` is body-small in a small FieldGroup, which sets the `--field-error-*` properties it reads
