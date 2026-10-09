@@ -11,11 +11,3 @@ declare module '*.css' {
   const content: string;
   export default content;
 }
-
-// Window extensions used by components
-interface Window {
-  __tooltipGlobalState?: {
-    hasShownFirstTooltip: boolean;
-    resetTimeout: ReturnType<typeof setTimeout> | null;
-  };
-}

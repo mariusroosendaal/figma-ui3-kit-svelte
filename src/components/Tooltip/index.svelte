@@ -1,23 +1,15 @@
+<script context="module">
+  // Shared by every Tooltip: once one has shown, the next shows after the short delay
+  /** @type {{ hasShownFirstTooltip: boolean, resetTimeout: ReturnType<typeof setTimeout> | null }} */
+  const globalTooltipState = {
+    hasShownFirstTooltip: false,
+    resetTimeout: null,
+  };
+</script>
+
 <script>
   import { tick, onMount, onDestroy } from 'svelte';
   import { placeTooltip, arrowStyle } from './position.js';
-
-  // Global tooltip state - shared across all Tooltip instances
-  // Using window object to ensure true global state across all instances
-  if (typeof window !== 'undefined' && !window.__tooltipGlobalState) {
-    window.__tooltipGlobalState = {
-      hasShownFirstTooltip: false,
-      resetTimeout: null,
-    };
-  }
-
-  const globalTooltipState =
-    typeof window !== 'undefined'
-      ? window.__tooltipGlobalState
-      : {
-          hasShownFirstTooltip: false,
-          resetTimeout: null,
-        };
 
   export let label = '';
   export let hotkey = false;

@@ -14,6 +14,7 @@
 ### Fixed
 - **Dropdown**, **SplitButton**, **NumericInput** — clicking the trigger of an open menu closes it. The menu closed as focus left it for the trigger, and the click then opened it again
 - **Modal** — unmounting an open modal, as a parent's `{#if}` does, unlocks the page's scroll and returns focus, as closing it does
+- **Tooltip** — keeps the state its tooltips share in its own module instead of on `window`, so a plugin's `svelte-check` with `checkJs` passes
 
 ## [0.7.0] - 2026-10-07
 
