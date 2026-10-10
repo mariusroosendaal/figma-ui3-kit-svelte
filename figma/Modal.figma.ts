@@ -52,18 +52,18 @@ if (instance.getBoolean('👁️ Icon 2')) {
   }
 }
 
-const fragment = (name, content) =>
+const snippet = (name, content) =>
   content ? figma.code`
-  <svelte:fragment slot="${name}">
+  {#snippet ${name}()}
     ${content}
-  </svelte:fragment>` : ''
+  {/snippet}` : ''
 
 const content = slot(['Content slot'], '  ')
 let footerCode = ''
 if (footer === 'split') {
-  footerCode = figma.code`${fragment('footer-left', slot(['Footer', 'Footer left slot'], '    ', true))}${fragment('footer-right', slot(['Footer', 'Footer right slot'], '    '))}`
+  footerCode = figma.code`${snippet('footerLeft', slot(['Footer', 'Footer left slot'], '    ', true))}${snippet('footerRight', slot(['Footer', 'Footer right slot'], '    '))}`
 } else if (footer === 'full') {
-  footerCode = fragment('footer-full', slot(['Footer', 'Footer full slot'], '    '))
+  footerCode = snippet('footerFull', slot(['Footer', 'Footer full slot'], '    '))
 }
 
 export default {

@@ -60,7 +60,7 @@ const buildItems = (rows) => {
 const lines = buildItems(instance.findConnectedInstances(() => true, { path: ['Items slot'] }))
 
 export default {
-  example: figma.code`<Menu bind:isOpen${footer ? figma.code` footerLabel="${footer}" footerVariant="row" on:footer={handleFooter}` : ''} menuItems={[
+  example: figma.code`<Menu bind:isOpen${footer ? figma.code` footerLabel="${footer}" footerVariant="row" onfooter={handleFooter}` : ''} menuItems={[
 ${lines.join('\n')}
 ]} />`,
   imports,

@@ -7,52 +7,87 @@
   `anchor` and it stays until an action is picked, Escape is pressed, the pointer
   goes down outside it, or something behind it scrolls.
 -->
-<script>
-  import { createEventDispatcher, onDestroy, tick } from 'svelte';
+<script lang="ts">
+  import { onDestroy, tick, untrack } from 'svelte';
+  import type { FormEventHandler } from 'svelte/elements';
   import Icon from '../Icon/index.svelte';
   import { placeTooltip, arrowStyle } from '../Tooltip/position.js';
 
-  export let open = false;
-  /** @type {HTMLElement | DOMRect | null} what it points at: an element, or a rect such as a text selection's */
-  export let anchor = null;
-  /** @type {'Top' | 'Bottom'} the side of the anchor it prefers; it flips when there's no room */
-  export let direction = 'Top';
-  /** The main action's text, e.g. "Open google.com"; fires `primary` */
-  export let label = '';
-  /** Icon before the main action (SVG import) */
-  export let iconName = null;
-  /** @type {Array<{ label: string, value: string }>} actions after the main one, e.g. Edit; each fires `action` */
-  export let actions = [];
-  /** Show a URL field instead of actions (UI3's URL variant); Enter fires `submit` */
-  export let input = false;
-  export let value = '';
-  export let placeholder = 'Type or paste URL';
-  export let ariaLabel = '';
+  interface Props {
+    open?: boolean;
+    /** What it points at: an element, or a rect such as a text selection's */
+    anchor?: HTMLElement | DOMRect | null;
+    /** The side of the anchor it prefers; it flips when there's no room */
+    direction?: 'Top' | 'Bottom';
+    /** The main action's text, e.g. "Open google.com"; calls `onprimary` */
+    label?: string;
+    /** Icon before the main action (SVG import) */
+    iconName?: string | null;
+    /** Actions after the main one, e.g. Edit; each calls `onaction` */
+    actions?: Array<{ label: string; value: string }>;
+    /** Show a URL field instead of actions (UI3's URL variant); Enter calls `onsubmit` */
+    input?: boolean;
+    value?: string;
+    placeholder?: string;
+    ariaLabel?: string;
+    class?: string;
+    /** Escape, a pointer down outside, a resize or a scroll, after `open` turns false */
+    onclose?: () => void;
+    /** Enter in the URL field: the URL */
+    onsubmit?: (value: string) => void;
+    /** The main action */
+    onprimary?: () => void;
+    /** One of `actions` */
+    onaction?: (detail: { value: string; label: string }) => void;
+    /** The URL field, after `value` updates */
+    oninput?: FormEventHandler<HTMLInputElement>;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    open = $bindable(),
+    anchor = null,
+    direction = 'Top',
+    label = '',
+    iconName = null,
+    actions = [],
+    input = false,
+    value = $bindable(),
+    placeholder = 'Type or paste URL',
+    ariaLabel = '',
+    class: className = '',
+    onclose,
+    onsubmit,
+    onprimary,
+    onaction,
+    oninput,
+  }: Props = $props();
 
-  const dispatch = createEventDispatcher();
-
-  /** @type {HTMLDivElement} */
-  let element;
-  /** @type {HTMLInputElement} */
-  let field;
-  let position = { top: 0, left: 0 };
-  /** @type {string} the side used, which may be the other one after a flip */
-  let placedDirection = direction;
-  let arrow = null;
-  let placed = false;
+  let element: HTMLDivElement | undefined = $state();
+  let field: HTMLInputElement | undefined = $state();
+  let position = $state({ top: 0, left: 0 });
+  // The side used, which may be the other one after a flip
+  let placedDirection: string = $derived(direction);
+  let arrow: number | null = $state(null);
+  let placed = $state(false);
   let listening = false;
 
-  $: handleOpen(open);
+  $effect.pre(() => {
+    const isOpen = !!open;
+    untrack(() => handleOpen(isOpen));
+  });
   // Follows a new anchor or side, and its own new size, while open
-  $: if (placed) reposition(anchor, direction, input, label, actions);
+  $effect.pre(() => {
+    if (placed) {
+      void [anchor, direction, input, label, actions];
+      untrack(reposition);
+    }
+  });
   // Switching to the field (Edit) puts the caret in it
-  $: if (placed && input) focusField();
+  $effect.pre(() => {
+    if (placed && input) untrack(focusField);
+  });
 
-  // The arguments are only there so the $: statement re-runs when they change
-  async function reposition(..._changed) {
+  async function reposition() {
     await tick();
     place();
   }
@@ -63,7 +98,7 @@
     field?.select();
   }
 
-  async function handleOpen(isOpen) {
+  async function handleOpen(isOpen: boolean) {
     if (!isOpen) {
       stopListening();
       placed = false;
@@ -96,20 +131,20 @@
   function close() {
     if (!open) return;
     open = false;
-    dispatch('close');
+    onclose?.();
   }
 
-  function onPointerDown(event) {
-    if (element && !element.contains(event.target)) close();
+  function onPointerDown(event: PointerEvent) {
+    if (element && !element.contains(event.target as Node | null)) close();
   }
 
   // Placed against its anchor once; anything scrolling behind it would leave it floating
-  function onScroll(event) {
-    if (element && !element.contains(event.target)) close();
+  function onScroll(event: Event) {
+    if (element && !element.contains(event.target as Node | null)) close();
   }
 
   // On the window: it often opens while focus stays in the text being linked
-  function onKeydown(event) {
+  function onKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape') close();
   }
 
@@ -133,10 +168,10 @@
 
   onDestroy(stopListening);
 
-  function handleFieldKeydown(event) {
+  function handleFieldKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter') {
       event.preventDefault();
-      dispatch('submit', value);
+      onsubmit?.(value ?? '');
     }
   }
 </script>
@@ -160,15 +195,15 @@
           autocomplete="off"
           {placeholder}
           aria-label={ariaLabel || placeholder}
-          on:keydown={handleFieldKeydown}
-          on:input
+          onkeydown={handleFieldKeydown}
+          {oninput}
         />
       {:else}
         <button
           type="button"
           class="action primary"
           class:has-icon={iconName}
-          on:click={() => dispatch('primary')}
+          onclick={() => onprimary?.()}
         >
           {#if iconName}
             <Icon {iconName} color="--color-text-tooltip-secondary" />
@@ -180,7 +215,7 @@
           <button
             type="button"
             class="action"
-            on:click={() => dispatch('action', { value: item.value, label: item.label })}
+            onclick={() => onaction?.({ value: item.value, label: item.label })}
           >
             <span class="label">{item.label}</span>
           </button>

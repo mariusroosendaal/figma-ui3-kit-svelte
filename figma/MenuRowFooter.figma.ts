@@ -12,7 +12,7 @@ const imports = ["import { Menu } from 'figma-ui3-kit-svelte'"]
 const text = instance.getString('🎛️ Text')
 
 export default {
-  example: figma.code`<Menu bind:isOpen menuItems={menuItems} footerLabel="${text}" footerVariant="row" on:footer={handleFooter} />`,
+  example: figma.code`<Menu bind:isOpen menuItems={menuItems} footerLabel="${text}" footerVariant="row" onfooter={handleFooter} />`,
   imports,
   id: 'menu-row-footer',
   metadata: { nestable: true, props: { imports, kind: 'footer', text } },

@@ -27,7 +27,7 @@ export const Default = {
     value: 'option1',
     disabled: false,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: RadioWrapper,
     props: { ...args },
   }),
@@ -36,5 +36,8 @@ export const Default = {
 // UI3's radio "Button" variant, laid out as a row by RadioGroup direction="horizontal"
 export const ButtonVariant = {
   args: { value: 'option1', disabled: false, variant: 'button' },
-  render: (args) => ({ Component: RadioWrapper, props: { ...args } }),
+  render: (/** @type {Record<string, any>} */ args) => ({
+    Component: RadioWrapper,
+    props: { ...args },
+  }),
 };

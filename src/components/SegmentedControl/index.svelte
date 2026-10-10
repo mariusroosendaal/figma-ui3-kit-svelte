@@ -1,41 +1,51 @@
-<script>
-  import { createEventDispatcher, setContext } from 'svelte';
-  import { writable } from 'svelte/store';
-  import { segmentedControl } from './../Segment/index.svelte';
+<script lang="ts" generics="T">
+  import { setContext, type Snippet } from 'svelte';
+  import { segmentedControl, type SegmentedControlContext } from './../Segment/index.svelte';
 
-  export let value = null;
-  export let disabled = false;
-  export let ariaLabel = null;
+  interface Props {
+    value?: T | null;
+    disabled?: boolean;
+    ariaLabel?: string | null;
+    class?: string;
+    /** The Segment components */
+    children?: Snippet;
+    /** The chosen segment's value, after `value` updates */
+    onchange?: (value: T) => void;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    value = $bindable(),
+    disabled = false,
+    ariaLabel = null,
+    class: className = '',
+    children,
+    onchange,
+  }: Props = $props();
 
-  const dispatch = createEventDispatcher();
-  const selected = writable(value);
-  const groupDisabled = writable(disabled);
-  let element;
+  let element: HTMLDivElement | undefined = $state();
 
-  $: selected.set(value);
-  $: groupDisabled.set(disabled);
-
-  setContext(segmentedControl, {
-    selected,
-    disabled: groupDisabled,
+  setContext<SegmentedControlContext>(segmentedControl, {
+    get selected() {
+      return value;
+    },
+    get disabled() {
+      return disabled;
+    },
     select(segmentValue) {
       if (disabled) return;
-      value = segmentValue;
-      dispatch('change', segmentValue);
+      value = segmentValue as T;
+      onchange?.(segmentValue as T);
     },
   });
 
   // Every segment is its own tab stop; arrow keys move focus between them
   // without changing the selection (Enter/Space selects).
-  function handleKeydown(event) {
+  function handleKeydown(event: KeyboardEvent) {
     const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
-    if (!keys.includes(event.key)) return;
+    if (!keys.includes(event.key) || !element) return;
 
-    const segments = Array.from(element.querySelectorAll('[role="radio"]:enabled'));
-    const index = segments.indexOf(document.activeElement);
+    const segments = Array.from(element.querySelectorAll<HTMLElement>('[role="radio"]:enabled'));
+    const index = segments.indexOf(document.activeElement as HTMLElement);
     if (index === -1) return;
 
     event.preventDefault();
@@ -48,16 +58,16 @@
   }
 </script>
 
-<!-- svelte-ignore a11y-interactive-supports-focus -->
+<!-- svelte-ignore a11y_interactive_supports_focus -->
 <div
   bind:this={element}
   role="radiogroup"
   aria-label={ariaLabel || undefined}
   aria-disabled={disabled || undefined}
   class="segmented-control {className}"
-  on:keydown={handleKeydown}
+  onkeydown={handleKeydown}
 >
-  <slot />
+  {@render children?.()}
 </div>
 
 <style>

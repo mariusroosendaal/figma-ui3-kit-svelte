@@ -159,7 +159,7 @@ export const WithIconLeft = {
     iconName: Icon24Check,
     iconLead: 'left',
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: WideContainer,
     props: {
       width: '300px',
@@ -178,7 +178,7 @@ export const WithIconCenter = {
     iconName: Icon24Plus,
     iconLead: 'center',
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: WideContainer,
     props: {
       width: '300px',

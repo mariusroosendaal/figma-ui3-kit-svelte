@@ -50,7 +50,7 @@ if (varPill) {
 }
 
 const valueAttr = variable
-  ? figma.code` value={value} variable="${variable}" on:detach`
+  ? figma.code` value={value} variable="${variable}" ondetach={detach}`
   : empty
     ? figma.code` placeholder="${text}"`
     : figma.code` value={${text}}`

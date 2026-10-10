@@ -29,7 +29,7 @@ const iconCode = icon && icon.type === 'INSTANCE' ? render(icon) : undefined
 
 // The menu's items live in code.
 export default {
-  example: figma.code`<SplitButton${iconCode ? figma.code` iconName={${iconCode}}` : ''}${size !== 'small' ? figma.code` size="${size}"` : ''}${disabled ? ' disabled' : ''} ariaLabel="" menuItems={[]} on:click on:select />`,
+  example: figma.code`<SplitButton${iconCode ? figma.code` iconName={${iconCode}}` : ''}${size !== 'small' ? figma.code` size="${size}"` : ''}${disabled ? ' disabled' : ''} ariaLabel="" menuItems={[]} onclick={run} onselect={choose} />`,
   imports,
   id: 'split-button',
   metadata: { nestable: true, props: { imports } },

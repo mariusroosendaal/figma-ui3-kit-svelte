@@ -10,44 +10,56 @@
   - Several colors draw as equal slices, left to right — a variable's modes,
     when which one renders is not known. No color draws an empty, dashed chit.
 -->
-<script>
-  /** @type {string | string[] | null} any CSS color or gradient, or several colors */
-  export let color = null;
-  /** 0–100, multiplied with any alpha in `color` */
-  export let opacity = 100;
-  /** @type {string | null} image URL, for image fills */
-  export let image = null;
-  /** @type {'square' | 'circle'} */
-  export let shape = 'square';
-  /** @type {string | null} set when the color is information and not decoration */
-  export let ariaLabel = null;
+<script lang="ts">
+  interface Props {
+    /** Any CSS color or gradient, or several colors */
+    color?: string | string[] | null;
+    /** 0–100, multiplied with any alpha in `color` */
+    opacity?: number;
+    /** Image URL, for image fills */
+    image?: string | null;
+    shape?: 'square' | 'circle';
+    /** Set when the color is information and not decoration */
+    ariaLabel?: string | null;
+    class?: string;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    color = null,
+    opacity = 100,
+    image = null,
+    shape = 'square',
+    ariaLabel = null,
+    class: className = '',
+  }: Props = $props();
 
-  $: colors = color == null ? [] : Array.isArray(color) ? color : [color];
-  $: gradient = colors.length === 1 && /gradient\(/.test(colors[0]);
-  $: parsed = colors.length === 1 && !gradient ? split(colors[0]) : null;
-  $: alpha = (parsed ? parsed.alpha : 1) * Math.min(1, Math.max(0, opacity / 100));
-  $: kind = image
-    ? 'image'
-    : colors.length === 0
-      ? 'empty'
-      : colors.length > 1
-        ? 'modes'
-        : gradient
-          ? 'gradient'
-          : alpha < 1
-            ? 'alpha'
-            : 'fill';
+  let colors = $derived(color == null ? [] : Array.isArray(color) ? color : [color]);
+  let gradient = $derived(colors.length === 1 && /gradient\(/.test(colors[0]));
+  let parsed = $derived(colors.length === 1 && !gradient ? split(colors[0]) : null);
+  let alpha = $derived((parsed ? parsed.alpha : 1) * Math.min(1, Math.max(0, opacity / 100)));
+  let kind = $derived(
+    image
+      ? 'image'
+      : colors.length === 0
+        ? 'empty'
+        : colors.length > 1
+          ? 'modes'
+          : gradient
+            ? 'gradient'
+            : alpha < 1
+              ? 'alpha'
+              : 'fill'
+  );
   // Hard stops, so each mode is a slice and not a blend.
-  $: slices = colors
-    .map((c, i) => `${c} ${(i / colors.length) * 100}% ${((i + 1) / colors.length) * 100}%`)
-    .join(', ');
+  let slices = $derived(
+    colors
+      .map((c, i) => `${c} ${(i / colors.length) * 100}% ${((i + 1) / colors.length) * 100}%`)
+      .join(', ')
+  );
 
   // The opaque color and its alpha, for hex and rgb()/rgba(). Anything else
   // (a name, a var()) is taken as opaque.
-  function split(value) {
+  function split(value: string): { solid: string; alpha: number } {
     const hex = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(value.trim());
     if (hex) {
       let h = hex[1];

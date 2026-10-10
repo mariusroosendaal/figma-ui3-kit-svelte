@@ -13,147 +13,184 @@
   Keyboard follows the tree pattern: Up/Down move, Right opens or steps in,
   Left closes or steps out, Home/End, Enter/Space select or tick.
 -->
-<script>
-  import { createEventDispatcher } from 'svelte';
+<script lang="ts" generics="T extends TreeNode = TreeNode">
+  import type { TreeNode } from '../../types';
   import Icon from '../Icon/index.svelte';
   import IconChevronRight from './../../icons/16/icon.16.chevron.right.svg';
   import IconCheck from './../../icons/16/icon.16.check.svg';
   import IconMixed from './../../icons/16/icon.16.mixed.svg';
 
-  /** @type {any[]} */
-  export let nodes = [];
-  /** @type {'none' | 'single' | 'check'} */
-  export let mode = 'none';
-  /** @type {string[] | null} ids of open parents; null opens them all */
-  export let expanded = null;
-  /** @type {string | null} mode 'single' */
-  export let selected = null;
-  /** @type {string[]} mode 'check': ticked leaf ids */
-  export let checked = [];
-  export let disabled = false;
-  export let ariaLabel = '';
+  interface Props {
+    nodes?: T[];
+    /** none: browse only; single: one row is `selected`; check: leaves are ticked in `checked` */
+    mode?: 'none' | 'single' | 'check';
+    /** Ids of open parents; null opens them all */
+    expanded?: string[] | null;
+    /** Mode 'single' */
+    selected?: string | null;
+    /** Mode 'check': ticked leaf ids */
+    checked?: string[];
+    disabled?: boolean;
+    ariaLabel?: string;
+    class?: string;
+    /** A parent opened or closed, after `expanded` updates */
+    ontoggle?: (detail: { id: string; expanded: boolean }) => void;
+    /** Mode 'single': the picked node, after `selected` updates */
+    onselect?: (node: T) => void;
+    /** Mode 'check': the ticked leaf ids, after `checked` updates */
+    onchange?: (checked: string[]) => void;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    nodes = [],
+    mode = 'none',
+    expanded = $bindable(),
+    selected = $bindable(),
+    checked = $bindable(),
+    disabled = false,
+    ariaLabel = '',
+    class: className = '',
+    ontoggle,
+    onselect,
+    onchange,
+  }: Props = $props();
 
-  const dispatch = createEventDispatcher();
+  type Row = {
+    node: T;
+    depth: number;
+    parent: string | null;
+    isParent: boolean;
+    setSize: number;
+    pos: number;
+  };
+
   const treeId = 'tree-' + Math.random().toString(36).slice(2, 11);
-  let active = null;
+  let active: string | null = $state(null);
 
-  const hasChildren = (node) => Array.isArray(node.children) && node.children.length > 0;
+  const hasChildren = (node: TreeNode) => Array.isArray(node.children) && node.children.length > 0;
 
-  function allParents(list, out = []) {
+  function allParents(list: TreeNode[], out: string[] = []) {
     for (const node of list) {
       if (hasChildren(node)) {
         out.push(node.id);
-        allParents(node.children, out);
+        allParents(node.children ?? [], out);
       }
     }
     return out;
   }
 
-  function leavesOf(node, out = []) {
+  function leavesOf(node: TreeNode, out: string[] = []) {
     if (!hasChildren(node)) out.push(node.id);
-    else for (const child of node.children) leavesOf(child, out);
+    else for (const child of node.children ?? []) leavesOf(child, out);
     return out;
   }
 
-  $: open = new Set(expanded ?? allParents(nodes));
-  $: ticked = new Set(checked);
+  let open = $derived(new Set(expanded ?? allParents(nodes)));
+  let ticked = $derived(new Set(checked ?? []));
 
   // The visible rows, in order, with what the keys and ARIA need. `openIds` is
   // passed in so the rows re-derive when a parent opens or closes.
-  function flatten(list, openIds, depth = 0, parent = null, into = []) {
+  function flatten(
+    list: T[],
+    openIds: Set<string>,
+    depth = 0,
+    parent: string | null = null,
+    into: Row[] = []
+  ) {
     list.forEach((node, i) => {
       const isParent = hasChildren(node);
       into.push({ node, depth, parent, isParent, setSize: list.length, pos: i + 1 });
       if (isParent && openIds.has(node.id))
-        flatten(node.children, openIds, depth + 1, node.id, into);
+        flatten((node.children ?? []) as T[], openIds, depth + 1, node.id, into);
     });
     return into;
   }
-  $: rows = flatten(nodes, open);
-  $: activeRow = rows.find((r) => r.node.id === active) ?? null;
+  let rows = $derived(flatten(nodes, open));
+  let activeRow = $derived(rows.find((r) => r.node.id === active) ?? null);
 
   // Every row's tick state in one post-order pass, so drawing a row is a lookup
   // rather than a walk of its own subtree.
-  function checkStates(list, on, out = new Map()) {
+  function checkStates(
+    list: TreeNode[],
+    on: Set<string>,
+    out: Record<string, boolean | 'mixed'> = {}
+  ) {
     for (const node of list) {
       if (!hasChildren(node)) {
-        out.set(node.id, on.has(node.id));
+        out[node.id] = on.has(node.id);
         continue;
       }
-      checkStates(node.children, on, out);
+      const children = node.children ?? [];
+      checkStates(children, on, out);
       let all = true;
       let none = true;
-      for (const child of node.children) {
-        const state = out.get(child.id);
+      for (const child of children) {
+        const state = out[child.id];
         if (state === true) none = false;
         else if (state === false) all = false;
         else all = none = false;
       }
-      out.set(node.id, all ? true : none ? false : 'mixed');
+      out[node.id] = all ? true : none ? false : 'mixed';
     }
     return out;
   }
-  $: states = mode === 'check' ? checkStates(nodes, ticked) : null;
+  let states = $derived(mode === 'check' ? checkStates(nodes, ticked) : null);
 
-  function toggleOpen(node, force) {
-    const next = new Set(open);
-    const opening = force ?? !next.has(node.id);
-    if (opening) next.add(node.id);
-    else next.delete(node.id);
+  function toggleOpen(node: TreeNode, force?: boolean) {
+    const opening = force ?? !open.has(node.id);
+    const others = [...open].filter((id) => id !== node.id);
     // Closing a parent takes its rows away: leave the keyboard on the parent
     // rather than on a row that is no longer there.
     if (!opening && active !== null && active !== node.id && findNode([node], active))
       active = node.id;
-    expanded = [...next];
-    dispatch('toggle', { id: node.id, expanded: opening });
+    expanded = opening ? [...others, node.id] : others;
+    ontoggle?.({ id: node.id, expanded: opening });
   }
 
-  function pick(node) {
+  function pick(node: T) {
     if (disabled || node.disabled) return;
     if (mode === 'single') {
       selected = node.id;
-      dispatch('select', node);
+      onselect?.(node);
     } else if (mode === 'check') {
       const leaves = leavesOf(node).filter((id) => !findNode(nodes, id)?.disabled);
-      const on = states.get(node.id) !== true;
-      const next = new Set(checked);
-      for (const id of leaves) on ? next.add(id) : next.delete(id);
-      checked = [...next];
-      dispatch('change', checked);
+      const on = states?.[node.id] !== true;
+      const next = on
+        ? [...(checked ?? []), ...leaves.filter((id) => !ticked.has(id))]
+        : (checked ?? []).filter((id) => !leaves.includes(id));
+      checked = next;
+      onchange?.(next);
     } else if (hasChildren(node)) {
       toggleOpen(node);
     }
   }
 
-  function findNode(list, id) {
+  function findNode(list: TreeNode[], id: string): TreeNode | null {
     for (const node of list) {
       if (node.id === id) return node;
       if (hasChildren(node)) {
-        const found = findNode(node.children, id);
+        const found = findNode(node.children ?? [], id);
         if (found) return found;
       }
     }
     return null;
   }
 
-  function handleClick(row, event) {
+  function handleClick(row: Row, event: MouseEvent) {
     active = row.node.id;
     // The chevron opens and closes; the rest of the row picks.
-    if (row.isParent && event.target.closest('.twisty')) toggleOpen(row.node);
+    if (row.isParent && (event.target as Element).closest('.twisty')) toggleOpen(row.node);
     else pick(row.node);
   }
 
-  function move(index) {
+  function move(index: number) {
     const row = rows[Math.max(0, Math.min(rows.length - 1, index))];
     if (!row) return;
     active = row.node.id;
     document.getElementById(`${treeId}-${row.node.id}`)?.scrollIntoView({ block: 'nearest' });
   }
 
-  function handleKeydown(event) {
+  function handleKeydown(event: KeyboardEvent) {
     if (!rows.length) return;
     // Read from `active`, not the derived row, which lags a key pressed straight after another.
     const index = rows.findIndex((r) => r.node.id === active);
@@ -208,13 +245,16 @@
   aria-label={ariaLabel || undefined}
   aria-multiselectable={mode === 'check' || undefined}
   aria-activedescendant={activeRow ? `${treeId}-${activeRow.node.id}` : undefined}
-  on:keydown={handleKeydown}
-  on:focus={handleFocus}
-  on:mousedown|preventDefault={(e) => e.currentTarget.focus()}
+  onkeydown={handleKeydown}
+  onfocus={handleFocus}
+  onmousedown={(e) => {
+    e.preventDefault();
+    e.currentTarget.focus();
+  }}
 >
   {#each rows as row (row.node.id)}
-    {@const state = states ? states.get(row.node.id) : null}
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    {@const state = states ? states[row.node.id] : null}
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
     <li
       id="{treeId}-{row.node.id}"
       class="row"
@@ -230,7 +270,7 @@
       aria-checked={mode === 'check' ? state : undefined}
       aria-disabled={row.node.disabled || undefined}
       style:--depth={row.depth}
-      on:click={(e) => handleClick(row, e)}
+      onclick={(e) => handleClick(row, e)}
     >
       <span class="twisty" class:open={open.has(row.node.id)}>
         {#if row.isParent}

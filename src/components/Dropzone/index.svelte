@@ -1,55 +1,80 @@
 <!--
   Dropzone: a dashed area that takes files dropped on it or picked through
-  its button, as on Figma's publish screen. It fires `files` with the files
-  that match `accept` and `reject` with the rest; reading them is the
+  its button, as on Figma's publish screen. It calls `onfiles` with the files
+  that match `accept` and `onreject` with the rest; reading them is the
   parent's job.
 -->
-<script>
-  import { createEventDispatcher } from 'svelte';
+<script lang="ts">
+  import type { Snippet } from 'svelte';
   import Button from '../Button/index.svelte';
   import Icon from '../Icon/index.svelte';
   import IconImage from '../../icons/24/icon.24.image.svg';
 
-  /** The file input's accept list: MIME types, `image/*` wildcards or `.ext` */
-  export let accept = '';
-  export let multiple = true;
-  export let buttonLabel = 'Choose files';
-  /** A line under the button, such as the accepted formats */
-  export let hint = '';
-  /** The illustration; null for none */
-  export let iconName = IconImage;
-  export let disabled = false;
-  export let invalid = false;
-  export let errorMessage = '';
-  export let id = null;
-  export let ariaLabel = '';
-  /**
-   * One row with no illustration, for when files are already in and listed
-   * below: the button turns secondary, leaving the primary action to the page.
-   */
-  export let compact = false;
+  interface Props {
+    /** The file input's accept list: MIME types, `image/*` wildcards or `.ext` */
+    accept?: string;
+    multiple?: boolean;
+    buttonLabel?: string;
+    /** A line under the button, such as the accepted formats */
+    hint?: string;
+    /** The illustration; null for none */
+    iconName?: string | null;
+    disabled?: boolean;
+    invalid?: boolean;
+    errorMessage?: string;
+    id?: string | null;
+    ariaLabel?: string;
+    /**
+     * One row with no illustration, for when files are already in and listed
+     * below: the button turns secondary, leaving the primary action to the page.
+     */
+    compact?: boolean;
+    class?: string;
+    /** In place of the illustration */
+    children?: Snippet;
+    /** The files that match `accept`; one unless `multiple` */
+    onfiles?: (detail: { files: File[] }) => void;
+    /** The files that don't match `accept` */
+    onreject?: (detail: { files: File[] }) => void;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    accept = '',
+    multiple = true,
+    buttonLabel = 'Choose files',
+    hint = '',
+    iconName = IconImage,
+    disabled = false,
+    invalid = false,
+    errorMessage = '',
+    id = null,
+    ariaLabel = '',
+    compact = false,
+    class: className = '',
+    children,
+    onfiles,
+    onreject,
+  }: Props = $props();
 
-  const dispatch = createEventDispatcher();
-  const uid = id || 'dropzone--' + (Math.random() * 10000000).toFixed(0);
-  const hintId = uid + '-hint';
-  const errorId = uid + '-error';
+  const fallbackId = 'dropzone--' + (Math.random() * 10000000).toFixed(0);
+  let uid = $derived(id || fallbackId);
+  let hintId = $derived(uid + '-hint');
+  let errorId = $derived(uid + '-error');
 
-  let input;
+  let input: HTMLInputElement | undefined = $state();
   // dragenter and dragleave fire for every child the pointer crosses, so
   // count them rather than flip a flag.
-  let depth = 0;
-  $: dragging = depth > 0 && !disabled;
+  let depth = $state(0);
+  let dragging = $derived(depth > 0 && !disabled);
 
-  $: acceptList = accept
-    .split(',')
-    .map((a) => a.trim().toLowerCase())
-    .filter(Boolean);
+  let acceptList = $derived(
+    accept
+      .split(',')
+      .map((a) => a.trim().toLowerCase())
+      .filter(Boolean)
+  );
 
-  /** @param {File} file */
-  function matches(file) {
+  function matches(file: File) {
     if (acceptList.length === 0) return true;
     const name = file.name.toLowerCase();
     const type = (file.type || '').toLowerCase();
@@ -60,30 +85,26 @@
     });
   }
 
-  /** @param {File[]} all */
-  function take(all) {
+  function take(all: File[]) {
     if (all.length === 0) return;
     const accepted = all.filter(matches);
     const rejected = all.filter((f) => !matches(f));
     const files = multiple ? accepted : accepted.slice(0, 1);
-    if (files.length > 0) dispatch('files', { files });
-    if (rejected.length > 0) dispatch('reject', { files: rejected });
+    if (files.length > 0) onfiles?.({ files });
+    if (rejected.length > 0) onreject?.({ files: rejected });
   }
 
-  /** @param {DragEvent} e */
-  function carriesFiles(e) {
+  function carriesFiles(e: DragEvent) {
     return Array.from(e.dataTransfer?.types || []).includes('Files');
   }
 
-  /** @param {DragEvent} e */
-  function handleDragEnter(e) {
+  function handleDragEnter(e: DragEvent) {
     if (disabled || !carriesFiles(e)) return;
     e.preventDefault();
     depth += 1;
   }
 
-  /** @param {DragEvent} e */
-  function handleDragOver(e) {
+  function handleDragOver(e: DragEvent) {
     if (disabled || !carriesFiles(e)) return;
     e.preventDefault();
     if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
@@ -93,8 +114,7 @@
     depth = Math.max(0, depth - 1);
   }
 
-  /** @param {DragEvent} e */
-  function handleDrop(e) {
+  function handleDrop(e: DragEvent) {
     if (!carriesFiles(e)) return;
     e.preventDefault();
     depth = 0;
@@ -103,20 +123,19 @@
     const files = Array.from(e.dataTransfer.items)
       .filter((item) => item.kind === 'file' && !item.webkitGetAsEntry?.()?.isDirectory)
       .map((item) => item.getAsFile())
-      .filter(Boolean);
+      .filter((file): file is File => file !== null);
     take(files);
   }
 
-  /** @param {HTMLInputElement} picker */
-  function handleChange(picker) {
+  function handleChange(picker: HTMLInputElement) {
     take(Array.from(picker.files || []));
     // Picking the same file again still fires change
     picker.value = '';
   }
 
-  $: describedBy = [hint ? hintId : '', invalid && errorMessage ? errorId : '']
-    .filter(Boolean)
-    .join(' ');
+  let describedBy = $derived(
+    [hint ? hintId : '', invalid && errorMessage ? errorId : ''].filter(Boolean).join(' ')
+  );
 </script>
 
 <div class="dropzone-wrapper {className}">
@@ -129,24 +148,24 @@
     role="group"
     aria-label={ariaLabel || undefined}
     aria-describedby={describedBy || undefined}
-    on:dragenter={handleDragEnter}
-    on:dragover={handleDragOver}
-    on:dragleave={handleDragLeave}
-    on:drop={handleDrop}
+    ondragenter={handleDragEnter}
+    ondragover={handleDragOver}
+    ondragleave={handleDragLeave}
+    ondrop={handleDrop}
   >
     {#if !compact}
-      <slot>
-        {#if iconName}
-          <Icon
-            {iconName}
-            size={48}
-            color={disabled ? '--figma-color-icon-disabled' : '--figma-color-icon-tertiary'}
-            class="dropzone__icon"
-          />
-        {/if}
-      </slot>
+      {#if children}
+        {@render children()}
+      {:else if iconName}
+        <Icon
+          {iconName}
+          size={48}
+          color={disabled ? '--figma-color-icon-disabled' : '--figma-color-icon-tertiary'}
+          class="dropzone__icon"
+        />
+      {/if}
     {/if}
-    <Button variant={compact ? 'secondary' : 'primary'} {disabled} on:click={() => input.click()}
+    <Button variant={compact ? 'secondary' : 'primary'} {disabled} onclick={() => input?.click()}
       >{buttonLabel}</Button
     >
     {#if hint}
@@ -161,7 +180,7 @@
       {disabled}
       tabindex="-1"
       aria-hidden="true"
-      on:change={() => handleChange(input)}
+      onchange={(e) => handleChange(e.currentTarget)}
     />
   </div>
   {#if invalid && errorMessage}

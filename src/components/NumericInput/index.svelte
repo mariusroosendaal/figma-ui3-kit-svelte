@@ -10,87 +10,123 @@
     ("Mixed", say).
   - `options` adds a chevron that opens a list of presets (Figma's "Combo input").
 
-  `input` fires while scrubbing, `change` whenever a value is committed.
+  `oninput` is called while scrubbing, `onchange` whenever a value is committed.
 -->
-<script>
-  import { createEventDispatcher, onDestroy, tick } from 'svelte';
+<script lang="ts">
+  import { onDestroy, tick } from 'svelte';
+  import type { FocusEventHandler, KeyboardEventHandler } from 'svelte/elements';
   import Icon from '../Icon/index.svelte';
   import IconButton from '../IconButton/index.svelte';
   import Menu from '../Menu/index.svelte';
   import VariablePill from '../VariablePill/index.svelte';
   import IconChevronDown from './../../icons/24/icon.24.chevron.down.svg';
   import IconDetach from './../../icons/24/icon.24.detach.small.svg';
-  import { endScrub, evaluate, scrubOffset, startScrub } from './numeric.js';
+  import { endScrub, evaluate, scrubOffset, startScrub, type Scrub } from './numeric.js';
 
-  /** @type {number | null} */
-  export let value = null;
-  /** @type {number | null} */
-  export let min = null;
-  /** @type {number | null} */
-  export let max = null;
-  export let step = 1;
-  /** Decimals kept when committing; null keeps up to 2. */
-  /** @type {number | null} */
-  export let precision = null;
-  /** A letter in the lead cell, e.g. "X" or "W". */
-  export let label = '';
-  /** An icon in the lead cell (SVG import); wins over `label`. */
-  export let iconName = null;
-  /** Trailing unit, e.g. "px" or "%". */
-  export let unit = '';
-  export let placeholder = '';
-  export let disabled = false;
-  /** A red edge, as Input's: the value is part of a problem shown elsewhere. */
-  export let invalid = false;
-  /** Presets for the chevron menu: numbers, or `{ label, value }`. */
-  /** @type {Array<number | { label: string, value: number }> | null} */
-  export let options = null;
-  export let id = null;
-  export let name = null;
-  export let ariaLabel = '';
-  /** @type {string | null} a bound variable's name: shown as a pill in place of the value, with a detach button (fires `detach`) */
-  export let variable = null;
+  interface Props {
+    /** A numeric string ("12", from older saved settings say) reads as its number */
+    value?: number | string | null;
+    min?: number | null;
+    max?: number | null;
+    step?: number;
+    /** Decimals kept when committing; null keeps up to 2. */
+    precision?: number | null;
+    /** A letter in the lead cell, e.g. "X" or "W". */
+    label?: string;
+    /** An icon in the lead cell (SVG import); wins over `label`. */
+    iconName?: string | null;
+    /** Trailing unit, e.g. "px" or "%". */
+    unit?: string;
+    placeholder?: string;
+    disabled?: boolean;
+    /** A red edge, as Input's: the value is part of a problem shown elsewhere. */
+    invalid?: boolean;
+    /** Presets for the chevron menu: numbers, or `{ label, value }`. */
+    options?: Array<number | { label: string; value: number }> | null;
+    id?: string | null;
+    name?: string | null;
+    ariaLabel?: string;
+    /** A bound variable's name: shown as a pill in place of the value, with a detach button */
+    variable?: string | null;
+    class?: string;
+    /** A committed value, after `value` updates */
+    onchange?: (value: number) => void;
+    /** While scrubbing, after `value` updates */
+    oninput?: (value: number) => void;
+    /** The detach button, or a preset picked while bound: the variable's name */
+    ondetach?: (variable: string) => void;
+    /** The variable pill: the variable's name */
+    onvariableclick?: (variable: string) => void;
+    /** The field's, or the pill's while bound */
+    onfocus?: FocusEventHandler<HTMLElement>;
+    onblur?: FocusEventHandler<HTMLElement>;
+    onkeydown?: KeyboardEventHandler<HTMLElement>;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    value = $bindable(),
+    min = null,
+    max = null,
+    step = 1,
+    precision = null,
+    label = '',
+    iconName = null,
+    unit = '',
+    placeholder = '',
+    disabled = false,
+    invalid = false,
+    options = null,
+    id = null,
+    name = null,
+    ariaLabel = '',
+    variable = null,
+    class: className = '',
+    onchange,
+    oninput,
+    ondetach,
+    onvariableclick,
+    onfocus,
+    onblur,
+    onkeydown,
+  }: Props = $props();
 
-  const dispatch = createEventDispatcher();
-
-  /** @type {HTMLInputElement} */
-  let input;
-  /** @type {HTMLButtonElement} */
-  let chevron;
-  let text = '';
-  let focused = false;
-  let menuOpen = false;
-  let scrub = null; // startScrub's
+  let input: HTMLInputElement | undefined = $state();
+  let chevron: HTMLButtonElement | undefined = $state();
+  let text = $state('');
+  let focused = $state(false);
+  let menuOpen = $state(false);
+  let scrub: Scrub | null = $state(null);
   let selectOnMouseUp = false;
-  let pillFocused = false;
+  let pillFocused = $state(false);
 
-  $: decimals = precision ?? 2;
+  let decimals = $derived(precision ?? 2);
   // A numeric string ("12", from older saved settings say) reads as its number.
-  $: numeric = typeof value === 'string' ? evaluate(value) : value;
-  $: if (!focused) text = format(numeric);
-  $: hasLead = Boolean(iconName || label);
-  $: hasOptions = Boolean(options && options.length > 0);
-  $: menuItems = (options ?? []).map((option) => {
-    const item =
-      typeof option === 'number' ? { label: format(option), value: option } : { ...option };
-    return { ...item, selected: item.value === numeric };
+  let numeric = $derived(typeof value === 'string' ? evaluate(value) : value);
+  $effect.pre(() => {
+    if (!focused) text = format(numeric);
   });
+  let hasLead = $derived(Boolean(iconName || label));
+  let hasOptions = $derived(Boolean(options && options.length > 0));
+  let menuItems = $derived(
+    (options ?? []).map((option) => {
+      const item =
+        typeof option === 'number' ? { label: format(option), value: option } : { ...option };
+      return { ...item, selected: item.value === numeric };
+    })
+  );
 
-  function format(n) {
+  function format(n: number | null | undefined) {
     if (n == null || Number.isNaN(n)) return '';
     return String(Number(n.toFixed(decimals)));
   }
 
-  function clamp(n) {
+  function clamp(n: number) {
     if (min != null) n = Math.max(min, n);
     if (max != null) n = Math.min(max, n);
     return Number(n.toFixed(decimals));
   }
 
-  function commit(n) {
+  function commit(n: number | null) {
     if (n == null || Number.isNaN(n)) {
       text = format(numeric);
       return;
@@ -99,41 +135,41 @@
     text = format(next);
     if (next !== numeric || typeof value !== 'number') {
       value = next;
-      dispatch('change', value);
+      onchange?.(next);
       // A parent may answer the change with another value — snapping to a
       // preset, say. Show it even though the field still has focus, so the
       // next arrow key steps from what the parent kept.
       tick().then(() => {
         if (!focused) return;
         text = format(numeric);
-        if (document.activeElement === input) input.select();
+        if (input && document.activeElement === input) input.select();
       });
     }
   }
 
-  function handleKeydown(event) {
+  function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       event.preventDefault();
       const base = evaluate(text) ?? numeric ?? 0;
       const delta = step * (event.shiftKey ? 10 : 1) * (event.key === 'ArrowUp' ? 1 : -1);
       commit(base + delta);
-      input.select();
+      input?.select();
     } else if (event.key === 'Enter') {
       event.preventDefault();
       commit(evaluate(text));
-      input.select();
+      input?.select();
     } else if (event.key === 'Escape') {
       // Undoes the field alone: a modal it's in stays open
       event.stopPropagation();
       text = format(numeric);
-      input.blur();
+      input?.blur();
     }
   }
 
   function handleFocus() {
     focused = true;
     selectOnMouseUp = true;
-    input.select();
+    input?.select();
   }
 
   function handleBlur() {
@@ -142,25 +178,25 @@
   }
 
   // A click that focuses the field keeps the whole value selected, as a tab does.
-  function handleMouseUp(event) {
+  function handleMouseUp(event: MouseEvent) {
     if (selectOnMouseUp) event.preventDefault();
     selectOnMouseUp = false;
   }
 
   // SCRUBBING
 
-  function scrubStart(event) {
+  function scrubStart(event: PointerEvent & { currentTarget: EventTarget & HTMLElement }) {
     if (disabled || variable || event.button !== 0) return;
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     // A focused field keeps its own text, which blur would commit over the
     // scrubbed value: commit what's typed now, and scrub from it.
-    if (focused) input.blur();
+    if (focused) input?.blur();
     const start = typeof value === 'number' ? value : (numeric ?? evaluate(text) ?? 0);
     scrub = startScrub(event, start);
   }
 
-  function scrubMove(event) {
+  function scrubMove(event: PointerEvent) {
     if (!scrub) return;
     // Let go outside the plugin's window, where the release went unheard
     if (event.buttons === 0) return scrubEnd(event);
@@ -171,31 +207,33 @@
     scrub.offset = next - scrub.start;
     if (next !== value) {
       value = next;
-      dispatch('input', value);
+      oninput?.(next);
     }
   }
 
-  function scrubEnd(event) {
+  function scrubEnd(event: PointerEvent) {
     if (!scrub || event.pointerId !== scrub.id) return;
     const { moved, start } = scrub;
     scrub = null;
     endScrub();
-    if (moved && value !== start) dispatch('change', value);
-    if (!moved) input.focus();
+    if (moved && typeof value === 'number' && value !== start) onchange?.(value);
+    if (!moved) input?.focus();
   }
 
-  onDestroy(() => scrub && endScrub());
+  onDestroy(() => {
+    if (scrub) endScrub();
+  });
 
   // PRESETS
 
   // Picking a preset while bound sets a raw value, so the binding goes: ask the parent to detach.
-  function handlePreset(event) {
-    if (variable) dispatch('detach', variable);
-    commit(event.detail.value);
+  function handlePreset(item: { value?: unknown }) {
+    if (variable) ondetach?.(variable);
+    commit(item.value as number);
   }
 </script>
 
-<svelte:window on:pointermove={scrubMove} on:pointerup={scrubEnd} on:pointercancel={scrubEnd} />
+<svelte:window onpointermove={scrubMove} onpointerup={scrubEnd} onpointercancel={scrubEnd} />
 
 <!--
   With `options` this is UI3's combo input: one box whose hover and focus borders
@@ -216,7 +254,7 @@
         class="lead"
         class:scrubbing={scrub?.moved}
         class:static={variable}
-        on:pointerdown={scrubStart}
+        onpointerdown={scrubStart}
       >
         {#if iconName}
           <Icon
@@ -244,12 +282,16 @@
         {name}
         {disabled}
         aria-label={ariaLabel ? `${ariaLabel}: bound to ${variable}` : `Bound to ${variable}`}
-        on:click={() => dispatch('variableClick', variable)}
-        on:focus={() => (pillFocused = true)}
-        on:blur={() => (pillFocused = false)}
-        on:focus
-        on:blur
-        on:keydown
+        onclick={() => variable && onvariableclick?.(variable)}
+        onfocus={(event) => {
+          pillFocused = true;
+          onfocus?.(event);
+        }}
+        onblur={(event) => {
+          pillFocused = false;
+          onblur?.(event);
+        }}
+        {onkeydown}
       >
         <VariablePill label={variable} onSelected={pillFocused} {disabled} />
       </button>
@@ -258,7 +300,7 @@
           class="detach"
           iconName={IconDetach}
           ariaLabel="Detach {variable}"
-          on:click={() => dispatch('detach', variable)}
+          onclick={() => variable && ondetach?.(variable)}
         />
       {/if}
     {:else}
@@ -279,13 +321,19 @@
         aria-valuenow={numeric ?? undefined}
         aria-valuemin={min ?? undefined}
         aria-valuemax={max ?? undefined}
-        on:keydown={handleKeydown}
-        on:focus={handleFocus}
-        on:blur={handleBlur}
-        on:mouseup={handleMouseUp}
-        on:focus
-        on:blur
-        on:keydown
+        onkeydown={(event) => {
+          handleKeydown(event);
+          onkeydown?.(event);
+        }}
+        onfocus={(event) => {
+          handleFocus();
+          onfocus?.(event);
+        }}
+        onblur={(event) => {
+          handleBlur();
+          onblur?.(event);
+        }}
+        onmouseup={handleMouseUp}
       />
       {#if unit && text !== ''}
         <span class="unit" aria-hidden="true">{unit}</span>
@@ -302,7 +350,7 @@
       aria-haspopup="menu"
       aria-expanded={menuOpen}
       {disabled}
-      on:click={() => (menuOpen = !menuOpen)}
+      onclick={() => (menuOpen = !menuOpen)}
     >
       <Icon
         iconName={IconChevronDown}
@@ -315,7 +363,7 @@
       anchorElement={chevron}
       position="bottom-right"
       itemVariant="checkmark"
-      on:select={handlePreset}
+      onselect={handlePreset}
     />
   {/if}
 </div>

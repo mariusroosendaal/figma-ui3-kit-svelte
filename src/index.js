@@ -2,6 +2,12 @@
 // Importing from the package root will load this CSS automatically.
 import './global.css';
 
+// Types, for `import type { MenuOption } from 'figma-ui3-kit-svelte'`
+/** @typedef {import('./types').AvatarSpec} AvatarSpec */
+/** @typedef {import('./types').BadgeSpec} BadgeSpec */
+/** @typedef {import('./types').MenuOption} MenuOption */
+/** @typedef {import('./types').TreeNode} TreeNode */
+
 // Components
 import Avatar from './components/Avatar/index.svelte';
 import Badge from './components/Badge/index.svelte';

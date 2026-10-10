@@ -22,7 +22,7 @@ export const Default = {
   args: {
     multiple: false,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: DisclosureWrapper,
     props: { ...args },
   }),
@@ -32,7 +32,7 @@ export const Multiple = {
   args: {
     multiple: true,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: DisclosureWrapper,
     props: { ...args },
   }),

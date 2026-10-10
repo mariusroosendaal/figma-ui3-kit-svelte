@@ -1,21 +1,42 @@
-<script>
+<script lang="ts">
+  import type { Snippet } from 'svelte';
   import Icon from './../Icon/index.svelte';
 
-  export let variant = 'default'; // default, brand, component, danger, success, warning, invert, selected, variable, variable-selected, feedback, merged, archived, menu, figjam, count, count-inactive
-  export let strong = false; // true for strong variants (colored backgrounds)
-  export let iconName = null; // SVG icon data for variants that support icons
-  export let text = ''; // Badge text (falls back to slot content if provided)
-  export let ariaLabel = null; // Use when badge text alone doesn't convey the status type (WCAG 4.1.2)
-  /** @type {'small' | 'large'} large uses body-large text (UI3's "Badge large") */
-  export let size = 'small';
-  /** UI3's "Badge Dot": an unread marker with no text, brand unless `variant` is danger, success or warning. Set ariaLabel when it carries meaning. */
-  export let dot = false;
+  interface Props {
+    /** default, brand, component, danger, success, warning, invert, selected, variable,
+     * variable-selected, feedback, merged, archived, menu, figjam, count, count-inactive */
+    variant?: string;
+    /** True for strong variants (colored backgrounds) */
+    strong?: boolean;
+    /** SVG icon data, for variants that support icons */
+    iconName?: string | null;
+    /** Shown when there are no children */
+    text?: string;
+    /** Use when badge text alone doesn't convey the status type (WCAG 4.1.2) */
+    ariaLabel?: string | null;
+    /** Large uses body-large text (UI3's "Badge large") */
+    size?: 'small' | 'large';
+    /** UI3's "Badge Dot": an unread marker with no text, brand unless `variant` is danger,
+     * success or warning. Set ariaLabel when it carries meaning. */
+    dot?: boolean;
+    class?: string;
+    children?: Snippet;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    variant = 'default',
+    strong = false,
+    iconName = null,
+    text = '',
+    ariaLabel = null,
+    size = 'small',
+    dot = false,
+    class: className = '',
+    children,
+  }: Props = $props();
 
   // Function to determine the correct icon color based on variant and state
-  function getIconColor(variant, strong) {
+  function getIconColor(variant: string, strong: boolean) {
     switch (variant) {
       case 'brand':
       case 'component':
@@ -39,8 +60,7 @@
         return '--figma-color-icon';
     }
   }
-  // A $: statement, so the color follows its inputs; a call in the markup would not re-run.
-  $: iconColor = getIconColor(variant, strong);
+  let iconColor = $derived(getIconColor(variant, strong));
 </script>
 
 {#if dot}
@@ -85,7 +105,7 @@
       </span>
     {/if}
     <span class="badge-text">
-      <slot>{text}</slot>
+      {#if children}{@render children()}{:else}{text}{/if}
     </span>
   </span>
 {/if}

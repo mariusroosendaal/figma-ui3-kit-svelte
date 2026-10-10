@@ -1,25 +1,45 @@
-<script>
-  import { createEventDispatcher } from 'svelte';
+<script lang="ts">
+  import type { FocusEventHandler, MouseEventHandler } from 'svelte/elements';
   import Icon from './../Icon/index.svelte';
   import IconClose from './../../icons/24/icon.24.close.svg';
 
-  export let variant = 'default'; // default, component
-  export let label = '';
-  export let iconName = null;
-  export let closable = false;
-  export let focused = false;
-  export let disabled = false;
-
-  let className = '';
-  export { className as class };
-  const dispatch = createEventDispatcher();
-
-  function handleClose(event) {
-    event.stopPropagation();
-    dispatch('close', { label });
+  interface Props {
+    variant?: 'default' | 'component';
+    label?: string;
+    /** SVG icon data */
+    iconName?: string | null;
+    closable?: boolean;
+    focused?: boolean;
+    disabled?: boolean;
+    class?: string;
+    onclick?: MouseEventHandler<HTMLDivElement>;
+    /** The close button; the chip's `onclick` doesn't fire */
+    onclose?: (detail: { label: string }) => void;
+    /** The chip's and the close button's */
+    onfocus?: FocusEventHandler<HTMLElement>;
+    onblur?: FocusEventHandler<HTMLElement>;
   }
 
-  function handleKeydown(event) {
+  let {
+    variant = 'default',
+    label = '',
+    iconName = null,
+    closable = false,
+    focused = false,
+    disabled = false,
+    class: className = '',
+    onclick,
+    onclose,
+    onfocus,
+    onblur,
+  }: Props = $props();
+
+  function handleClose(event: MouseEvent) {
+    event.stopPropagation();
+    onclose?.({ label });
+  }
+
+  function handleKeydown(event: KeyboardEvent & { currentTarget: EventTarget & HTMLDivElement }) {
     if (event.target !== event.currentTarget) return;
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
@@ -27,7 +47,7 @@
     }
   }
 
-  function getIconColor(disabled, variant) {
+  function getIconColor(disabled: boolean, variant: string) {
     if (disabled) {
       return '--figma-color-icon-disabled';
     }
@@ -38,8 +58,7 @@
         return '--figma-color-icon';
     }
   }
-  // A $: statement, so the color follows its inputs; a call in the markup would not re-run.
-  $: iconColor = getIconColor(disabled, variant);
+  let iconColor = $derived(getIconColor(disabled, variant));
 </script>
 
 <div
@@ -52,10 +71,10 @@
   role="button"
   aria-pressed={focused}
   aria-disabled={disabled}
-  on:click
-  on:keydown={handleKeydown}
-  on:blur
-  on:focus
+  {onclick}
+  onkeydown={handleKeydown}
+  {onblur}
+  {onfocus}
 >
   {#if iconName}
     <div class="chip-icon">
@@ -71,9 +90,9 @@
     <button
       type="button"
       class="chip-close"
-      on:click={handleClose}
-      on:blur
-      on:focus
+      onclick={handleClose}
+      {onblur}
+      {onfocus}
       {disabled}
       aria-label="Remove {label}"
     >

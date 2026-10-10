@@ -1,24 +1,40 @@
-<script>
-  export let variant = 'default';
-  export let border = true;
-  export let useFullLayout = false;
+<script lang="ts">
+  import type { Snippet } from 'svelte';
 
-  let className = '';
-  export { className as class };
+  interface Props {
+    variant?: string;
+    border?: boolean;
+    /** Draws `full` across the footer in place of `left` and `right` */
+    useFullLayout?: boolean;
+    class?: string;
+    left?: Snippet;
+    right?: Snippet;
+    full?: Snippet;
+  }
+
+  let {
+    variant = 'default',
+    border = true,
+    useFullLayout = false,
+    class: className = '',
+    left,
+    right,
+    full,
+  }: Props = $props();
 </script>
 
 <div class="modal-footer {className}" class:variant class:has-border={border}>
   {#if useFullLayout}
     <div class="modal-footer-full">
-      <slot name="full" />
+      {@render full?.()}
     </div>
   {:else}
     <div class="modal-footer-left">
-      <slot name="left" />
+      {@render left?.()}
     </div>
 
     <div class="modal-footer-right">
-      <slot name="right" />
+      {@render right?.()}
     </div>
   {/if}
 </div>

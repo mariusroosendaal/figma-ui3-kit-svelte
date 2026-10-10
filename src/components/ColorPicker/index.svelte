@@ -7,8 +7,8 @@
     closes on X, Escape or a click outside. `position="bottom"` docks it along
     the window's bottom edge, full width, as a bottom Modal; so does a window
     too narrow for it. `inline` draws it in the flow.
-  - Dragging fires `input`; letting go, a field, a swatch, the eyedropper or a
-    key fires `change`. Both hand back `{ value, opacity }`; `value` is always
+  - Dragging calls `oninput`; letting go, a field, a swatch, the eyedropper or a
+    key calls `onchange`. Both get `{ value, opacity }`; `value` is always
     `#RRGGBB`.
   - `swatches` takes colors — '#RRGGBB', '#RRGGBBAA', any CSS color, or
     `{ color, opacity?, label? }` — or groups of them, `{ label, colors }`,
@@ -18,8 +18,8 @@
   - `compact` makes the square 144px tall, the least it shrinks to in a short
     window, for a plugin with little room.
 -->
-<script>
-  import { createEventDispatcher, onDestroy, tick } from 'svelte';
+<script lang="ts">
+  import { onDestroy, tick, untrack } from 'svelte';
   import ModalHeader from '../ModalHeader/index.svelte';
   import Dropdown from '../Dropdown/index.svelte';
   import IconButton from '../IconButton/index.svelte';
@@ -36,39 +36,67 @@
     hslToHsv,
   } from './color.js';
 
-  export let value = '#000000';
-  /** 0–100; null leaves out the opacity slider and field */
-  /** @type {number | null} */
-  export let opacity = 100;
-  export let isOpen = false;
-  /** @type {HTMLElement | null} what the picker floats by */
-  export let anchorElement = null;
-  /** true: drawn in the flow, always open */
-  export let inline = false;
-  /** @type {'anchor' | 'bottom'} by `anchorElement`, or along the window's bottom, full width */
-  export let position = 'anchor';
-  /** @type {'hex' | 'rgb' | 'css' | 'hsl' | 'hsb'} */
-  export let format = 'hex';
-  /** @type {Array<any>} colors, or `{ label, colors }` groups */
-  export let swatches = [];
-  export let title = 'Color picker';
-  /** true: the square 144px tall instead of 208px */
-  export let compact = false;
+  type Format = 'hex' | 'rgb' | 'css' | 'hsl' | 'hsb';
+  /** A color: '#RRGGBB', '#RRGGBBAA' or any CSS color, or one with an opacity and a name */
+  type Swatch = string | { color: string; opacity?: number; label?: string | null };
+  type SwatchGroup = { label?: string | null; colors: Swatch[] };
+  type Detail = { value: string; opacity: number | null };
 
-  let className = '';
-  export { className as class };
+  interface Props {
+    /** Always `#RRGGBB` once the picker sets it */
+    value?: string;
+    /** 0–100; null leaves out the opacity slider and field */
+    opacity?: number | null;
+    isOpen?: boolean;
+    /** What the picker floats by */
+    anchorElement?: HTMLElement | null;
+    /** true: drawn in the flow, always open */
+    inline?: boolean;
+    /** By `anchorElement`, or along the window's bottom, full width */
+    position?: 'anchor' | 'bottom';
+    format?: Format;
+    /** Colors, or `{ label, colors }` groups */
+    swatches?: Swatch[] | SwatchGroup[];
+    title?: string;
+    /** true: the square 144px tall instead of 208px */
+    compact?: boolean;
+    class?: string;
+    /** While dragging, after `value` and `opacity` update */
+    oninput?: (detail: Detail) => void;
+    /** When the color settles, after `value` and `opacity` update */
+    onchange?: (detail: Detail) => void;
+    /** X, Escape or a click outside, after `isOpen` turns false */
+    onclose?: () => void;
+  }
 
-  const dispatch = createEventDispatcher();
+  let {
+    value = $bindable(),
+    opacity = $bindable(),
+    isOpen = $bindable(),
+    anchorElement = null,
+    inline = false,
+    position = 'anchor',
+    format = $bindable(),
+    swatches = [],
+    title = 'Color picker',
+    compact = false,
+    class: className = '',
+    oninput,
+    onchange,
+    onclose,
+  }: Props = $props();
+
   const titleId = `color-picker-${Math.random().toString(36).slice(2, 9)}-title`;
 
-  const FORMATS = [
+  const FORMATS: { label: string; value: Format }[] = [
     { label: 'Hex', value: 'hex' },
     { label: 'RGB', value: 'rgb' },
     { label: 'CSS', value: 'css' },
     { label: 'HSL', value: 'hsl' },
     { label: 'HSB', value: 'hsb' },
   ];
-  const FIELDS = {
+  type Field = { key: string; label: string; text?: boolean; max?: number };
+  const FIELDS: Record<Format, Field[]> = {
     hex: [{ key: 'hex', label: 'Hex', text: true }],
     css: [{ key: 'css', label: 'CSS color', text: true }],
     rgb: [
@@ -87,32 +115,41 @@
       { key: 'hsb.b', label: 'Brightness', max: 100 },
     ],
   };
-  const OPACITY_FIELD = { key: 'opacity', label: 'Opacity', max: 100 };
+  const OPACITY_FIELD: Field = { key: 'opacity', label: 'Opacity', max: 100 };
   // Dropdown marks its items selected, so each picker has its own
   const formatItems = FORMATS.map((f) => ({ ...f }));
 
   // HSV, so a gray keeps its hue and black its saturation
-  let h = 0;
-  let s = 0;
-  let v = 0;
-  let a = 1;
-  let synced = null;
+  let h = $state(0);
+  let s = $state(0);
+  let v = $state(0);
+  let a = $state(1);
+  let synced: string | null = null;
 
-  $: hasAlpha = opacity != null;
-  $: sync(value, opacity);
-  $: rgb = hsvToRgb({ h, s, v });
-  $: hex = rgbToHex(rgb);
-  $: hueHex = rgbToHex(hsvToRgb({ h, s: 1, v: 1 }));
-  $: rgbChannels = [rgb.r, rgb.g, rgb.b].map(Math.round).join(' ');
-  $: texts = channels(h, s, v, a);
-  $: fields = FIELDS[format] ?? FIELDS.hex;
-  $: opacityCell = hasAlpha && format !== 'css';
-  $: columns = [...fields.map(() => '1fr'), ...(opacityCell ? ['54px'] : [])].join(' ');
-  $: formatItem = formatItems.find((f) => f.value === format) ?? formatItems[0];
+  // Unset, opacity is 100; null leaves it out
+  let hasAlpha = $derived(opacity !== null);
+  const detail = (): Detail => ({
+    value: value ?? hex,
+    opacity: opacity === undefined ? 100 : opacity,
+  });
+  $effect.pre(() => {
+    const val = value;
+    const op = opacity === undefined ? 100 : opacity;
+    untrack(() => sync(val, op));
+  });
+  let rgb = $derived(hsvToRgb({ h, s, v }));
+  let hex = $derived(rgbToHex(rgb));
+  let hueHex = $derived(rgbToHex(hsvToRgb({ h, s: 1, v: 1 })));
+  let rgbChannels = $derived([rgb.r, rgb.g, rgb.b].map(Math.round).join(' '));
+  let texts = $derived(channels(h, s, v, a));
+  let fields = $derived(FIELDS[format ?? 'hex'] ?? FIELDS.hex);
+  let opacityCell = $derived(hasAlpha && format !== 'css');
+  let columns = $derived([...fields.map(() => '1fr'), ...(opacityCell ? ['54px'] : [])].join(' '));
+  let formatItem = $derived(formatItems.find((f) => f.value === format) ?? formatItems[0]);
 
   // Takes value and opacity from outside unless they're what the picker last
   // set: a hex can't hold the reticle's exact spot, or a gray's hue.
-  function sync(val, op) {
+  function sync(val: string | undefined, op: number | null) {
     const parsed = parseHex(val);
     if (!parsed) return;
     const key = `${parsed.hex}/${op}`;
@@ -123,7 +160,7 @@
   }
 
   /** an HSV from a color, keeping the current hue for a gray and saturation for black */
-  function keep(next) {
+  function keep(next: { h: number; s: number; v: number }) {
     return {
       h: next.s > 0 && next.v > 0 ? next.h : h,
       s: next.v > 0 ? next.s : s,
@@ -131,8 +168,10 @@
     };
   }
 
-  /** Moves the picker; `event` names what to fire, if anything */
-  function set(next, event = null) {
+  type Move = { h?: number; s?: number; v?: number; a?: number };
+
+  /** Moves the picker; `event` names the callback to call, if any */
+  function set(next: Move, event: 'input' | 'change' | null = null) {
     if (next.h != null) h = clamp(next.h, 0, 360);
     if (next.s != null) s = clamp(next.s, 0, 1);
     if (next.v != null) v = clamp(next.v, 0, 1);
@@ -140,21 +179,22 @@
     value = rgbToHex(hsvToRgb({ h, s, v }));
     if (hasAlpha) opacity = Math.round(a * 100);
     synced = `${value}/${opacity}`;
-    if (event) dispatch(event, { value, opacity });
+    if (event === 'input') oninput?.(detail());
+    else if (event === 'change') onchange?.(detail());
   }
 
   /** set, firing `change` only if the color or opacity moved */
-  function apply(next) {
-    const before = `${value}/${opacity}`;
+  function apply(next: Move) {
+    const before = JSON.stringify(detail());
     set(next);
-    if (`${value}/${opacity}` !== before) dispatch('change', { value, opacity });
+    if (JSON.stringify(detail()) !== before) onchange?.(detail());
   }
 
-  function channels(h, s, v, a) {
+  function channels(h: number, s: number, v: number, a: number): Record<string, string> {
     const c = hsvToRgb({ h, s, v });
     const [r, g, b] = [c.r, c.g, c.b].map(Math.round);
     const hsl = hsvToHsl({ h, s, v });
-    const pct = (n) => String(Math.round(n * 100));
+    const pct = (n: number) => String(Math.round(n * 100));
     return {
       hex: rgbToHex(c).slice(1).toUpperCase(),
       css: a < 1 ? `rgba(${r}, ${g}, ${b}, ${+a.toFixed(2)})` : `rgb(${r}, ${g}, ${b})`,
@@ -173,17 +213,17 @@
 
   // ── Dragging ──────────────────────────────────────────────────────────
 
-  let stopDrag = null;
+  let stopDrag: (() => void) | null = null;
 
   // Window listeners, not pointer capture, which the plugin iframe can drop
-  function track(event, read) {
+  function track(event: PointerEvent, read: (e: PointerEvent) => Move) {
     if (event.button !== 0) return;
     event.preventDefault();
     stopDrag?.();
-    const move = (e) => set(read(e), 'input');
+    const move = (e: PointerEvent) => set(read(e), 'input');
     const up = () => {
       stopDrag?.();
-      dispatch('change', { value, opacity });
+      onchange?.(detail());
     };
     stopDrag = () => {
       window.removeEventListener('pointermove', move);
@@ -197,7 +237,10 @@
     move(event);
   }
 
-  function drag(event, read) {
+  function drag(
+    event: PointerEvent & { currentTarget: EventTarget & HTMLElement },
+    read: (e: PointerEvent, r: DOMRect) => Move
+  ) {
     if (event.button !== 0) return;
     const element = event.currentTarget;
     element.focus();
@@ -205,9 +248,9 @@
   }
 
   // The % beside the opacity scrubs it, 1% a pixel, as in Figma
-  function scrub(event) {
+  function scrub(event: PointerEvent) {
     if (event.button !== 0) return;
-    if (editing) /** @type {HTMLElement} */ (document.activeElement)?.blur();
+    if (editing) (document.activeElement as HTMLElement | null)?.blur();
     const x = event.clientX;
     const start = a * 100;
     track(event, (e) => ({ a: Math.round(start + e.clientX - x) / 100 }));
@@ -215,40 +258,50 @@
 
   onDestroy(() => stopDrag?.());
 
-  const readSpectrum = (e, r) => ({
+  const readSpectrum = (e: PointerEvent, r: DOMRect) => ({
     s: clamp((e.clientX - r.left) / r.width, 0, 1),
     v: 1 - clamp((e.clientY - r.top) / r.height, 0, 1),
   });
   // A thumb's center runs from 8px in at one end of the track to 8px in at the other
-  const along = (e, r) => clamp((e.clientX - r.left - 8) / (r.width - 16), 0, 1);
-  const readHue = (e, r) => ({ h: along(e, r) * 360 });
-  const readAlpha = (e, r) => ({ a: along(e, r) });
+  const along = (e: PointerEvent, r: DOMRect) =>
+    clamp((e.clientX - r.left - 8) / (r.width - 16), 0, 1);
+  const readHue = (e: PointerEvent, r: DOMRect) => ({ h: along(e, r) * 360 });
+  const readAlpha = (e: PointerEvent, r: DOMRect) => ({ a: along(e, r) });
 
   // ── Keys ──────────────────────────────────────────────────────────────
 
-  function spectrumKey(event) {
+  function spectrumKey(event: KeyboardEvent) {
     const d = event.shiftKey ? 0.1 : 0.01;
-    const next = {
-      ArrowLeft: { s: s - d },
-      ArrowRight: { s: s + d },
-      ArrowUp: { v: v + d },
-      ArrowDown: { v: v - d },
-    }[event.key];
+    const next = (
+      {
+        ArrowLeft: { s: s - d },
+        ArrowRight: { s: s + d },
+        ArrowUp: { v: v + d },
+        ArrowDown: { v: v - d },
+      } as Record<string, Move>
+    )[event.key];
     if (!next) return;
     event.preventDefault();
     apply(next);
   }
 
-  function sliderKey(event, current, max, toColor) {
+  function sliderKey(
+    event: KeyboardEvent,
+    current: number,
+    max: number,
+    toColor: (n: number) => Move
+  ) {
     const d = event.shiftKey ? 10 : 1;
-    const next = {
-      ArrowLeft: current - d,
-      ArrowDown: current - d,
-      ArrowRight: current + d,
-      ArrowUp: current + d,
-      Home: 0,
-      End: max,
-    }[event.key];
+    const next = (
+      {
+        ArrowLeft: current - d,
+        ArrowDown: current - d,
+        ArrowRight: current + d,
+        ArrowUp: current + d,
+        Home: 0,
+        End: max,
+      } as Record<string, number>
+    )[event.key];
     if (next == null) return;
     event.preventDefault();
     apply(toColor(clamp(Math.round(next), 0, max)));
@@ -256,10 +309,10 @@
 
   // ── Fields ────────────────────────────────────────────────────────────
 
-  let editing = null;
-  let draft = '';
+  let editing: string | null = $state(null);
+  let draft = $state('');
 
-  function commit(key, text) {
+  function commit(key: string, text: string) {
     if (text.trim() === texts[key]) return;
     if (key === 'hex' || key === 'css') {
       const parsed = key === 'hex' ? parseHex(text) : parseCss(text);
@@ -273,37 +326,40 @@
       apply({ a: clamp(Math.round(n), 0, 100) / 100 });
       return;
     }
-    const [space, channel] = key.split('.');
+    const [space, channel] = key.split('.') as [Format, string];
     const field = FIELDS[space].find((f) => f.key === key);
-    const amount = clamp(Math.round(n), 0, field.max);
+    const amount = clamp(Math.round(n), 0, field?.max ?? 0);
     if (space === 'hsb') {
       apply({ [channel === 'b' ? 'v' : channel]: channel === 'h' ? amount : amount / 100 });
     } else if (space === 'hsl') {
       const hsl = hsvToHsl({ h, s, v });
-      hsl[channel] = channel === 'h' ? amount : amount / 100;
+      hsl[channel as 'h' | 's' | 'l'] = channel === 'h' ? amount : amount / 100;
       const next = hslToHsv(hsl);
       // The typed hue holds even for a gray
       apply({ h: hsl.h, s: next.v > 0 ? next.s : s, v: next.v });
     } else {
       const next = hsvToRgb({ h, s, v });
-      next[channel] = amount;
+      next[channel as 'r' | 'g' | 'b'] = amount;
       apply(keep(rgbToHsv(next)));
     }
   }
 
-  function startEdit(event, key) {
+  function startEdit(event: FocusEvent & { currentTarget: HTMLInputElement }, key: string) {
     editing = key;
     draft = texts[key];
     event.currentTarget.select();
   }
 
-  function endEdit(key) {
+  function endEdit(key: string) {
     if (editing !== key) return;
     commit(key, draft);
     editing = null;
   }
 
-  async function fieldKey(event, field) {
+  async function fieldKey(
+    event: KeyboardEvent & { currentTarget: HTMLInputElement },
+    field: Field
+  ) {
     const input = event.currentTarget;
     if (event.key === 'Enter') {
       event.preventDefault();
@@ -332,8 +388,11 @@
 
   async function sample() {
     try {
-      // @ts-ignore EyeDropper is Chromium-only and not in every DOM lib
-      const { sRGBHex } = await new window.EyeDropper().open();
+      // EyeDropper is Chromium-only and not in every DOM lib
+      const EyeDropper = (
+        window as unknown as { EyeDropper: new () => { open(): Promise<{ sRGBHex: string }> } }
+      ).EyeDropper;
+      const { sRGBHex } = await new EyeDropper().open();
       const parsed = parseHex(sRGBHex) ?? parseCss(sRGBHex);
       if (parsed) apply(keep(rgbToHsv(hexToRgb(parsed.hex))));
     } catch {
@@ -343,22 +402,33 @@
 
   // ── Swatches ──────────────────────────────────────────────────────────
 
-  let groupIndex = 0;
+  let groupIndex = $state(0);
 
-  $: groups = toGroups(swatches);
-  $: if (groupIndex >= groups.length) groupIndex = 0;
-  $: groupItems = groups.map((g, i) => ({ label: g.label ?? `Swatches ${i + 1}`, value: i }));
-  $: groupLabels = groups.some((g) => g.label);
+  let groups = $derived(toGroups(swatches));
+  $effect.pre(() => {
+    if (groupIndex >= groups.length) groupIndex = 0;
+  });
+  let groupItems = $derived(
+    groups.map((g, i) => ({ label: g.label ?? `Swatches ${i + 1}`, value: i }))
+  );
+  let groupLabels = $derived(groups.some((g) => g.label));
 
-  function toGroups(list) {
+  type Chip = { hex: string; opacity: number; label: string | null; lightness: number };
+
+  function toGroups(list: Swatch[] | SwatchGroup[]) {
     if (!Array.isArray(list) || !list.length) return [];
-    const grouped = list.every((g) => g && typeof g === 'object' && Array.isArray(g.colors));
-    return (grouped ? list : [{ label: null, colors: list }])
-      .map((g) => ({ label: g.label ?? null, colors: g.colors.map(toSwatch).filter(Boolean) }))
+    const grouped = list.every(
+      (g) => g && typeof g === 'object' && Array.isArray((g as SwatchGroup).colors)
+    );
+    return (grouped ? (list as SwatchGroup[]) : [{ label: null, colors: list as Swatch[] }])
+      .map((g) => ({
+        label: g.label ?? null,
+        colors: g.colors.map(toSwatch).filter((c): c is Chip => c !== null),
+      }))
       .filter((g) => g.colors.length);
   }
 
-  function toSwatch(item) {
+  function toSwatch(item: Swatch): Chip | null {
     const raw = typeof item === 'string' ? { color: item } : item;
     if (!raw?.color) return null;
     const parsed = parseHex(raw.color) ?? parseCss(raw.color);
@@ -373,34 +443,39 @@
     };
   }
 
-  function swatchName(swatch) {
+  function swatchName(swatch: Chip) {
     const name = swatch.label ?? swatch.hex.slice(1).toUpperCase();
     return swatch.opacity < 100 ? `${name}, ${swatch.opacity}%` : name;
   }
 
-  function pickSwatch(swatch) {
+  function pickSwatch(swatch: Chip) {
     apply({ ...keep(rgbToHsv(hexToRgb(swatch.hex))), a: swatch.opacity / 100 });
   }
 
   // ── Floating ──────────────────────────────────────────────────────────
 
-  let panel;
-  let top = 0;
-  let left = 0;
-  let placed = false;
-  let docked = false;
+  let panel: HTMLDivElement | undefined = $state();
+  let top = $state(0);
+  let left = $state(0);
+  let placed = $state(false);
+  let docked = $state(false);
   let wasOpen = false;
-  /** @type {HTMLElement | null} where focus was when the picker opened */
-  let opener = null;
+  // Where focus was when the picker opened
+  let opener: HTMLElement | null = null;
 
-  $: if (!inline) toggle(isOpen);
+  $effect.pre(() => {
+    if (!inline) {
+      const open = !!isOpen;
+      untrack(() => toggle(open));
+    }
+  });
 
-  async function toggle(open) {
+  async function toggle(open: boolean) {
     if (open === wasOpen) return;
     wasOpen = open;
     placed = false;
     if (!open) return;
-    opener = /** @type {HTMLElement | null} */ (document.activeElement);
+    opener = document.activeElement as HTMLElement | null;
     await reposition();
     panel?.focus({ preventScroll: true });
   }
@@ -439,22 +514,23 @@
 
   function close() {
     if (inline) {
-      dispatch('close');
+      onclose?.();
       return;
     }
     const hadFocus = panel?.contains(document.activeElement);
     isOpen = false;
-    dispatch('close');
+    onclose?.();
     if (hadFocus && opener?.isConnected) opener.focus();
   }
 
-  function handleOutside(event) {
+  function handleOutside(event: PointerEvent) {
     if (inline || !isOpen || !panel) return;
-    if (panel.contains(event.target) || anchorElement?.contains(event.target)) return;
+    const target = event.target as Node | null;
+    if (panel.contains(target) || anchorElement?.contains(target)) return;
     close();
   }
 
-  function handleKeydown(event) {
+  function handleKeydown(event: KeyboardEvent) {
     if (event.key !== 'Escape' || event.defaultPrevented) return;
     // Stops here, so a modal the picker opened from stays open
     event.preventDefault();
@@ -463,7 +539,7 @@
   }
 </script>
 
-<svelte:window on:pointerdown|capture={handleOutside} on:resize={() => isOpen && reposition()} />
+<svelte:window onpointerdowncapture={handleOutside} onresize={() => isOpen && reposition()} />
 
 {#if inline || isOpen}
   <div
@@ -481,9 +557,9 @@
     style:--picker-hue={hueHex}
     style:--picker-color={hex}
     style:--picker-rgb={rgbChannels}
-    on:keydown={handleKeydown}
+    onkeydown={handleKeydown}
   >
-    <ModalHeader {title} {titleId} variant="tabs" tabs={['Custom']} on:close={close} />
+    <ModalHeader {title} {titleId} variant="tabs" tabs={['Custom']} onclose={close} />
 
     <div class="body">
       <div class="spectrum-wrap">
@@ -496,8 +572,8 @@
           aria-valuemax="100"
           aria-valuenow={Math.round(s * 100)}
           aria-valuetext="Saturation {Math.round(s * 100)}%, brightness {Math.round(v * 100)}%"
-          on:pointerdown={(e) => drag(e, readSpectrum)}
-          on:keydown={spectrumKey}
+          onpointerdown={(e) => drag(e, readSpectrum)}
+          onkeydown={spectrumKey}
         >
           <span class="thumb reticle" style:left="{s * 100}%" style:top="{(1 - v) * 100}%">
             <span class="thumb-shadow"></span>
@@ -509,7 +585,7 @@
       <div class="controls-panel">
         <div class="controls">
           {#if canSample}
-            <IconButton iconName={IconEyedropper} ariaLabel="Sample color" on:click={sample} />
+            <IconButton iconName={IconEyedropper} ariaLabel="Sample color" onclick={sample} />
           {/if}
           <div class="sliders">
             <div
@@ -520,8 +596,8 @@
               aria-valuemin="0"
               aria-valuemax="360"
               aria-valuenow={Math.round(h)}
-              on:pointerdown={(e) => drag(e, readHue)}
-              on:keydown={(e) => sliderKey(e, h, 360, (n) => ({ h: n }))}
+              onpointerdown={(e) => drag(e, readHue)}
+              onkeydown={(e) => sliderKey(e, h, 360, (n) => ({ h: n }))}
             >
               <span class="thumb" style:left="calc((100% - 16px) * {h / 360})">
                 <span class="thumb-shadow"></span>
@@ -538,8 +614,8 @@
                 aria-valuemax="100"
                 aria-valuenow={Math.round(a * 100)}
                 aria-valuetext="{Math.round(a * 100)}%"
-                on:pointerdown={(e) => drag(e, readAlpha)}
-                on:keydown={(e) => sliderKey(e, a * 100, 100, (n) => ({ a: n / 100 }))}
+                onpointerdown={(e) => drag(e, readAlpha)}
+                onkeydown={(e) => sliderKey(e, a * 100, 100, (n) => ({ a: n / 100 }))}
               >
                 <span class="thumb" style:left="calc((100% - 16px) * {a})">
                   <span class="thumb-shadow"></span>
@@ -556,7 +632,7 @@
             menuItems={formatItems}
             value={formatItem}
             ariaLabel="Color format"
-            on:change={(e) => (format = e.detail.value)}
+            onchange={(item) => (format = item.value)}
           />
           <div class="fields" style:grid-template-columns={columns}>
             {#each opacityCell ? [...fields, OPACITY_FIELD] : fields as field (field.key)}
@@ -568,13 +644,13 @@
                   inputmode={field.max ? 'numeric' : undefined}
                   aria-label={field.label}
                   value={editing === field.key ? draft : texts[field.key]}
-                  on:focus={(e) => startEdit(e, field.key)}
-                  on:input={(e) => (draft = e.currentTarget.value)}
-                  on:blur={() => endEdit(field.key)}
-                  on:keydown={(e) => fieldKey(e, field)}
+                  onfocus={(e) => startEdit(e, field.key)}
+                  oninput={(e) => (draft = e.currentTarget.value)}
+                  onblur={() => endEdit(field.key)}
+                  onkeydown={(e) => fieldKey(e, field)}
                 />
                 {#if field === OPACITY_FIELD}
-                  <span class="percent" aria-hidden="true" on:pointerdown={scrub}>%</span>
+                  <span class="percent" aria-hidden="true" onpointerdown={scrub}>%</span>
                 {/if}
               </span>
             {/each}
@@ -590,7 +666,7 @@
                 menuItems={groupItems}
                 value={groupItems[groupIndex]}
                 ariaLabel="Color swatch set"
-                on:change={(e) => (groupIndex = e.detail.value)}
+                onchange={(item) => (groupIndex = item.value)}
               />
             </div>
           {/if}
@@ -605,7 +681,7 @@
                 style:--swatch-clear={1 - swatch.opacity / 100}
                 title={swatchName(swatch)}
                 aria-label={swatchName(swatch)}
-                on:click={() => pickSwatch(swatch)}
+                onclick={() => pickSwatch(swatch)}
               >
                 {#if swatch.opacity < 100}
                   <span class="checker"></span>

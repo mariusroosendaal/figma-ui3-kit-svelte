@@ -1,43 +1,61 @@
-<script>
+<script lang="ts">
+  import type { FocusEventHandler, MouseEventHandler } from 'svelte/elements';
   import Icon from './../Icon/index.svelte';
 
-  export let iconName = '';
-  export let iconText = null;
-  export let variant = 'default'; // default, secondary
-  export let disabled = false;
-  export let spin = false;
-  export let tabindex = 0;
-  export let iconColor = null; // Optional: override icon color
-  export let ariaLabel = '';
-  /** @type {'button' | 'submit' | 'reset'} */
-  export let type = 'button';
-
-  $: if (!ariaLabel && typeof window !== 'undefined') {
-    console.warn('[IconButton] ariaLabel is required for icon-only buttons (WCAG 4.1.2)');
+  interface Props {
+    /** SVG icon data */
+    iconName?: string;
+    iconText?: string | null;
+    variant?: 'default' | 'secondary';
+    disabled?: boolean;
+    spin?: boolean;
+    tabindex?: number;
+    /** A CSS variable name, in place of the variant's icon color */
+    iconColor?: string | null;
+    /** Required: the button has no text (WCAG 4.1.2) */
+    ariaLabel?: string;
+    type?: 'button' | 'submit' | 'reset';
+    class?: string;
+    /** The button, for `bind:element` */
+    element?: HTMLButtonElement | null;
+    onclick?: MouseEventHandler<HTMLButtonElement>;
+    onfocus?: FocusEventHandler<HTMLButtonElement>;
+    onblur?: FocusEventHandler<HTMLButtonElement>;
   }
 
-  let className = '';
-  export { className as class };
-  /** @type {HTMLButtonElement|undefined} */
-  let buttonElement = undefined;
+  let {
+    iconName = '',
+    iconText = null,
+    variant = 'default',
+    disabled = false,
+    spin = false,
+    tabindex = 0,
+    iconColor = null,
+    ariaLabel = '',
+    type = 'button',
+    class: className = '',
+    element = $bindable(),
+    onclick,
+    onfocus,
+    onblur,
+  }: Props = $props();
 
-  // Export the button element for external binding (optional - use bind:element if needed)
-  export { buttonElement as element };
+  $effect(() => {
+    if (!ariaLabel) {
+      console.warn('[IconButton] ariaLabel is required for icon-only buttons (WCAG 4.1.2)');
+    }
+  });
 
-  // Reactive: Determine the correct icon color based on variant and state
-  // This needs to be reactive so it updates when iconColor prop changes
-  $: computedColor = iconColor
-    ? iconColor
-    : disabled
-      ? '--figma-color-icon-disabled'
-      : '--figma-color-icon';
+  let computedColor = $derived(
+    iconColor ? iconColor : disabled ? '--figma-color-icon-disabled' : '--figma-color-icon'
+  );
 </script>
 
 <button
-  bind:this={buttonElement}
-  on:click
-  on:blur
-  on:focus
+  bind:this={element}
+  {onclick}
+  {onblur}
+  {onfocus}
   {type}
   aria-label={ariaLabel || undefined}
   class="icon-button {className}"

@@ -42,7 +42,7 @@ export default {
       },
     },
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: SegmentedControlWrapper,
     props: { ...args },
   }),

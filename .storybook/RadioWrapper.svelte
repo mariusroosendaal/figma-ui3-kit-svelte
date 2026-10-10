@@ -1,13 +1,17 @@
-<script>
+<script lang="ts">
+  import { untrack } from 'svelte';
   import Radio from '../src/components/Radio/index.svelte';
   import RadioGroup from '../src/components/RadioGroup/index.svelte';
 
-  export let value = 'option1';
-  export let disabled = false;
-  /** @type {'input' | 'button'} */
-  export let variant = 'input';
+  interface Props {
+    value?: string;
+    disabled?: boolean;
+    variant?: 'input' | 'button';
+  }
 
-  let selectedValue = value;
+  let { value = 'option1', disabled = false, variant = 'input' }: Props = $props();
+
+  let selectedValue = $state(untrack(() => value));
 </script>
 
 <div style="width: 280px;">

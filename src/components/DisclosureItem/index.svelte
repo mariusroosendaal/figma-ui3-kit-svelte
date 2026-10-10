@@ -1,59 +1,67 @@
-<script context="module">
+<script lang="ts" module>
   export const disclosure = {};
+
+  export interface DisclosureContext {
+    readonly selected: ReadonlySet<string>;
+    clickHandler(itemId: string): void;
+    open(itemId: string): void;
+  }
 </script>
 
-<script>
-  import { getContext, onMount, createEventDispatcher, hasContext } from 'svelte';
+<script lang="ts">
+  import { getContext, onMount, hasContext, untrack, type Snippet } from 'svelte';
   import Icon from './../Icon/index.svelte';
   import ChevronRight from './../../icons/16/icon.16.chevron.right.svg';
   import ChevronDown from './../../icons/16/icon.16.chevron.down.svg';
 
-  const dispatch = createEventDispatcher();
+  interface Props {
+    uniqueId?: string;
+    title?: string | null;
+    /** Whether it is open; bind it to follow a standalone item */
+    expanded?: boolean;
+    section?: boolean;
+    /** Open at first */
+    open?: boolean;
+    /** Opens and closes on its own, even inside a Disclosure */
+    standalone?: boolean;
+    class?: string;
+    /** What it shows when open */
+    children?: Snippet;
+    /** A standalone item, after it opens or closes */
+    ontoggle?: (detail: { expanded: boolean; uniqueId: string }) => void;
+  }
 
-  export let uniqueId = 'disclosureItem--' + (Math.random() * 10000000).toFixed(0).toString();
-  export let title = null;
-  export let expanded = false;
-  export let section = false;
-  export let open = false;
-  export let standalone = false;
-
-  let className = '';
-  export { className as class };
+  let {
+    uniqueId = 'disclosureItem--' + (Math.random() * 10000000).toFixed(0).toString(),
+    title = null,
+    expanded = $bindable(),
+    section = false,
+    open = false,
+    standalone = false,
+    class: className = '',
+    children,
+    ontoggle,
+  }: Props = $props();
 
   // Check if we're inside a Disclosure wrapper
   const inDisclosureContext = hasContext(disclosure);
-  const isStandalone = standalone || !inDisclosureContext;
+  const isStandalone = untrack(() => standalone) || !inDisclosureContext;
 
-  let context = inDisclosureContext ? getContext(disclosure) : null;
-  let selected = context?.selected;
-  let internalExpanded = open;
+  const context = inDisclosureContext ? getContext<DisclosureContext>(disclosure) : null;
+  let internalExpanded = $state(untrack(() => open));
 
-  // Internal expanded state (not the exported prop)
-  let isExpanded = false;
+  let isExpanded = $derived(
+    isStandalone ? internalExpanded : context ? context.selected.has(uniqueId) : false
+  );
 
-  // Reactive statement to determine expanded state
-  $: {
-    if (isStandalone) {
-      // Standalone mode: use internal state
-      isExpanded = internalExpanded;
-      expanded = isExpanded; // Sync to exported prop for bind:expanded
-    } else if (selected) {
-      // Context mode: check if in Set
-      isExpanded = $selected.has(uniqueId);
-    } else {
-      isExpanded = false;
-    }
-  }
+  // Standalone, the item keeps its own state and reports it through bind:expanded
+  $effect.pre(() => {
+    if (isStandalone) expanded = internalExpanded;
+  });
 
   // Set initial open state
   onMount(() => {
-    if (open && !isStandalone && selected) {
-      selected.update((set) => {
-        const newSet = new Set(set);
-        newSet.add(uniqueId);
-        return newSet;
-      });
-    }
+    if (open && !isStandalone && context) context.open(uniqueId);
   });
 
   // Click handler
@@ -61,7 +69,7 @@
     if (isStandalone) {
       // Standalone mode: toggle internal state
       internalExpanded = !internalExpanded;
-      dispatch('toggle', { expanded: internalExpanded, uniqueId });
+      ontoggle?.({ expanded: internalExpanded, uniqueId });
     } else if (context) {
       // Context mode: use the wrapper's click handler
       context.clickHandler(uniqueId);
@@ -72,7 +80,7 @@
 <li id={uniqueId} class={className} class:expanded={isExpanded} data-open={open} data-title={title}>
   <button
     type="button"
-    on:click={handleClick}
+    onclick={handleClick}
     aria-expanded={isExpanded}
     aria-controls="{uniqueId}-content"
     class="header"
@@ -88,7 +96,7 @@
     <div class="title">{title ?? ''}</div>
   </button>
   <div class="content" id="{uniqueId}-content" hidden={!isExpanded}>
-    <slot />
+    {@render children?.()}
   </div>
 </li>
 

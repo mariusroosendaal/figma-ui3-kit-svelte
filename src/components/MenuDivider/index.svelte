@@ -1,6 +1,5 @@
-<script>
-  let className = '';
-  export { className as class };
+<script lang="ts">
+  let { class: className = '' }: { class?: string } = $props();
 </script>
 
 <div class="divider {className}">

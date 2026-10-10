@@ -15,7 +15,7 @@ export default {
       control: 'number',
       description: 'Index of currently selected tab',
     },
-    onTabChange: {
+    onchange: {
       table: {
         disable: true,
       },
@@ -35,7 +35,7 @@ export const Default = {
     tabs: basicTabs,
     selectedTab: 0,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: TabsWrapper,
     props: { ...args },
   }),
@@ -52,7 +52,7 @@ export const ManyTabs = {
     ],
     selectedTab: 0,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: TabsWrapper,
     props: { ...args },
   }),
@@ -65,7 +65,10 @@ export const WithBadges = {
     tabs: [{ label: 'Local', badge: 3 }, { label: 'Libraries', badge: 21 }, { label: 'All' }],
     selectedTab: 0,
   },
-  render: (args) => ({ Component: TabsWrapper, props: { ...args } }),
+  render: (/** @type {Record<string, any>} */ args) => ({
+    Component: TabsWrapper,
+    props: { ...args },
+  }),
 };
 
 // `unread` takes the count blue on either tab — a new count is worth the color
@@ -79,5 +82,8 @@ export const UnreadCounts = {
     ],
     selectedTab: 0,
   },
-  render: (args) => ({ Component: TabsWrapper, props: { ...args } }),
+  render: (/** @type {Record<string, any>} */ args) => ({
+    Component: TabsWrapper,
+    props: { ...args },
+  }),
 };

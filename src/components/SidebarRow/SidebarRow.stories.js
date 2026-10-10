@@ -24,11 +24,17 @@ export default {
     selected: { control: 'boolean' },
     clickable: { control: 'boolean', description: 'The whole row is a button that fires `click`' },
     lines: { control: 'number', description: 'Lines the message is cut after; 0 shows all' },
-    avatars: { control: 'boolean', description: 'Story only: avatars in the `lead` slot' },
-    actions: { control: 'boolean', description: 'Story only: icon buttons in the `actions` slot' },
+    avatars: { control: 'boolean', description: 'Story only: avatars in the `lead` snippet' },
+    actions: {
+      control: 'boolean',
+      description: 'Story only: icon buttons in the `actions` snippet',
+    },
     class: { table: { disable: true } },
   },
-  render: (args) => ({ Component: SidebarRowWrapper, props: { ...args } }),
+  render: (/** @type {Record<string, any>} */ args) => ({
+    Component: SidebarRowWrapper,
+    props: { ...args },
+  }),
 };
 
 export const Default = { args: { ...comment } };

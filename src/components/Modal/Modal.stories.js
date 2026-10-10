@@ -88,7 +88,7 @@ export const Default = {
     overlayPadding: '16px',
     contentPadding: true,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: ModalWrapper,
     props: { ...args },
   }),
@@ -110,7 +110,7 @@ export const Small = {
     overlayPadding: '16px',
     contentPadding: true,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: ModalWrapper,
     props: { ...args },
   }),
@@ -132,7 +132,7 @@ export const Large = {
     overlayPadding: '16px',
     contentPadding: true,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: ModalWrapper,
     props: { ...args },
   }),
@@ -154,7 +154,7 @@ export const Bottom = {
     overlayPadding: '16px',
     contentPadding: true,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: ModalWrapper,
     props: { ...args },
   }),
@@ -163,7 +163,10 @@ export const Bottom = {
 // UI3's "Modal header" Navigation variant: a back arrow before the title
 export const NavigationHeader = {
   args: { title: 'Export settings', headerVariant: 'navigation' },
-  render: (args) => ({ Component: ModalWrapper, props: { ...args } }),
+  render: (/** @type {Record<string, any>} */ args) => ({
+    Component: ModalWrapper,
+    props: { ...args },
+  }),
 };
 
 // Tabs variant: the dialog's tabs replace the title (which stays for screen readers)
@@ -174,11 +177,17 @@ export const TabsHeader = {
     headerTabs: ['Updates', 'Libraries', 'Analytics'],
     width: 'large',
   },
-  render: (args) => ({ Component: ModalWrapper, props: { ...args } }),
+  render: (/** @type {Record<string, any>} */ args) => ({
+    Component: ModalWrapper,
+    props: { ...args },
+  }),
 };
 
-// Dropdown variant: any control, through the `header` slot
+// Dropdown variant: any control, through the `header` snippet
 export const DropdownHeader = {
   args: { title: 'Library' },
-  render: (args) => ({ Component: ModalHeaderSlotWrapper, props: { ...args } }),
+  render: (/** @type {Record<string, any>} */ args) => ({
+    Component: ModalHeaderSlotWrapper,
+    props: { ...args },
+  }),
 };

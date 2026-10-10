@@ -1,9 +1,11 @@
-<script>
-  export let text = '';
-  export let alignment = 'default'; // 'default' | 'toggle'
+<script lang="ts">
+  interface Props {
+    text?: string;
+    alignment?: 'default' | 'toggle';
+    class?: string;
+  }
 
-  let className = '';
-  export { className as class };
+  let { text = '', alignment = 'default', class: className = '' }: Props = $props();
 </script>
 
 <div class="select-heading {className}" class:alignment-toggle={alignment === 'toggle'}>

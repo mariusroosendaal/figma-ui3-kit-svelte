@@ -6,15 +6,29 @@
   field or row that is selected), `muted` (soft-deleted, or its value isn't
   rendered) and `disabled`.
 -->
-<script>
-  export let label = '';
-  export let selected = false;
-  export let onSelected = false;
-  export let muted = false;
-  export let disabled = false;
+<script lang="ts">
+  import type { Snippet } from 'svelte';
 
-  let className = '';
-  export { className as class };
+  interface Props {
+    label?: string | null;
+    selected?: boolean;
+    /** Sits in a field or row that is selected */
+    onSelected?: boolean;
+    muted?: boolean;
+    disabled?: boolean;
+    class?: string;
+    children?: Snippet;
+  }
+
+  let {
+    label = '',
+    selected = false,
+    onSelected = false,
+    muted = false,
+    disabled = false,
+    class: className = '',
+    children,
+  }: Props = $props();
 </script>
 
 <span
@@ -25,7 +39,9 @@
   class:disabled
   title={label}
 >
-  <span class="label"><slot>{label}</slot></span>
+  <span class="label"
+    >{#if children}{@render children()}{:else}{label}{/if}</span
+  >
 </span>
 
 <style>

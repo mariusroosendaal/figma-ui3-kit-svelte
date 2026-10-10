@@ -1,28 +1,33 @@
-<script>
+<script lang="ts">
+  import type { Snippet } from 'svelte';
   import Icon from './../Icon/index.svelte';
   import IconWarning from './../../icons/16/icon.16.warning.svg';
   import IconInfo from './../../icons/16/icon.16.info.svg';
   import IconCheck from './../../icons/16/icon.16.check.svg';
 
-  export let variant = 'danger'; // danger, warning, info, success
-  export let message = ''; // Banner message (falls back to slot content if provided)
+  interface Props {
+    variant?: 'danger' | 'warning' | 'info' | 'success';
+    /** Shown when there are no children */
+    message?: string;
+    class?: string;
+    children?: Snippet;
+  }
 
-  let className = '';
-  export { className as class };
+  let { variant = 'danger', message = '', class: className = '', children }: Props = $props();
 
-  const variantLabels = {
+  const variantLabels: Record<string, string> = {
     danger: 'Error:',
     warning: 'Warning:',
     info: 'Info:',
     success: 'Success:',
   };
 
-  /** @type {'alert' | 'status'} */
-  $: liveRole = variant === 'danger' ? 'alert' : 'status';
-  /** @type {'assertive' | 'polite'} */
-  $: livePolite = variant === 'danger' ? 'assertive' : 'polite';
+  let liveRole = $derived(variant === 'danger' ? 'alert' : 'status');
+  let livePolite: 'assertive' | 'polite' = $derived(variant === 'danger' ? 'assertive' : 'polite');
 
-  $: currentIcon = variant === 'info' ? IconInfo : variant === 'success' ? IconCheck : IconWarning;
+  let currentIcon = $derived(
+    variant === 'info' ? IconInfo : variant === 'success' ? IconCheck : IconWarning
+  );
 </script>
 
 <div class="banner {variant} {className}" role={liveRole} aria-live={livePolite} aria-atomic="true">
@@ -32,7 +37,7 @@
   <div class="banner-content">
     <div class="banner-message">
       <span class="sr-only">{variantLabels[variant] ?? ''}</span>
-      <slot>{message}</slot>
+      {#if children}{@render children()}{:else}{message}{/if}
     </div>
   </div>
 </div>

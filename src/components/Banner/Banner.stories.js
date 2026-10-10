@@ -12,7 +12,7 @@ export default {
     },
     message: {
       control: 'text',
-      description: 'Banner message (falls back to slot content if provided)',
+      description: 'Banner message (children replace it)',
     },
     class: {
       table: {

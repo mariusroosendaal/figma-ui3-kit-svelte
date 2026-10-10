@@ -40,7 +40,7 @@ export default {
     },
     text: {
       control: 'text',
-      description: 'Badge text (falls back to slot content if provided)',
+      description: 'Badge text (children replace it)',
     },
     class: {
       table: {

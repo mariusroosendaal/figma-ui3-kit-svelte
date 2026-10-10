@@ -1,13 +1,26 @@
-<script>
+<script lang="ts">
+  import { untrack } from 'svelte';
   import SegmentedControl from '../src/components/SegmentedControl/index.svelte';
   import Segment from '../src/components/Segment/index.svelte';
 
-  export let segments = [];
-  export let value = null;
-  export let disabled = false;
-  export let width = 168;
+  type SegmentSpec = {
+    value: string;
+    label?: string;
+    iconName?: string | null;
+    disabled?: boolean;
+    tooltip?: string;
+  };
 
-  let selected = value;
+  interface Props {
+    segments?: SegmentSpec[];
+    value?: string | null;
+    disabled?: boolean;
+    width?: number;
+  }
+
+  let { segments = [], value = null, disabled = false, width = 168 }: Props = $props();
+
+  let selected = $state(untrack(() => value));
 </script>
 
 <div style="width: {width}px;">

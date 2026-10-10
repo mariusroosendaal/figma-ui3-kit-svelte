@@ -1,10 +1,16 @@
-<script>
-  export let legend = '';
-  /** @type {'vertical' | 'horizontal'} horizontal lays button radios out as one row */
-  export let direction = 'vertical';
+<script lang="ts">
+  import type { Snippet } from 'svelte';
 
-  let className = '';
-  export { className as class };
+  interface Props {
+    legend?: string;
+    /** horizontal lays button radios out as one row */
+    direction?: 'vertical' | 'horizontal';
+    class?: string;
+    /** The Radio components */
+    children?: Snippet;
+  }
+
+  let { legend = '', direction = 'vertical', class: className = '', children }: Props = $props();
 </script>
 
 <fieldset class="radio-group {className}">
@@ -12,7 +18,7 @@
     <legend class="radio-group-legend">{legend}</legend>
   {/if}
   <div class="radio-group-items" class:horizontal={direction === 'horizontal'}>
-    <slot />
+    {@render children?.()}
   </div>
 </fieldset>
 

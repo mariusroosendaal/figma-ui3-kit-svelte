@@ -4,8 +4,7 @@
     "target": "ESNext",
     "module": "ESNext",
     "checkJs": true,
-    "strict": false,
-    "noImplicitAny": false,
+    "strict": true,
     "noEmit": true,
     "skipLibCheck": true,
     "ignoreDeprecations": "6.0",
@@ -14,6 +13,6 @@
       "$lib/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.js", "src/**/*.svelte", "src/**/*.d.ts"],
+  "include": ["src/**/*.js", "src/**/*.ts", "src/**/*.svelte"],
   "exclude": ["node_modules", "storybook-static", ".storybook"]
 }

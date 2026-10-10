@@ -4,6 +4,7 @@ const GAP = 8; // trigger to tooltip body; the 6px arrow sits in it
 const MARGIN = 8; // kept clear of the window edge
 const ARROW_INSET = 12; // an arrow's center stays this far from the body's corners
 
+/** @type {(n: number, min: number, max: number) => number} */
 const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
 
 /**
@@ -58,7 +59,11 @@ export function placeTooltip(direction, trigger, tip) {
   return { top, left, direction: dir, arrow };
 }
 
-/** Inline style for the arrow element, from `placeTooltip`'s result. */
+/**
+ * Inline style for the arrow element, from `placeTooltip`'s result.
+ * @param {string} direction
+ * @param {number | null} arrow
+ */
 export function arrowStyle(direction, arrow) {
   if (arrow == null) return undefined;
   return direction === 'Left' || direction === 'Right' ? `top: ${arrow}px` : `left: ${arrow}px`;

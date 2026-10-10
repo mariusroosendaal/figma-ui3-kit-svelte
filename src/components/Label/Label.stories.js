@@ -12,7 +12,7 @@ export default {
     },
     text: {
       control: 'text',
-      description: 'Label text (falls back to slot content if provided)',
+      description: 'Label text (children replace it)',
     },
     class: {
       table: {

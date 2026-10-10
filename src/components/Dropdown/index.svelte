@@ -1,82 +1,112 @@
-<script>
-  import { createEventDispatcher } from 'svelte';
+<script lang="ts" generics="T extends MenuOption = MenuOption">
+  import type { BadgeSpec, MenuOption } from '../../types';
   import Menu from '../Menu/index.svelte';
   import Badge from '../Badge/index.svelte';
   import Chit from '../Chit/index.svelte';
   import Icon from '../Icon/index.svelte';
   import IconChevronDown from './../../icons/24/icon.24.chevron.down.svg';
 
-  export let placeholder = 'Select an option';
-  export let value = null; //stores the current selection, note, the value will be an object from your array
-  export let menuItems = []; //pass data in via this prop to generate menu items
-  export let showGroupLabels = false; //default prop, true will show option group labels
-  export let disabled = false;
-  /** Draws the danger border, and shows `errorMessage` under the dropdown */
-  export let invalid = false;
-  export let errorMessage = '';
-  export let iconName = null;
-  export let ariaLabel = '';
-  /** false: no border until hovered (UI3's Stroke=False, for dense panels) */
-  export let stroke = true;
-  /** @type {'default' | 'large'} */
-  export let size = 'default';
-  export let searchable = false; // search field above long lists
-  export let searchPlaceholder = 'Search';
-  /** @type {string | string[] | null} a lead chit when no chosen item carries one; wins over `iconName` */
-  export let chit = null;
-  /** @type {string | null} button text when it should not be the chosen item's menu label — a menu
-      row can carry more than the button has room for. `''` shows the placeholder whatever is chosen. */
-  export let label = null;
-  /** Badge between the label and the chevron: the kit Badge's `text`, or a list of
-      texts and `{ text, variant?, strong? }` for several */
-  /** @type {string | { text: string, variant?: string, strong?: boolean } | Array<string | { text: string, variant?: string, strong?: boolean }>} */
-  export let badge = '';
-  /** the kit Badge's `variant`, for badges that give none */
-  export let badgeVariant = 'default';
+  interface Props {
+    placeholder?: string;
+    /** The chosen item, one of `menuItems` */
+    value?: T | null;
+    menuItems?: T[];
+    /** Shows every group's heading */
+    showGroupLabels?: boolean;
+    disabled?: boolean;
+    /** Draws the danger border, and shows `errorMessage` under the dropdown */
+    invalid?: boolean;
+    errorMessage?: string;
+    /** SVG icon data, when the chosen item has no icon or chit */
+    iconName?: string | null;
+    ariaLabel?: string;
+    /** false: no border until hovered (UI3's Stroke=False, for dense panels) */
+    stroke?: boolean;
+    size?: 'default' | 'large';
+    /** A search field above long lists */
+    searchable?: boolean;
+    searchPlaceholder?: string;
+    /** A lead chit, when the chosen item has none */
+    chit?: string | string[] | null;
+    /** What the button says in place of the chosen item's label; `''` for always the placeholder */
+    label?: string | null;
+    /** Badge between the label and the chevron: the kit Badge's `text`, or a list of
+        texts and `{ text, variant?, strong? }` for several */
+    badge?: BadgeSpec | BadgeSpec[];
+    /** The kit Badge's `variant`, for badges that give none */
+    badgeVariant?: string;
+    class?: string;
+    /** The chosen item, after `value` updates */
+    onchange?: (item: T) => void;
+  }
 
-  let className = '';
-  export { className as class };
-  const dispatch = createEventDispatcher();
-  let isOpen = false;
-  let menuWrapper, menuButton;
-  let triggerWidth = null;
+  let {
+    placeholder = 'Select an option',
+    value = $bindable(),
+    menuItems = $bindable(),
+    showGroupLabels = false,
+    disabled = false,
+    invalid = false,
+    errorMessage = '',
+    iconName = null,
+    ariaLabel = '',
+    stroke = true,
+    size = 'default',
+    searchable = false,
+    searchPlaceholder = 'Search',
+    chit = null,
+    label = null,
+    badge = '',
+    badgeVariant = 'default',
+    class: className = '',
+    onchange,
+  }: Props = $props();
+
+  let isOpen = $state(false);
+  let menuButton: HTMLButtonElement | undefined = $state();
+  let triggerWidth: number | null = $state(null);
 
   // Unique identifier for this dropdown instance
   const dropdownId = Math.random().toString(36).substr(2, 9);
 
   // The chosen item's own lead (icon or chit) shows in the button, else the prop's chit or icon
-  $: leadChit = (value && value.chit) || chit || null;
-  $: leadIcon = !leadChit && value && value.iconName ? value.iconName : leadChit ? null : iconName;
+  let leadChit = $derived((value && value.chit) || chit || null);
+  let leadIcon = $derived(
+    !leadChit && value && value.iconName ? value.iconName : leadChit ? null : iconName
+  );
   // `label` overrides what the button says, including `''` for "always the placeholder"
-  $: text = label ?? value?.label ?? null;
-  $: badges = (Array.isArray(badge) ? badge : [badge])
-    .filter(Boolean)
-    .map((b) => (typeof b === 'string' ? { text: b } : b));
+  let text = $derived(label ?? value?.label ?? null);
+  let badges = $derived(
+    (Array.isArray(badge) ? badge : [badge])
+      .filter(Boolean)
+      .map((b) => (typeof b === 'string' ? { text: b } : b))
+  );
 
   // Get icon color based on state
-  function getIconColor(disabled) {
+  function getIconColor(disabled: boolean) {
     if (disabled) {
       return '--figma-color-icon-disabled';
     }
     return '--figma-color-icon';
   }
-  // A $: statement, so the color follows its inputs; a call in the markup would not re-run.
-  $: iconColor = getIconColor(disabled);
+  let iconColor = $derived(getIconColor(disabled));
 
   // Mark the chosen item on menuItems as the menu opens: dropdowns can share one
   // list, and marking it whenever value changes left the last one's choice in all
-  $: if (isOpen && menuItems && menuItems.length > 0) {
-    menuItems.forEach((item) => {
-      item.selected =
-        item === value ||
-        (value != null && value.value !== undefined && item.value === value.value);
-    });
-  }
+  $effect.pre(() => {
+    if (isOpen && menuItems && menuItems.length > 0) {
+      menuItems.forEach((item) => {
+        item.selected =
+          item === value ||
+          (value != null && value.value !== undefined && item.value === value.value);
+      });
+    }
+  });
 
   // Handle menu selection
-  function handleSelect(event) {
-    value = event.detail;
-    dispatch('change', event.detail);
+  function handleSelect(item: T) {
+    value = item;
+    onchange?.(item);
   }
 
   // Menu returns focus to the trigger itself when it closes from the keyboard
@@ -92,10 +122,10 @@
   }
 </script>
 
-<div bind:this={menuWrapper} class="wrapper {className}" class:disabled>
+<div class="wrapper {className}" class:disabled>
   <button
     bind:this={menuButton}
-    on:click={handleButtonClick}
+    onclick={handleButtonClick}
     {disabled}
     aria-expanded={isOpen}
     aria-haspopup="menu"
@@ -143,8 +173,8 @@
     menuListId="dropdown-{dropdownId}-menu"
     {searchable}
     {searchPlaceholder}
-    on:select={handleSelect}
-    on:close={handleClose}
+    onselect={handleSelect}
+    onclose={handleClose}
   />
   {#if invalid && errorMessage}
     <div class="error" id="dropdown-{dropdownId}-error" role="alert">{errorMessage}</div>

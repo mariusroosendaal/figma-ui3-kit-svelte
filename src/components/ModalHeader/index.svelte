@@ -1,72 +1,83 @@
 <!--
   ModalHeader: UI3's "Modal header" — Default (title), Navigation (back arrow and
   title), Tabs (the dialog's tabs) and Dropdown (a control in place of the title,
-  through the `title` slot). The title is always rendered, visually hidden when
-  tabs or a slot replace it, so the dialog stays labelled.
+  through the `header` snippet). The title is always rendered, visually hidden when
+  tabs or the snippet replace it, so the dialog stays labelled.
 -->
-<script>
+<script lang="ts">
+  import type { ComponentProps, Snippet } from 'svelte';
   import IconButton from '../IconButton/index.svelte';
   import Tabs from '../Tabs/index.svelte';
   import IconCloseSmall from '../../icons/24/icon.24.close.small.svg';
   import IconBack from '../../icons/24/icon.24.navigate.back.svg';
-  import { createEventDispatcher } from 'svelte';
 
-  export let title = '';
-  export let titleId = null;
-  export let variant = 'default'; // 'default' | 'navigation' | 'tabs'
-  export let icon2 = false;
-  export let icon2Name = null;
-  export let icon2AriaLabel = '';
-  export let onIcon2Click = null;
-  export let onClose = null;
-  /** Navigation variant: the back arrow. Also fires `back`. */
-  export let onBack = null;
-  export let backAriaLabel = 'Back';
-  /** Tabs variant: as Tabs' `tabs`. */
-  export let tabs = [];
-  export let selectedTab = 0;
-  export let tabsId = undefined;
-  export let panelIds = [];
-
-  let className = '';
-  export { className as class };
-  const dispatch = createEventDispatcher();
-
-  $: replaced = $$slots.title || (variant === 'tabs' && tabs.length > 0);
-
-  function handleIcon2Click(event) {
-    if (onIcon2Click) onIcon2Click(event);
-    dispatch('icon2Click', event);
+  interface Props {
+    title?: string;
+    titleId?: string | null;
+    variant?: 'default' | 'navigation' | 'tabs';
+    icon2?: boolean;
+    /** SVG icon data, for a second icon button by the close button */
+    icon2Name?: string | null;
+    /** Required whenever `icon2` is set (WCAG 4.1.2) */
+    icon2AriaLabel?: string;
+    /** Navigation variant: the back arrow's name */
+    backAriaLabel?: string;
+    /** Tabs variant: as Tabs' `tabs`. */
+    tabs?: ComponentProps<typeof Tabs>['tabs'];
+    selectedTab?: number;
+    tabsId?: string;
+    panelIds?: string[];
+    class?: string;
+    /** A control in place of the title, such as a Dropdown; the title stays for screen readers */
+    header?: Snippet;
+    onicon2click?: (event: MouseEvent) => void;
+    onclose?: (event: MouseEvent) => void;
+    /** Navigation variant: the back arrow */
+    onback?: (event: MouseEvent) => void;
+    /** Tabs variant: the chosen tab's index, after `selectedTab` updates */
+    ontabchange?: (index: number) => void;
   }
 
-  function handleClose(event) {
-    if (onClose) onClose(event);
-    dispatch('close', event);
-  }
+  let {
+    title = '',
+    titleId = null,
+    variant = 'default',
+    icon2 = false,
+    icon2Name = null,
+    icon2AriaLabel = '',
+    backAriaLabel = 'Back',
+    tabs = [],
+    selectedTab = $bindable(),
+    tabsId = undefined,
+    panelIds = [],
+    class: className = '',
+    header,
+    onicon2click,
+    onclose,
+    onback,
+    ontabchange,
+  }: Props = $props();
 
-  function handleBack(event) {
-    if (onBack) onBack(event);
-    dispatch('back', event);
-  }
+  let replaced = $derived(!!header || (variant === 'tabs' && tabs.length > 0));
 
-  function handleTabChange(index) {
+  function handleTabChange(index: number) {
     selectedTab = index;
-    dispatch('tabChange', index);
+    ontabchange?.(index);
   }
 </script>
 
 <div class="modal-header {className}" class:navigation={variant === 'navigation'} class:replaced>
   <div class="modal-header-lead">
     {#if variant === 'navigation'}
-      <IconButton iconName={IconBack} ariaLabel={backAriaLabel} on:click={handleBack} />
+      <IconButton iconName={IconBack} ariaLabel={backAriaLabel} onclick={(e) => onback?.(e)} />
     {/if}
     <h2 class="modal-header-title" class:visually-hidden={replaced} id={titleId || undefined}>
       {title}
     </h2>
-    {#if $$slots.title}
-      <slot name="title" />
+    {#if header}
+      {@render header()}
     {:else if variant === 'tabs' && tabs.length > 0}
-      <Tabs {tabs} {selectedTab} id={tabsId} {panelIds} onTabChange={handleTabChange} />
+      <Tabs {tabs} {selectedTab} id={tabsId} {panelIds} onchange={handleTabChange} />
     {/if}
   </div>
 
@@ -75,13 +86,13 @@
       <IconButton
         iconName={icon2Name}
         ariaLabel={icon2AriaLabel}
-        on:click={handleIcon2Click}
+        onclick={(e) => onicon2click?.(e)}
         variant="default"
       />
     {/if}
     <IconButton
       iconName={IconCloseSmall}
-      on:click={handleClose}
+      onclick={(e) => onclose?.(e)}
       variant="default"
       ariaLabel="Close dialog"
     />

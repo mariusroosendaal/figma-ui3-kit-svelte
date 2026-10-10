@@ -1,34 +1,43 @@
-<script>
+<script lang="ts">
   import LinkTooltip from '../src/components/LinkTooltip/index.svelte';
   import Button from '../src/components/Button/index.svelte';
 
-  export let label = 'Open google.com';
-  export let iconName = null;
-  export let actions = [{ label: 'Edit', value: 'edit' }];
-  export let input = false;
-  /** @type {'Top' | 'Bottom'} */
-  export let direction = 'Top';
+  interface Props {
+    label?: string;
+    iconName?: string | null;
+    actions?: Array<{ label: string; value: string }>;
+    input?: boolean;
+    direction?: 'Top' | 'Bottom';
+  }
+
+  let {
+    label = 'Open google.com',
+    iconName = null,
+    actions = [{ label: 'Edit', value: 'edit' }],
+    input = $bindable(false),
+    direction = 'Top',
+  }: Props = $props();
 
   // The parent owns the flow: Edit switches to the field with the current link,
   // Enter switches back with the new one.
-  let anchor;
-  let open = false;
-  let url = 'https://google.com';
-  let value = '';
+  let anchor: HTMLSpanElement | undefined = $state();
+  let open = $state(false);
+  let url = $state('https://google.com');
+  let value = $state('');
 
-  $: host = url.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
-  $: shownLabel = label === 'Open google.com' ? `Open ${host}` : label;
+  let host = $derived(url.replace(/^https?:\/\//, '').replace(/\/.*$/, ''));
+  let shownLabel = $derived(label === 'Open google.com' ? `Open ${host}` : label);
 
-  function handleAction(event) {
-    if (event.detail.value === 'edit') {
+  function handleAction(action: { value: string }) {
+    if (action.value === 'edit') {
       value = url;
       input = true;
     }
   }
 
-  function handleSubmit(event) {
-    if (!event.detail) return;
-    url = /^[a-z]+:/i.test(event.detail) ? event.detail : `https://${event.detail}`;
+  function handleSubmit(submitted: string) {
+    if (!submitted) return;
+    url = /^[a-z]+:/i.test(submitted) ? submitted : `https://${submitted}`;
     input = false;
   }
 </script>
@@ -38,7 +47,7 @@
     <Button
       variant="secondary"
       label={open ? 'Close' : 'Open link tooltip'}
-      on:click={() => (open = !open)}
+      onclick={() => (open = !open)}
     />
   </span>
 </div>
@@ -52,6 +61,6 @@
   {actions}
   {input}
   {direction}
-  on:action={handleAction}
-  on:submit={handleSubmit}
+  onaction={handleAction}
+  onsubmit={handleSubmit}
 />

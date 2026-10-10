@@ -1,6 +1,6 @@
 # LLM Assistant Guidelines for Figma UI3 Kit Svelte
 
-Svelte 5 component library, in Svelte 4 syntax for now, for Figma plugin UIs matching Figma's UI3 design system.
+Svelte 5 component library, in runes with type-only TypeScript, for Figma plugin UIs matching Figma's UI3 design system.
 
 ## Project Structure
 
@@ -22,32 +22,52 @@ Svelte 5 component library, in Svelte 4 syntax for now, for Figma plugin UIs mat
 ## Core Rules
 
 1. **Always use Figma CSS variables** - never hardcode colors
-2. **Always include class passthrough:** `export { className as class };`
-3. **Always forward events** on interactive elements: `on:click`, `on:blur`, `on:focus`
+2. **Always include class passthrough:** `class: className = ''` in `$props()`
+3. **Callbacks, not events:** take `onclick`, `onfocus`, `onblur` (and any event the component raises, lowercase: `onchange`, `onselect`) as props, and pass on what used to be `event.detail`. Never `createEventDispatcher`
+4. **Snippets, not slots:** content is `children`; a named part is a snippet prop (`footerRight`), rendered with `{@render footerRight?.()}`
+5. **Type-only TypeScript:** `<script lang="ts">` with a `Props` interface; nothing that emits code (no `enum`), so the compiler strips it with no preprocessor
+6. **Bindable props have no fallback:** `value = $bindable()`, with the default handled where it's read (`value ?? 0`). A fallback throws when a parent binds a variable that is still `undefined`
+7. **Write a prop before calling the parent back:** `value = next; onchange?.(next)`. Written after, while the parent passes an expression (`isOpen={panel !== null}`) and has just changed it, the prop stops following the parent (Svelte 5.35+)
 
 ## Component Template
 
 ```svelte
-<script>
-  import { createEventDispatcher } from 'svelte';
-  
-  export let variant = 'default';
-  export let disabled = false;
-  export { className as class };
-  
-  let className = '';
-  const dispatch = createEventDispatcher();
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+  import type { FocusEventHandler, MouseEventHandler } from 'svelte/elements';
+
+  interface Props {
+    variant?: 'default' | 'secondary';
+    disabled?: boolean;
+    class?: string;
+    children?: Snippet;
+    onclick?: MouseEventHandler<HTMLButtonElement>;
+    onfocus?: FocusEventHandler<HTMLButtonElement>;
+    onblur?: FocusEventHandler<HTMLButtonElement>;
+  }
+
+  let {
+    variant = 'default',
+    disabled = false,
+    class: className = '',
+    children,
+    onclick,
+    onfocus,
+    onblur,
+  }: Props = $props();
 </script>
 
-<div 
+<button
+  type="button"
   class="component {variant} {className}"
   class:disabled
-  on:click
-  on:blur
-  on:focus
+  {disabled}
+  {onclick}
+  {onfocus}
+  {onblur}
 >
-  <slot />
-</div>
+  {@render children?.()}
+</button>
 
 <style>
   .component {
@@ -112,7 +132,8 @@ If you add a new icon, export it from `src/icons.js` rather than adding it to `s
 1. Create `/src/components/ComponentName/index.svelte`
 2. Add to `/src/index.js` (alphabetical order)
 3. Create `ComponentName.stories.js`
-4. Update README.md and CHANGELOG.md
+4. A type plugins need, such as an item's shape, goes in `src/types.ts`, with a `@typedef` line in `src/index.js` so plugins import it from the package root
+5. Update README.md and CHANGELOG.md
 
 ## Removing Components
 
@@ -152,7 +173,7 @@ Remove completely (no deprecation warnings):
 ```bash
 npm run dev      # Storybook at localhost:6006
 npm run build    # Build Storybook
-npm run lint     # Lint
+npm run lint     # svelte-check (strict), ESLint and Prettier
 npm run format   # Format
 ```
 

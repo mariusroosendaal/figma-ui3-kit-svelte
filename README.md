@@ -29,7 +29,7 @@ import { Button, Input, Modal, Text } from 'figma-ui3-kit-svelte';
 ```
 
 ```html
-<Button variant="primary" on:click={handleClick}>
+<Button variant="primary" onclick={handleClick}>
   Create Selection
 </Button>
 

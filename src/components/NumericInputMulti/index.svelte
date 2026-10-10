@@ -6,87 +6,116 @@
   commits, Escape reverts, arithmetic works. Dragging the lead scrubs every
   enabled cell together. `disabled` is one flag for the field or one per cell.
 
-  `change` hands back `{ values, index }` (the cell that changed; -1 for all).
+  `onchange` gets `{ values, index }` (the cell that changed; -1 for all).
 -->
-<script>
-  import { createEventDispatcher, onDestroy } from 'svelte';
+<script lang="ts">
+  import { onDestroy, untrack } from 'svelte';
   import Icon from '../Icon/index.svelte';
-  import { endScrub, evaluate, scrubOffset, startScrub } from '../NumericInput/numeric.js';
+  import {
+    endScrub,
+    evaluate,
+    scrubOffset,
+    startScrub,
+    type Scrub,
+  } from '../NumericInput/numeric.js';
 
-  /** @type {Array<number | null>} */
-  export let values = [0, 0, 0, 0];
-  /** @type {number | null} */
-  export let min = null;
-  /** @type {number | null} */
-  export let max = null;
-  export let step = 1;
-  /** @type {number | null} */
-  export let precision = null;
-  export let iconName = null;
-  export let label = '';
-  /** Names the field as a whole, e.g. 'Corner radius'. Falls back to `label`. */
-  export let ariaLabel = '';
-  /** Names each cell, e.g. ['Top left', 'Top right', 'Bottom right', 'Bottom left']. */
-  export let ariaLabels = [];
-  export let placeholder = '';
-  /** @type {boolean | boolean[]} */
-  export let disabled = false;
+  type Values = Array<number | null>;
 
-  let className = '';
-  export { className as class };
+  interface Props {
+    values?: Values;
+    min?: number | null;
+    max?: number | null;
+    step?: number;
+    precision?: number | null;
+    /** An icon in the lead cell (SVG import); wins over `label`. */
+    iconName?: string | null;
+    label?: string;
+    /** Names the field as a whole, e.g. 'Corner radius'. Falls back to `label`. */
+    ariaLabel?: string;
+    /** Names each cell, e.g. ['Top left', 'Top right', 'Bottom right', 'Bottom left']. */
+    ariaLabels?: string[];
+    placeholder?: string;
+    /** One flag for the field, or one per cell */
+    disabled?: boolean | boolean[];
+    class?: string;
+    /** A committed value, after `values` updates: the cell that changed, -1 for all */
+    onchange?: (detail: { values: Values; index: number }) => void;
+    /** While scrubbing, after `values` updates */
+    oninput?: (detail: { values: Values; index: number }) => void;
+  }
 
-  const dispatch = createEventDispatcher();
+  let {
+    values = $bindable(),
+    min = null,
+    max = null,
+    step = 1,
+    precision = null,
+    iconName = null,
+    label = '',
+    ariaLabel = '',
+    ariaLabels = [],
+    placeholder = '',
+    disabled = false,
+    class: className = '',
+    onchange,
+    oninput,
+  }: Props = $props();
 
-  /** @type {HTMLInputElement[]} */
-  let inputs = [];
-  let texts = [];
-  let focusedIndex = -1;
-  let scrub = null;
+  // Unset, it has four cells at 0
+  let cells = $derived(values ?? [0, 0, 0, 0]);
 
-  $: decimals = precision ?? 2;
-  $: cellDisabled = values.map((_, i) =>
-    Array.isArray(disabled) ? Boolean(disabled[i]) : disabled
+  let inputs: HTMLInputElement[] = $state([]);
+  let texts: string[] = $state([]);
+  let focusedIndex = $state(-1);
+  let scrub: Scrub<Values> | null = $state(null);
+
+  let decimals = $derived(precision ?? 2);
+  let cellDisabled = $derived(
+    cells.map((_, i) => (Array.isArray(disabled) ? Boolean(disabled[i]) : disabled))
   );
-  $: allDisabled = cellDisabled.every(Boolean);
-  $: texts = values.map((v, i) => (i === focusedIndex ? texts[i] : format(v)));
-  $: hasLead = Boolean(iconName || label);
+  let allDisabled = $derived(cellDisabled.every(Boolean));
+  // A focused cell keeps what is typed in it
+  $effect.pre(() => {
+    const next = cells.map((v, i) => (i === focusedIndex ? untrack(() => texts[i]) : format(v)));
+    texts = next;
+  });
+  let hasLead = $derived(Boolean(iconName || label));
   // Every cell is a spinbutton, so every cell needs a name. Without `ariaLabels`
   // they are numbered off the field's own name, which beats four unnamed fields.
-  $: groupLabel = ariaLabel || label;
-  $: cellLabels = values.map(
-    (_, i) => ariaLabels[i] || (groupLabel ? `${groupLabel} ${i + 1}` : `Value ${i + 1}`)
+  let groupLabel = $derived(ariaLabel || label);
+  let cellLabels = $derived(
+    cells.map((_, i) => ariaLabels[i] || (groupLabel ? `${groupLabel} ${i + 1}` : `Value ${i + 1}`))
   );
 
-  function format(n) {
+  function format(n: number | null | undefined) {
     if (n == null || Number.isNaN(n)) return '';
     return String(Number(Number(n).toFixed(decimals)));
   }
 
-  function clamp(n) {
+  function clamp(n: number) {
     if (min != null) n = Math.max(min, n);
     if (max != null) n = Math.min(max, n);
     return Number(n.toFixed(decimals));
   }
 
-  function commit(index, n) {
+  function commit(index: number, n: number | null) {
     if (n == null || Number.isNaN(n)) {
-      texts[index] = format(values[index]);
+      texts[index] = format(cells[index]);
       return;
     }
     const next = clamp(n);
     texts[index] = format(next);
-    if (next !== values[index]) {
-      values[index] = next;
-      values = values;
-      dispatch('change', { values, index });
+    if (next !== cells[index]) {
+      values = cells.map((v, i) => (i === index ? next : v));
+      onchange?.({ values: cells, index });
     }
   }
 
-  function handleKeydown(event, index) {
+  function handleKeydown(event: KeyboardEvent, index: number) {
     const input = inputs[index];
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       event.preventDefault();
-      const base = evaluate(texts[index]) ?? values[index] ?? 0;
+      const base = evaluate(texts[index]) ?? cells[index] ?? 0;
       commit(index, base + step * (event.shiftKey ? 10 : 1) * (event.key === 'ArrowUp' ? 1 : -1));
       input.select();
     } else if (event.key === 'Enter') {
@@ -96,29 +125,29 @@
     } else if (event.key === 'Escape') {
       // Undoes the field alone: a modal it's in stays open
       event.stopPropagation();
-      texts[index] = format(values[index]);
+      texts[index] = format(cells[index]);
       input.blur();
     }
   }
 
-  function handleFocus(index) {
+  function handleFocus(index: number) {
     focusedIndex = index;
     inputs[index].select();
   }
 
-  function handleBlur(index) {
+  function handleBlur(index: number) {
     commit(index, evaluate(texts[index]));
     if (focusedIndex === index) focusedIndex = -1;
   }
 
-  function scrubStart(event) {
+  function scrubStart(event: PointerEvent & { currentTarget: EventTarget & HTMLElement }) {
     if (allDisabled || event.button !== 0) return;
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
-    scrub = startScrub(event, [...values]);
+    scrub = startScrub(event, [...cells]);
   }
 
-  function scrubMove(event) {
+  function scrubMove(event: PointerEvent) {
     if (!scrub) return;
     // Let go outside the plugin's window, where the release went unheard
     if (event.buttons === 0) return scrubEnd(event);
@@ -128,23 +157,25 @@
     // A focused cell keeps its own text, so scrubbing has to rewrite it or it
     // would sit on a stale number until blur.
     if (focusedIndex !== -1 && !cellDisabled[focusedIndex]) {
-      texts[focusedIndex] = format(values[focusedIndex]);
+      texts[focusedIndex] = format(cells[focusedIndex]);
     }
-    dispatch('input', { values, index: -1 });
+    oninput?.({ values: cells, index: -1 });
   }
 
-  function scrubEnd(event) {
+  function scrubEnd(event: PointerEvent) {
     if (!scrub || event.pointerId !== scrub.id) return;
     const moved = scrub.moved;
     scrub = null;
     endScrub();
-    if (moved) dispatch('change', { values, index: -1 });
+    if (moved) onchange?.({ values: cells, index: -1 });
   }
 
-  onDestroy(() => scrub && endScrub());
+  onDestroy(() => {
+    if (scrub) endScrub();
+  });
 </script>
 
-<svelte:window on:pointermove={scrubMove} on:pointerup={scrubEnd} on:pointercancel={scrubEnd} />
+<svelte:window onpointermove={scrubMove} onpointerup={scrubEnd} onpointercancel={scrubEnd} />
 
 <div
   class="numeric-input-multi {className}"
@@ -156,10 +187,7 @@
   {#if hasLead}
     <!-- Scrubbing is a pointer shortcut; each cell's arrow keys do the same. -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <span
-      class="lead"
-      on:pointerdown={scrubStart}
-    >
+    <span class="lead" onpointerdown={scrubStart}>
       {#if iconName}
         <Icon
           {iconName}
@@ -173,7 +201,7 @@
       {/if}
     </span>
   {/if}
-  {#each values as _, index (index)}
+  {#each cells as _, index (index)}
     <input
       bind:this={inputs[index]}
       bind:value={texts[index]}
@@ -187,12 +215,12 @@
       {placeholder}
       disabled={cellDisabled[index]}
       aria-label={cellLabels[index]}
-      aria-valuenow={values[index] ?? undefined}
+      aria-valuenow={cells[index] ?? undefined}
       aria-valuemin={min ?? undefined}
       aria-valuemax={max ?? undefined}
-      on:focus={() => handleFocus(index)}
-      on:blur={() => handleBlur(index)}
-      on:keydown={(e) => handleKeydown(e, index)}
+      onfocus={() => handleFocus(index)}
+      onblur={() => handleBlur(index)}
+      onkeydown={(e) => handleKeydown(e, index)}
     />
   {/each}
 </div>

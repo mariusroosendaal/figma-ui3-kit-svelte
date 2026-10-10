@@ -1,36 +1,68 @@
-<script>
-  export let id = null;
-  export let value = null;
-  export let rows = 2;
-  export let name = null;
-  export let disabled = false;
-  export let readonly = false;
-  export let placeholder = '';
-  export let invalid = false;
-  export let errorMessage = '';
-  export let ariaLabel = '';
-  export let ariaLabelledBy = '';
-  export let variant = 'default';
+<script lang="ts">
+  import type { FocusEventHandler, FormEventHandler, KeyboardEventHandler } from 'svelte/elements';
 
-  let className = '';
-  export { className as class };
-
-  let errorId = (id || 'textarea--' + (Math.random() * 10000000).toFixed(0).toString()) + '-error';
-
-  $: if (!ariaLabel && !ariaLabelledBy && !id && typeof window !== 'undefined') {
-    console.warn(
-      '[Textarea] provide ariaLabel, ariaLabelledBy, or id + external <Label> for accessibility.'
-    );
+  interface Props {
+    id?: string | null;
+    value?: string | null;
+    rows?: number;
+    name?: string | null;
+    disabled?: boolean;
+    readonly?: boolean;
+    placeholder?: string;
+    invalid?: boolean;
+    errorMessage?: string;
+    ariaLabel?: string;
+    ariaLabelledBy?: string;
+    variant?: 'default' | 'code';
+    class?: string;
+    /** After `value` updates */
+    oninput?: FormEventHandler<HTMLTextAreaElement>;
+    onchange?: FormEventHandler<HTMLTextAreaElement>;
+    onkeydown?: KeyboardEventHandler<HTMLTextAreaElement>;
+    onfocus?: FocusEventHandler<HTMLTextAreaElement>;
+    onblur?: FocusEventHandler<HTMLTextAreaElement>;
   }
+
+  let {
+    id = null,
+    value = $bindable(),
+    rows = 2,
+    name = null,
+    disabled = false,
+    readonly = false,
+    placeholder = '',
+    invalid = false,
+    errorMessage = '',
+    ariaLabel = '',
+    ariaLabelledBy = '',
+    variant = 'default',
+    class: className = '',
+    oninput,
+    onchange,
+    onkeydown,
+    onfocus,
+    onblur,
+  }: Props = $props();
+
+  const fallbackId = 'textarea--' + (Math.random() * 10000000).toFixed(0).toString();
+  let errorId = $derived((id || fallbackId) + '-error');
+
+  $effect(() => {
+    if (!ariaLabel && !ariaLabelledBy && !id) {
+      console.warn(
+        '[Textarea] provide ariaLabel, ariaLabelledBy, or id + external <Label> for accessibility.'
+      );
+    }
+  });
 </script>
 
 <div class="textarea {className}">
   <textarea
-    on:input
-    on:change
-    on:keydown
-    on:focus
-    on:blur
+    {oninput}
+    {onchange}
+    {onkeydown}
+    {onfocus}
+    {onblur}
     bind:value
     {id}
     {name}

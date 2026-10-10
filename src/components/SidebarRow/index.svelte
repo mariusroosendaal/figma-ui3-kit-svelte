@@ -2,67 +2,98 @@
   SidebarRow: UI3's Sidebar row comment — a row in a sidebar list of comments,
   notifications or anything else that says where, what and what to do.
 
-  From the top: the `lead` slot (avatars, an icon), `meta` (where: "#3 · Page
+  From the top: the `lead` snippet (avatars, an icon), `meta` (where: "#3 · Page
   1"), `title` with `detail` beside it (a name and "Just now"), `message` (or
-  the default slot) and `link` ("2 replies"), which fires `link`.
+  the children) and `link` ("2 replies"), which calls `onlink`.
 
-  - `clickable`, on by default, makes the whole row a button that fires
-    `click`, with UI3's hover fill; the link and the actions sit above it.
+  - `clickable`, on by default, makes the whole row a button that calls
+    `onclick`, with UI3's hover fill; the link and the actions sit above it.
   - `selected` takes the selected fill.
   - `unread` draws the blue dot top right and turns the link blue.
-  - The `actions` slot holds icon buttons, shown top right on hover, on focus
+  - The `actions` snippet holds icon buttons, shown top right on hover, on focus
     and while selected, over the unread dot.
   - `lines` cuts the message after that many lines; 0 shows all of it.
 -->
-<script>
-  import { createEventDispatcher } from 'svelte';
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+  import type { FocusEventHandler, MouseEventHandler } from 'svelte/elements';
   import Icon from '../Icon/index.svelte';
   import IconUnread from './../../icons/16/icon.16.unread.svg';
 
-  export let meta = '';
-  export let title = '';
-  export let detail = '';
-  export let message = '';
-  /** The link line's label; fires `link`. */
-  export let link = '';
-  export let unread = false;
-  export let selected = false;
-  export let clickable = true;
-  /** Lines the message is cut after; 0 shows all of it. */
-  export let lines = 0;
-  /** The row button's label; the row's text by default. */
-  export let ariaLabel = '';
+  interface Props {
+    /** Where: "#3 · Page 1" */
+    meta?: string;
+    title?: string;
+    /** Beside the title: "Just now" */
+    detail?: string;
+    /** Shown when there are no children */
+    message?: string;
+    /** The link line's label; calls `onlink`. */
+    link?: string;
+    unread?: boolean;
+    selected?: boolean;
+    /** The whole row is a button */
+    clickable?: boolean;
+    /** Lines the message is cut after; 0 shows all of it. */
+    lines?: number;
+    /** The row button's label; the row's text by default. */
+    ariaLabel?: string;
+    class?: string;
+    /** Avatars or an icon, at the top */
+    lead?: Snippet;
+    /** The message */
+    children?: Snippet;
+    /** Icon buttons, top right on hover, on focus and while selected */
+    actions?: Snippet;
+    /** The row, when `clickable` */
+    onclick?: MouseEventHandler<HTMLButtonElement>;
+    onfocus?: FocusEventHandler<HTMLButtonElement>;
+    onblur?: FocusEventHandler<HTMLButtonElement>;
+    /** The link line */
+    onlink?: () => void;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    meta = '',
+    title = '',
+    detail = '',
+    message = '',
+    link = '',
+    unread = false,
+    selected = false,
+    clickable = true,
+    lines = 0,
+    ariaLabel = '',
+    class: className = '',
+    lead,
+    children,
+    actions,
+    onclick,
+    onfocus,
+    onblur,
+    onlink,
+  }: Props = $props();
 
-  const dispatch = createEventDispatcher();
-
-  $: label =
-    ariaLabel ||
-    [unread ? 'Unread' : '', meta, title, detail, message].filter(Boolean).join('. ');
+  let label = $derived(
+    ariaLabel || [unread ? 'Unread' : '', meta, title, detail, message].filter(Boolean).join('. ')
+  );
 </script>
 
 <div class="sidebar-row {className}">
-  <div
-    class="content"
-    class:clickable
-    class:selected
-    class:has-actions={$$slots.actions}
-  >
+  <div class="content" class:clickable class:selected class:has-actions={actions}>
     {#if clickable}
       <button
         type="button"
         class="hit"
         aria-label={label}
         aria-current={selected ? 'true' : undefined}
-        on:click
-        on:focus
-        on:blur
+        {onclick}
+        {onfocus}
+        {onblur}
       ></button>
     {/if}
-    {#if $$slots.lead}
-      <div class="lead"><slot name="lead" /></div>
+    {#if lead}
+      <div class="lead">{@render lead()}</div>
     {/if}
     {#if meta}
       <div class="meta">{meta}</div>
@@ -73,27 +104,25 @@
         {#if detail}<span class="detail">{detail}</span>{/if}
       </div>
     {/if}
-    {#if message || $$slots.default}
+    {#if message || children}
       <div
         class="message"
         class:clamped={lines > 0}
         style={lines > 0 ? `-webkit-line-clamp: ${lines}; line-clamp: ${lines};` : undefined}
       >
-        <slot>{message}</slot>
+        {#if children}{@render children()}{:else}{message}{/if}
       </div>
     {/if}
     {#if link}
-      <button type="button" class="link" class:unread on:click={() => dispatch('link')}
-        >{link}</button
-      >
+      <button type="button" class="link" class:unread onclick={() => onlink?.()}>{link}</button>
     {/if}
     {#if unread}
       <div class="unread-dot" aria-hidden="true">
         <Icon iconName={IconUnread} size={16} color="--figma-color-icon-brand" />
       </div>
     {/if}
-    {#if $$slots.actions}
-      <div class="actions"><slot name="actions" /></div>
+    {#if actions}
+      <div class="actions">{@render actions()}</div>
     {/if}
   </div>
 </div>

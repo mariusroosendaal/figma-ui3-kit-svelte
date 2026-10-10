@@ -1,13 +1,26 @@
-<script>
-  export let iconName = null; //pass svg data into this var by importing an svg in parent
-  export let spin = false;
-  export let iconText = null;
-  export let color = '--figma-color-icon';
-  export let size = 24;
-  export let ariaLabel = null;
+<script lang="ts">
+  interface Props {
+    /** SVG markup, from an imported icon */
+    iconName?: string | null;
+    spin?: boolean;
+    /** Text in place of an icon */
+    iconText?: string | null;
+    /** A CSS variable name */
+    color?: string;
+    size?: number;
+    ariaLabel?: string | null;
+    class?: string;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    iconName = null,
+    spin = false,
+    iconText = null,
+    color = '--figma-color-icon',
+    size = 24,
+    ariaLabel = null,
+    class: className = '',
+  }: Props = $props();
 </script>
 
 <div

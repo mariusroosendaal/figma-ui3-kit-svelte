@@ -1,13 +1,26 @@
-<script>
-  export let size = 'medium'; // medium, small
-  export let text = ''; // Label text (falls back to slot content if provided)
-  export let htmlFor = '';
-  let className = '';
-  export { className as class };
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+
+  interface Props {
+    size?: 'medium' | 'small';
+    /** Shown when there are no children */
+    text?: string;
+    htmlFor?: string;
+    class?: string;
+    children?: Snippet;
+  }
+
+  let {
+    size = 'medium',
+    text = '',
+    htmlFor = '',
+    class: className = '',
+    children,
+  }: Props = $props();
 </script>
 
 <label class="label {size} {className}" for={htmlFor || undefined}>
-  <slot>{text}</slot>
+  {#if children}{@render children()}{:else}{text}{/if}
 </label>
 
 <style>

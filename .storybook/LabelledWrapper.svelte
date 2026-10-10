@@ -1,9 +1,15 @@
-<script>
-  // Renders a component with a text label in its default slot, which stories
+<script lang="ts">
+  // Renders a component with a text label as its children, which stories
   // can't pass directly.
-  export let component;
-  export let label = '';
-  export let props = {};
+  import type { Component as ComponentType } from 'svelte';
+
+  interface Props {
+    component: ComponentType<Record<string, unknown>>;
+    label?: string;
+    props?: Record<string, unknown>;
+  }
+
+  let { component: Component, label = '', props = {} }: Props = $props();
 </script>
 
-<svelte:component this={component} {...props}>{label}</svelte:component>
+<Component {...props}>{label}</Component>

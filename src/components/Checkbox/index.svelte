@@ -1,29 +1,60 @@
-<script>
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+  import type { FocusEventHandler, FormEventHandler } from 'svelte/elements';
   import Icon from './../Icon/index.svelte';
   import Icon16Check from './../../icons/16/icon.16.check.svg';
   import Icon16Mixed from './../../icons/16/icon.16.mixed.svg';
 
-  export let checked = false;
-  export let value = '';
-  export let disabled = false;
-  export let tabindex = 0;
-  export let mixed = false; // indeterminate state
-  export let muted = false; // secondary styling
-  export let ghost = false; // dark background variant
-  export let ariaLabel = '';
-  /** Secondary line under the label, e.g. a side effect of the setting. */
-  export let description = '';
+  interface Props {
+    checked?: boolean;
+    value?: string;
+    disabled?: boolean;
+    tabindex?: number;
+    /** Indeterminate */
+    mixed?: boolean;
+    /** Secondary styling */
+    muted?: boolean;
+    /** Dark background variant */
+    ghost?: boolean;
+    ariaLabel?: string;
+    /** Secondary line under the label, e.g. a side effect of the setting. */
+    description?: string;
+    class?: string;
+    /** The label */
+    children?: Snippet;
+    /** After `checked` updates */
+    onchange?: FormEventHandler<HTMLInputElement>;
+    onfocus?: FocusEventHandler<HTMLInputElement>;
+    onblur?: FocusEventHandler<HTMLInputElement>;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    checked = $bindable(),
+    value = '',
+    disabled = false,
+    tabindex = 0,
+    mixed = false,
+    muted = false,
+    ghost = false,
+    ariaLabel = '',
+    description = '',
+    class: className = '',
+    children,
+    onchange,
+    onfocus,
+    onblur,
+  }: Props = $props();
+
   let uniqueId = 'checkbox--' + (Math.random() * 10000000).toFixed(0).toString();
-  $: descriptionId = description ? `${uniqueId}-description` : undefined;
-  let inputEl;
+  let descriptionId = $derived(description ? `${uniqueId}-description` : undefined);
+  let inputEl: HTMLInputElement | undefined = $state();
 
-  $: if (inputEl) inputEl.indeterminate = mixed;
+  $effect(() => {
+    if (inputEl) inputEl.indeterminate = mixed;
+  });
 
   // Function to determine the correct icon color based on state
-  function getIconColor(disabled, muted, ghost) {
+  function getIconColor(disabled: boolean, muted: boolean, ghost: boolean) {
     if (disabled) {
       return '--figma-color-icon-ondisabled';
     } else if (muted) {
@@ -34,8 +65,7 @@
       return '--figma-color-icon-onbrand';
     }
   }
-  // A $: statement, so the color follows its inputs; a call in the markup would not re-run.
-  $: iconColor = getIconColor(disabled, muted, ghost);
+  let iconColor = $derived(getIconColor(disabled, muted, ghost));
 </script>
 
 <div
@@ -55,9 +85,9 @@
     aria-label={ariaLabel || undefined}
     aria-describedby={descriptionId}
     aria-checked={mixed ? 'mixed' : undefined}
-    on:change
-    on:focus
-    on:blur
+    {onchange}
+    {onfocus}
+    {onblur}
   />
   <label for={uniqueId} class="checkbox-label">
     <div class="checkbox-box" class:checked class:mixed class:disabled>
@@ -68,7 +98,7 @@
       {/if}
     </div>
     <span class="checkbox-text">
-      <slot />
+      {@render children?.()}
     </span>
   </label>
   {#if description}

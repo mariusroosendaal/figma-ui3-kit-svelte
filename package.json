@@ -2,7 +2,7 @@
   "name": "figma-ui3-kit-svelte",
   "version": "0.8.0",
   "type": "module",
-  "description": "A collection of Svelte 4 components that match Figma UI3 for building plugins",
+  "description": "A collection of Svelte 5 components that match Figma UI3 for building plugins",
   "svelte": "./src/index.js",
   "exports": {
     ".": {
@@ -56,10 +56,10 @@
   "scripts": {
     "dev": "storybook dev -p 6006",
     "build": "storybook build",
-    "lint": "npm run check && eslint src/",
+    "lint": "npm run check && eslint src/ && prettier --check \"src/**/*.{js,ts,svelte}\" \".storybook/*.svelte\"",
     "lint:fix": "eslint src/ --fix",
     "prettier": "npx prettier --write \"src/**/*.{js,ts,svelte,html,css}\"",
-    "check": "svelte-check --tsconfig ./jsconfig.json --fail-on-warnings",
+    "check": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings",
     "figma:icons": "node figma/scripts/import-icons.mjs",
     "figma:parse": "figma connect parse",
     "figma:publish": "npm run figma:icons && figma connect publish"

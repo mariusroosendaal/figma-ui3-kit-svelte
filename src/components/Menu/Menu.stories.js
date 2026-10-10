@@ -127,7 +127,7 @@ export const Default = {
     position: 'bottom-left',
     itemVariant: 'default',
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: MenuWrapper,
     props: { ...args },
   }),
@@ -140,7 +140,7 @@ export const WithGroups = {
     position: 'bottom-left',
     itemVariant: 'default',
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: MenuWrapper,
     props: { ...args },
   }),
@@ -153,7 +153,7 @@ export const WithNested = {
     position: 'bottom-left',
     itemVariant: 'default',
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: MenuWrapper,
     props: { ...args },
   }),
@@ -205,7 +205,10 @@ const viewMenuItems = [
 
 export const Checkmarks = {
   args: { menuItems: viewMenuItems, minWidth: '208px' },
-  render: (args) => ({ Component: MenuWrapper, props: { ...args } }),
+  render: (/** @type {Record<string, any>} */ args) => ({
+    Component: MenuWrapper,
+    props: { ...args },
+  }),
 };
 
 // Toggle rows keep the menu open, so several can be flipped in one go.
@@ -218,7 +221,10 @@ export const Toggles = {
     ],
     minWidth: '208px',
   },
-  render: (args) => ({ Component: MenuWrapper, props: { ...args } }),
+  render: (/** @type {Record<string, any>} */ args) => ({
+    Component: MenuWrapper,
+    props: { ...args },
+  }),
 };
 
 // UI3's "Menu multi-select": search, grouped rows with icons or chits, trailing
@@ -260,7 +266,10 @@ export const MultiSelect = {
       },
     ],
   },
-  render: (args) => ({ Component: MenuWrapper, props: { ...args } }),
+  render: (/** @type {Record<string, any>} */ args) => ({
+    Component: MenuWrapper,
+    props: { ...args },
+  }),
 };
 
 // "Menu row/Complex": lead icons, counts and badges.
@@ -274,7 +283,10 @@ export const RichRows = {
     ],
     minWidth: '208px',
   },
-  render: (args) => ({ Component: MenuWrapper, props: { ...args } }),
+  render: (/** @type {Record<string, any>} */ args) => ({
+    Component: MenuWrapper,
+    props: { ...args },
+  }),
 };
 
 // UI3's Complex rows with avatars, and Menu row/Footer as the last row
@@ -305,7 +317,10 @@ export const PeopleWithFooterRow = {
     ],
     minWidth: '208px',
   },
-  render: (args) => ({ Component: MenuWrapper, props: { ...args } }),
+  render: (/** @type {Record<string, any>} */ args) => ({
+    Component: MenuWrapper,
+    props: { ...args },
+  }),
 };
 
 // Taller than the window: UI3's overflow arrows (Menu row/Expand) scroll it on hover
@@ -317,5 +332,8 @@ export const Overflow = {
     })),
     minWidth: '208px',
   },
-  render: (args) => ({ Component: MenuWrapper, props: { ...args } }),
+  render: (/** @type {Record<string, any>} */ args) => ({
+    Component: MenuWrapper,
+    props: { ...args },
+  }),
 };

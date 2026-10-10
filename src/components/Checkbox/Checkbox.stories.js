@@ -99,7 +99,7 @@ export const WithDescription = {
     checked: true,
     description: 'Helpful description of the setting, e.g. a side effect or a condition.',
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: LabelledWrapper,
     props: { component: Checkbox, label: 'Rename layers', props: args },
   }),

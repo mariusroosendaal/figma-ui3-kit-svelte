@@ -1,23 +1,48 @@
-<script>
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+  import type { FocusEventHandler, FormEventHandler } from 'svelte/elements';
   import Icon from './../Icon/index.svelte';
   import Icon16Mixed from './../../icons/16/icon.16.mixed.svg';
 
-  export let checked = false;
-  export let value = '';
-  export let disabled = false;
-  export let tabindex = 0;
-  export let mixed = false; // indeterminate state
-  export let ariaLabel = '';
-  /** Secondary line under the label, e.g. a side effect of the setting. */
-  export let description = '';
+  interface Props {
+    checked?: boolean;
+    value?: string;
+    disabled?: boolean;
+    tabindex?: number;
+    /** Indeterminate */
+    mixed?: boolean;
+    ariaLabel?: string;
+    /** Secondary line under the label, e.g. a side effect of the setting. */
+    description?: string;
+    class?: string;
+    /** The label */
+    children?: Snippet;
+    /** After `checked` updates */
+    onchange?: FormEventHandler<HTMLInputElement>;
+    onfocus?: FocusEventHandler<HTMLInputElement>;
+    onblur?: FocusEventHandler<HTMLInputElement>;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    checked = $bindable(),
+    value = '',
+    disabled = false,
+    tabindex = 0,
+    mixed = false,
+    ariaLabel = '',
+    description = '',
+    class: className = '',
+    children,
+    onchange,
+    onfocus,
+    onblur,
+  }: Props = $props();
+
   let uniqueId = 'switch--' + (Math.random() * 10000000).toFixed(0).toString();
-  $: descriptionId = description ? `${uniqueId}-description` : undefined;
+  let descriptionId = $derived(description ? `${uniqueId}-description` : undefined);
 
-  function handleClick(e) {
-    if (/** @type {any} */ (e).pointerType === 'mouse') e.currentTarget.blur();
+  function handleClick(e: MouseEvent & { currentTarget: EventTarget & HTMLInputElement }) {
+    if ('pointerType' in e && e.pointerType === 'mouse') e.currentTarget.blur();
   }
 </script>
 
@@ -32,11 +57,11 @@
     role={mixed ? undefined : 'switch'}
     aria-label={ariaLabel || undefined}
     aria-describedby={descriptionId}
-    aria-checked={mixed ? 'mixed' : checked}
-    on:click={handleClick}
-    on:change
-    on:focus
-    on:blur
+    aria-checked={mixed ? 'mixed' : !!checked}
+    onclick={handleClick}
+    {onchange}
+    {onfocus}
+    {onblur}
   />
   <label for={uniqueId} class="switch-label">
     <div class="switch-track" class:checked class:mixed class:disabled>
@@ -47,7 +72,7 @@
       {/if}
     </div>
     <span class="switch-text">
-      <slot />
+      {@render children?.()}
     </span>
   </label>
   {#if description}

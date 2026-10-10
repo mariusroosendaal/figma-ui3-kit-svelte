@@ -1,18 +1,40 @@
-<script>
-  export let variant = 'body-medium';
-  export let align = 'start';
-  export let block = false;
-  export let color = '--figma-color-text';
-  export let text = ''; // Text content (falls back to slot content if provided)
-  export let as = 'span';
+<script lang="ts">
+  import type { Snippet } from 'svelte';
 
-  let className = '';
-  export { className as class };
+  interface Props {
+    variant?: string;
+    align?: 'start' | 'center' | 'end';
+    block?: boolean;
+    /** A CSS variable name or any CSS color */
+    color?: string;
+    /** Shown when there are no children */
+    text?: string;
+    as?: string;
+    class?: string;
+    children?: Snippet;
+  }
 
-  const headingElements = { 'heading-large': 'h2', 'heading-medium': 'h3', 'heading-small': 'h4' };
-  $: resolvedAs = as !== 'span' ? as : (headingElements[variant] ?? 'span');
-  $: cssColorVar = color.startsWith('--') ? `var(${color})` : color;
-  $: displayStyle = block ? 'block' : resolvedAs in headingElements ? 'block' : 'inline-block';
+  let {
+    variant = 'body-medium',
+    align = 'start',
+    block = false,
+    color = '--figma-color-text',
+    text = '',
+    as = 'span',
+    class: className = '',
+    children,
+  }: Props = $props();
+
+  const headingElements: Record<string, string> = {
+    'heading-large': 'h2',
+    'heading-medium': 'h3',
+    'heading-small': 'h4',
+  };
+  let resolvedAs = $derived(as !== 'span' ? as : (headingElements[variant] ?? 'span'));
+  let cssColorVar = $derived(color.startsWith('--') ? `var(${color})` : color);
+  let displayStyle = $derived(
+    block ? 'block' : resolvedAs in headingElements ? 'block' : 'inline-block'
+  );
 </script>
 
 <svelte:element
@@ -20,7 +42,7 @@
   class="text {className} {variant} align-{align}"
   style="color: {cssColorVar}; display: {displayStyle};"
 >
-  <slot>{text}</slot>
+  {#if children}{@render children()}{:else}{text}{/if}
 </svelte:element>
 
 <style>

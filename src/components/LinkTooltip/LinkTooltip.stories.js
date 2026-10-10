@@ -20,7 +20,10 @@ export default {
     iconName: { table: { disable: true } },
     class: { table: { disable: true } },
   },
-  render: (args) => ({ Component: LinkTooltipWrapper, props: { ...args } }),
+  render: (/** @type {Record<string, any>} */ args) => ({
+    Component: LinkTooltipWrapper,
+    props: { ...args },
+  }),
 };
 
 // UI3's "Tooltip link" variants

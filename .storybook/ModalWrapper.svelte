@@ -1,25 +1,30 @@
-<script>
+<script lang="ts">
+  import type { ComponentProps } from 'svelte';
   import Modal from '../src/components/Modal/index.svelte';
   import Button from '../src/components/Button/index.svelte';
   import Text from '../src/components/Text/index.svelte';
 
-  export let isOpen = false;
-  export let title = 'Modal Title';
-  export let width = 'medium';
-  export let height = 'auto';
-  export let position = 'center';
-  export let headerVariant = 'default';
-  export let footerVariant = 'default';
-  export let footerBorder = true;
-  export let showOverlay = true;
-  export let closeOnOverlayClick = true;
-  export let closeOnEscape = true;
-  export let overlayPadding = '16px';
-  export let contentPadding = true;
-  export let icon2 = false;
-  export let icon2Name = null;
-  export let headerTabs = [];
-  let selectedTab = 0;
+  type ModalProps = ComponentProps<typeof Modal>;
+
+  let {
+    isOpen = $bindable(false),
+    title = 'Modal Title',
+    width = 'medium',
+    height = 'auto',
+    position = 'center',
+    headerVariant = 'default',
+    footerVariant = 'default',
+    footerBorder = true,
+    showOverlay = true,
+    closeOnOverlayClick = true,
+    closeOnEscape = true,
+    overlayPadding = '16px',
+    contentPadding = true,
+    icon2 = false,
+    icon2Name = null,
+    headerTabs = [],
+  }: Omit<ModalProps, 'headerTabs'> & { headerTabs?: string[] } = $props();
+  let selectedTab = $state(0);
 
   function handleClose() {
     isOpen = false;
@@ -27,7 +32,7 @@
 </script>
 
 <div style="padding: 20px;">
-  <Button variant="primary" label="Open Modal" on:click={() => (isOpen = true)} />
+  <Button variant="primary" label="Open Modal" onclick={() => (isOpen = true)} />
   <Modal
     bind:isOpen
     {title}
@@ -46,8 +51,8 @@
     {icon2Name}
     {headerTabs}
     bind:selectedTab
-    onBack={() => console.log('Back')}
-    onClose={handleClose}
+    onback={() => console.log('Back')}
+    onclose={handleClose}
   >
     <div>
       <Text
@@ -57,12 +62,16 @@
       >
     </div>
 
-    <div slot="footer-left">
-      <Button variant="secondary" label="Cancel" on:click={handleClose} />
-    </div>
+    {#snippet footerLeft()}
+      <div>
+        <Button variant="secondary" label="Cancel" onclick={handleClose} />
+      </div>
+    {/snippet}
 
-    <div slot="footer-right">
-      <Button variant="primary" label="Save" on:click={handleClose} />
-    </div>
+    {#snippet footerRight()}
+      <div>
+        <Button variant="primary" label="Save" onclick={handleClose} />
+      </div>
+    {/snippet}
   </Modal>
 </div>

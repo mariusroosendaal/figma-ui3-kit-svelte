@@ -75,7 +75,7 @@ if (button && button.type === 'INSTANCE') footerLabel = button.getString('ðŸŽ›ï¸
 const searchAttrs = search && search.type === 'INSTANCE' ? figma.code` searchable searchPlaceholder="${searchPlaceholder}"` : ''
 
 export default {
-  example: figma.code`<Menu bind:isOpen${searchAttrs}${footerLabel ? figma.code` footerLabel="${footerLabel}" on:footer={handleFooter}` : ''} menuItems={[
+  example: figma.code`<Menu bind:isOpen${searchAttrs}${footerLabel ? figma.code` footerLabel="${footerLabel}" onfooter={handleFooter}` : ''} menuItems={[
 ${lines.join('\n')}
 ]} />`,
   imports,

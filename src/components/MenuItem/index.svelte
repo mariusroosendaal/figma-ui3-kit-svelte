@@ -1,4 +1,7 @@
-<script>
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+  import type { MouseEventHandler } from 'svelte/elements';
+  import type { AvatarSpec, BadgeSpec } from '../../types';
   import Avatar from '../Avatar/index.svelte';
   import Badge from '../Badge/index.svelte';
   import Chit from '../Chit/index.svelte';
@@ -8,42 +11,72 @@
   import IconMixed from './../../icons/16/icon.16.mixed.svg';
   import IconChevronRight from './../../icons/24/icon.24.chevron.right.svg';
 
-  export let id = null;
-  /** @type {'default' | 'checkmark' | 'checkbox' | 'toggle'} */
-  export let variant = 'default';
-  /** Check state for the checkmark, checkbox and toggle variants; 'mixed' draws a dot or a dash. */
-  /** @type {boolean | 'mixed'} */
-  export let selected = false;
-  /** Set by Menu, which moves the highlight with the keyboard and the pointer. Left
-      null, a standalone row highlights on hover. */
-  /** @type {boolean | null} */
-  export let highlighted = null;
-  export let hasSubMenu = false; // Whether this item has a nested sub-menu
-  export let disabled = false;
-  /** Lead visual after the check column: an icon (SVG import) or a color chit. */
-  export let iconName = null;
-  /** @type {string | string[] | null} */
-  export let chit = null;
-  /** Avatar props for a person or team lead, e.g. `{ name: 'Team A', color: 'yellow' }` */
-  /** @type {Record<string, any> | null} */
-  export let avatar = null;
-  /** Right-aligned secondary text: a shortcut, a count, a value. */
-  export let detail = '';
-  /** Right-aligned badge text, or a list of texts and `{ text, variant?, strong? }`
-      for several. */
-  /** @type {string | { text: string, variant?: string, strong?: boolean } | Array<string | { text: string, variant?: string, strong?: boolean }>} */
-  export let badge = '';
-  /** Overrides the ARIA role, e.g. 'menuitemradio' for a single-choice list. */
-  export let role = null;
+  interface Props {
+    id?: string | null;
+    variant?: 'default' | 'checkmark' | 'checkbox' | 'toggle';
+    /** Check state for the checkmark, checkbox and toggle variants; 'mixed' draws a dot or a dash. */
+    selected?: boolean | 'mixed';
+    /** Set by Menu, which moves the highlight with the keyboard and the pointer. Left
+        null, a standalone row highlights on hover. */
+    highlighted?: boolean | null;
+    /** Whether this item has a nested sub-menu */
+    hasSubMenu?: boolean;
+    disabled?: boolean;
+    /** Lead visual after the check column: an icon (SVG import) or a color chit. */
+    iconName?: string | null;
+    chit?: string | string[] | null;
+    /** Avatar props for a person or team lead, e.g. `{ name: 'Team A', color: 'yellow' }` */
+    avatar?: AvatarSpec | null;
+    /** Right-aligned secondary text: a shortcut, a count, a value. */
+    detail?: string;
+    /** Right-aligned badge text, or a list of texts and `{ text, variant?, strong? }`
+        for several. */
+    badge?: BadgeSpec | BadgeSpec[];
+    /** Overrides the ARIA role, e.g. 'menuitemradio' for a single-choice list. */
+    role?: 'menuitem' | 'menuitemcheckbox' | 'menuitemradio' | null;
+    class?: string;
+    /** The label */
+    children?: Snippet;
+    /** Lead content when there is no icon, chit or avatar */
+    lead?: Snippet;
+    /** Trailing content when there is no sub-menu */
+    trail?: Snippet;
+    onclick?: MouseEventHandler<HTMLLIElement>;
+    onmouseenter?: MouseEventHandler<HTMLLIElement>;
+    onmouseleave?: MouseEventHandler<HTMLLIElement>;
+    onmousemove?: MouseEventHandler<HTMLLIElement>;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    id = null,
+    variant = 'default',
+    selected = false,
+    highlighted = null,
+    hasSubMenu = false,
+    disabled = false,
+    iconName = null,
+    chit = null,
+    avatar = null,
+    detail = '',
+    badge = '',
+    role = null,
+    class: className = '',
+    children,
+    lead,
+    trail,
+    onclick,
+    onmouseenter,
+    onmouseleave,
+    onmousemove,
+  }: Props = $props();
 
-  $: ariaRole = role || (variant === 'default' ? 'menuitem' : 'menuitemcheckbox');
-  $: badges = (Array.isArray(badge) ? badge : [badge])
-    .filter(Boolean)
-    .map((b) => (typeof b === 'string' ? { text: b } : b));
-  $: checkable = ariaRole === 'menuitemcheckbox' || ariaRole === 'menuitemradio';
+  let ariaRole = $derived(role || (variant === 'default' ? 'menuitem' : 'menuitemcheckbox'));
+  let badges = $derived(
+    (Array.isArray(badge) ? badge : [badge])
+      .filter(Boolean)
+      .map((b) => (typeof b === 'string' ? { text: b } : b))
+  );
+  let checkable = $derived(ariaRole === 'menuitemcheckbox' || ariaRole === 'menuitemradio');
 </script>
 
 <li
@@ -53,15 +86,15 @@
   class:controlled={highlighted !== null}
   class:disabled
   class:has-check={variant === 'checkmark'}
-  class:has-trail={hasSubMenu || $$slots.trail}
+  class:has-trail={hasSubMenu || trail}
   role={ariaRole}
   aria-checked={checkable ? (selected === 'mixed' ? 'mixed' : Boolean(selected)) : undefined}
   aria-disabled={disabled || undefined}
   aria-haspopup={hasSubMenu ? 'menu' : undefined}
-  on:mouseenter
-  on:mouseleave
-  on:mousemove
-  on:click
+  {onmouseenter}
+  {onmouseleave}
+  {onmousemove}
+  {onclick}
 >
   {#if variant === 'checkmark'}
     <span class="check" class:on={selected}>
@@ -78,10 +111,10 @@
     <span class="lead"><Chit color={chit} /></span>
   {:else if iconName}
     <span class="lead"><Icon {iconName} color="--color-icon-menu" /></span>
-  {:else if $$slots.lead}
-    <span class="lead"><slot name="lead" /></span>
+  {:else if lead}
+    <span class="lead">{@render lead()}</span>
   {/if}
-  <span class="label"><slot /></span>
+  <span class="label">{@render children?.()}</span>
   {#if detail}
     <span class="detail">{detail}</span>
   {/if}
@@ -103,8 +136,8 @@
     <span class="trail">
       <Icon iconName={IconChevronRight} color="--color-icon-menu" />
     </span>
-  {:else if $$slots.trail}
-    <span class="trail"><slot name="trail" /></span>
+  {:else if trail}
+    <span class="trail">{@render trail()}</span>
   {/if}
 </li>
 

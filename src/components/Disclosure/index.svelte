@@ -1,39 +1,44 @@
-<script>
-  import { createEventDispatcher, setContext } from 'svelte';
-  import { writable } from 'svelte/store';
-  import { disclosure } from './../DisclosureItem/index.svelte';
+<script lang="ts">
+  import { setContext, type Snippet } from 'svelte';
+  import { SvelteSet } from 'svelte/reactivity';
+  import { disclosure, type DisclosureContext } from './../DisclosureItem/index.svelte';
 
-  export let multiple = false;
-  export let label = '';
+  interface Props {
+    /** Several items open at once; otherwise opening one closes the rest */
+    multiple?: boolean;
+    label?: string;
+    class?: string;
+    /** The DisclosureItem components */
+    children?: Snippet;
+    /** The open items' `uniqueId`s */
+    onchange?: (ids: string[]) => void;
+  }
 
-  let className = '';
-  export { className as class };
-  const dispatch = createEventDispatcher();
-  // Always use Set for state management
-  const selected = writable(new Set());
-  let disclosureWrapper;
+  let { multiple = false, label = '', class: className = '', children, onchange }: Props = $props();
 
-  const clickHandler = function (itemId) {
-    selected.update(($selected) => {
-      const newSet = new Set($selected);
-      if (newSet.has(itemId)) {
-        newSet.delete(itemId); // Toggle off
+  const selected = new SvelteSet<string>();
+
+  setContext<DisclosureContext>(disclosure, {
+    selected,
+    clickHandler(itemId) {
+      if (selected.has(itemId)) {
+        selected.delete(itemId); // Toggle off
       } else {
         if (!multiple) {
-          newSet.clear(); // Clear others in accordion mode
+          selected.clear(); // Clear others in accordion mode
         }
-        newSet.add(itemId); // Toggle on
+        selected.add(itemId); // Toggle on
       }
-      dispatch('change', Array.from(newSet));
-      return newSet;
-    });
-  };
-
-  setContext(disclosure, { clickHandler, selected, multiple });
+      onchange?.(Array.from(selected));
+    },
+    open(itemId) {
+      selected.add(itemId);
+    },
+  });
 </script>
 
-<ul class={className} aria-label={label || undefined} bind:this={disclosureWrapper}>
-  <slot></slot>
+<ul class={className} aria-label={label || undefined}>
+  {@render children?.()}
 </ul>
 
 <style>

@@ -42,7 +42,7 @@ The templates double as the reverse mapping: to mock up a Svelte layout, create 
 | Menu row/Toggle, /Toolbar | `2327:96288`, `2327:96311` | → `MenuItem` `variant="toggle"` / `variant="checkmark"` with `iconName`. In a Menu: `type: 'toggle'` / `type: 'check'`. |
 | Menu row/Heading, /Divider | `2327:96347`, `2327:96331` | → `MenuHeading`, `MenuDivider`. |
 | Menu row/Footer | `2327:96342` | → Menu `footerLabel` with `footerVariant="row"`. Menu row/Expand is the overflow arrow, which Menu draws itself; it has no template. |
-| Modal header | `2327:122026` | → Modal's header: Navigation ↔ `headerVariant="navigation"` + `onBack`, Tabs ↔ `headerVariant="tabs"` + `headerTabs`, Dropdown ↔ the `header` slot. |
+| Modal header | `2327:122026` | → Modal's header: Navigation ↔ `headerVariant="navigation"` + `onback`, Tabs ↔ `headerVariant="tabs"` + `headerTabs`, Dropdown ↔ the `header` snippet. |
 | Menu multi-select | `2327:96387` | → `Menu searchable footerLabel`: the field's text is `searchPlaceholder`, the button's label `footerLabel`, the rows `menuItems`. |
 | Numeric input | `2028:79190` | → `NumericInput`. An `icon.24.prop-text` lead is `label` (its letter); any other lead icon is `iconName`. Empty ↔ `placeholder`, Dropdown ↔ `options`, Var pill ↔ `variable` (the pill's text). Var icon isn't modelled. |
 | Numeric input multi | `2028:79619` | → `NumericInputMulti`; the cells' numbers → `values`, Partial Disable ↔ `disabled` on the last cell. |
@@ -53,7 +53,7 @@ The templates double as the reverse mapping: to mock up a Svelte layout, create 
 | Button icon toggle | `2324:46776` | → `IconToggle` with `iconName` + `iconNameOn`; Highlighted ↔ `highlighted`. |
 | Button icon dialog toggle | `2324:46817` | → `IconToggle` with one `iconName`; `🎛️ On` ↔ `pressed`. |
 | Button icon split | `2324:46856` | → `SplitButton`; the menu's items live in code. |
-| Sidebar row comment | `2012:63744` | → `SidebarRow`: `NumPage` ↔ `meta`, `Name` ↔ `title`, `Timestamp` ↔ `detail`, `Message` ↔ `message`, `Reply Count` ↔ `link` (when `🎛️  Replies`); `🎛️  Unread` ↔ `unread`, Selected ↔ `selected` (Hover is runtime). The avatars go in the `lead` slot, the hover icons in `actions` as IconButtons. |
+| Sidebar row comment | `2012:63744` | → `SidebarRow`: `NumPage` ↔ `meta`, `Name` ↔ `title`, `Timestamp` ↔ `detail`, `Message` ↔ `message`, `Reply Count` ↔ `link` (when `🎛️  Replies`); `🎛️  Unread` ↔ `unread`, Selected ↔ `selected` (Hover is runtime). The avatars go in the `lead` snippet, the hover icons in the `actions` snippet as IconButtons. |
 
 Built on the **Kit additions** page, because UI3 has no equivalent or its API differs too much from the kit:
 
@@ -61,7 +61,7 @@ Built on the **Kit additions** page, because UI3 has no equivalent or its API di
 |---|---|---|
 | Banner | `1027204:342` | `👥 Variant` ↔ `variant`. |
 | Chip | `1027205:88` | Default/Component × Default/Focused/Disabled, `👁️ Icon` + `↪ Icon`, `👁️ Close` ↔ `closable`. UI3's `_Chit input` is private, so it can't be published. |
-| Modal | `1027206:365` | Width Small/Medium/Large × Footer Split/Full/None. `Content slot` → default slot; footer slots → `footer-left` / `footer-right` / `footer-full`. |
+| Modal | `1027206:365` | Width Small/Medium/Large × Footer Split/Full/None. `Content slot` → children; footer slots → the `footerLeft` / `footerRight` / `footerFull` snippets. |
 | Text | `1027216:156` | Variant (heading/body sizes, `-strong`) × Color Default/Secondary/Tertiary. Use it instead of raw text so mockups round-trip. |
 | Label | `1027216:161` | Medium/Small. |
 | Radio group | `1027216:162` | Legend + `Radios slot` of UI3 Radio buttons. |

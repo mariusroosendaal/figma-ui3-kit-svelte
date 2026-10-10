@@ -2,37 +2,61 @@
   SplitButton: UI3's "Button icon split" — an icon button for the main action
   and a chevron beside it that opens a menu of alternatives.
 
-  `click` is the main action; the menu fires `select` with the item, as Menu does.
+  `onclick` is the main action; the menu calls `onselect` with the item, as Menu does.
 -->
-<script>
+<script lang="ts" generics="T extends MenuOption = MenuOption">
+  import type { FocusEventHandler, MouseEventHandler } from 'svelte/elements';
+  import type { MenuOption } from '../../types';
   import Icon from '../Icon/index.svelte';
   import Menu from '../Menu/index.svelte';
   import IconChevronDown from './../../icons/16/icon.16.chevron.down.svg';
 
-  export let iconName = null;
-  /** Names the main action, e.g. "Present". */
-  export let ariaLabel = '';
-  /** Names the chevron. */
-  export let menuAriaLabel = 'More options';
-  /** @type {any[]} */
-  export let menuItems = [];
-  export let itemVariant = 'default';
-  export let showGroupLabels = false;
-  /** @type {'small' | 'large'} */
-  export let size = 'small';
-  export let disabled = false;
-
-  let className = '';
-  export { className as class };
-
-  let isOpen = false;
-  /** @type {HTMLButtonElement} */
-  let chevron;
-
-  $: if (!ariaLabel && typeof window !== 'undefined') {
-    console.warn('[SplitButton] ariaLabel is required for the icon-only action (WCAG 4.1.2)');
+  interface Props {
+    /** SVG icon data, for the main action */
+    iconName?: string | null;
+    /** Names the main action, e.g. "Present". */
+    ariaLabel?: string;
+    /** Names the chevron. */
+    menuAriaLabel?: string;
+    menuItems?: T[];
+    itemVariant?: 'default' | 'checkmark';
+    showGroupLabels?: boolean;
+    size?: 'small' | 'large';
+    disabled?: boolean;
+    class?: string;
+    /** The main action */
+    onclick?: MouseEventHandler<HTMLButtonElement>;
+    onfocus?: FocusEventHandler<HTMLButtonElement>;
+    onblur?: FocusEventHandler<HTMLButtonElement>;
+    /** A row of the menu, as Menu's */
+    onselect?: (item: T) => void;
   }
-  $: iconColor = disabled ? '--figma-color-icon-disabled' : '--figma-color-icon';
+
+  let {
+    iconName = null,
+    ariaLabel = '',
+    menuAriaLabel = 'More options',
+    menuItems = [],
+    itemVariant = 'default',
+    showGroupLabels = false,
+    size = 'small',
+    disabled = false,
+    class: className = '',
+    onclick,
+    onfocus,
+    onblur,
+    onselect,
+  }: Props = $props();
+
+  let isOpen = $state(false);
+  let chevron: HTMLButtonElement | undefined = $state();
+
+  $effect(() => {
+    if (!ariaLabel) {
+      console.warn('[SplitButton] ariaLabel is required for the icon-only action (WCAG 4.1.2)');
+    }
+  });
+  let iconColor = $derived(disabled ? '--figma-color-icon-disabled' : '--figma-color-icon');
 </script>
 
 <div class="split-button {size} {className}" class:disabled class:open={isOpen}>
@@ -41,9 +65,9 @@
     class="primary"
     aria-label={ariaLabel || undefined}
     {disabled}
-    on:click
-    on:focus
-    on:blur
+    {onclick}
+    {onfocus}
+    {onblur}
   >
     <Icon {iconName} color={iconColor} />
   </button>
@@ -55,11 +79,18 @@
     aria-haspopup="menu"
     aria-expanded={isOpen}
     {disabled}
-    on:click={() => (isOpen = !isOpen)}
+    onclick={() => (isOpen = !isOpen)}
   >
     <Icon iconName={IconChevronDown} color={iconColor} size={16} />
   </button>
-  <Menu bind:isOpen {menuItems} {itemVariant} {showGroupLabels} anchorElement={chevron} on:select />
+  <Menu
+    bind:isOpen
+    {menuItems}
+    {itemVariant}
+    {showGroupLabels}
+    anchorElement={chevron}
+    {onselect}
+  />
 </div>
 
 <style>

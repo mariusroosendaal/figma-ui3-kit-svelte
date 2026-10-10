@@ -2,6 +2,10 @@
 
 // Arithmetic without eval: numbers, + - * /, parentheses and unary minus.
 // Anything else is not a number.
+/**
+ * @param {unknown} source
+ * @returns {number | null}
+ */
 export function evaluate(source) {
   const src = String(source ?? '')
     .replace(/,/g, '.')
@@ -9,16 +13,19 @@ export function evaluate(source) {
   if (!src) return null;
   let at = 0;
   const peek = () => src[at];
+  /** @returns {number} */
   function expr() {
     let v = term();
     while (peek() === '+' || peek() === '-') v = src[at++] === '+' ? v + term() : v - term();
     return v;
   }
+  /** @returns {number} */
   function term() {
     let v = factor();
     while (peek() === '*' || peek() === '/') v = src[at++] === '*' ? v * factor() : v / factor();
     return v;
   }
+  /** @returns {number} */
   function factor() {
     if (peek() === '-') {
       at++;
@@ -60,6 +67,17 @@ export function evaluate(source) {
 const SLACK = 3;
 const SCRUBBING = 'numeric-scrubbing';
 
+/**
+ * @template [T=number]
+ * @typedef {{ id: number, x: number, start: T, offset: number, moved: boolean }} Scrub
+ */
+
+/**
+ * @template T
+ * @param {PointerEvent} event
+ * @param {T} start
+ * @returns {Scrub<T>}
+ */
 export function startScrub(event, start) {
   document.documentElement.classList.add(SCRUBBING);
   return { id: event.pointerId, x: event.clientX, start, offset: 0, moved: false };
@@ -69,7 +87,13 @@ export function endScrub() {
   document.documentElement.classList.remove(SCRUBBING);
 }
 
-/** The drag's offset from its start after this move, or null for none yet. */
+/**
+ * The drag's offset from its start after this move, or null for none yet.
+ * @param {Scrub<unknown>} scrub
+ * @param {PointerEvent} event
+ * @param {number} step
+ * @returns {number | null}
+ */
 export function scrubOffset(scrub, event, step) {
   if (event.pointerId !== scrub.id) return null;
   if (!scrub.moved) {

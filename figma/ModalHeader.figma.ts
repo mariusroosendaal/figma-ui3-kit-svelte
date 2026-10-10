@@ -8,8 +8,8 @@ const instance = figma.selectedInstance
 // import list in metadata.props.imports for parent templates to merge.
 const imports = ["import { Modal } from 'figma-ui3-kit-svelte'"]
 
-// Plugins set the header through Modal's props: headerVariant, onBack, headerTabs,
-// or the header slot for the Dropdown variant.
+// Plugins set the header through Modal's props: headerVariant, onback, headerTabs,
+// or the header snippet for the Dropdown variant.
 const variant = instance.getEnum('👥 Variant', {
   'Default': 'default',
   'Navigation': 'navigation',
@@ -32,7 +32,7 @@ if (variant === 'dropdown') {
 
 const head =
   variant === 'navigation'
-    ? figma.code` headerVariant="navigation" onBack={goBack}`
+    ? figma.code` headerVariant="navigation" onback={goBack}`
     : variant === 'tabs'
       ? figma.code` headerVariant="tabs" headerTabs={[${tabs.join(', ')}]} bind:selectedTab`
       : ''
@@ -42,9 +42,9 @@ export default {
   example:
     variant === 'dropdown'
       ? figma.code`<Modal bind:isOpen title="${title}"${icon2 ? ' icon2 icon2Name={icon}' : ''}>
-  <svelte:fragment slot="header">
+  {#snippet header()}
     <Dropdown menuItems={menuItems} bind:value placeholder="${dropdownText}" />
-  </svelte:fragment>
+  {/snippet}
 </Modal>`
       : figma.code`<Modal bind:isOpen title="${title}"${head}${icon2 ? ' icon2 icon2Name={icon}' : ''}>…</Modal>`,
   imports:

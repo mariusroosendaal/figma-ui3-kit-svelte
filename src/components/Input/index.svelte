@@ -1,29 +1,60 @@
-<script>
+<script lang="ts">
+  import type { FocusEventHandler, FormEventHandler, KeyboardEventHandler } from 'svelte/elements';
   import Icon from './../Icon/index.svelte';
 
-  export let id = null;
-  export let value = null;
-  export let name = null;
-  export let disabled = false;
-  export let iconName = null;
-  export let invalid = false;
-  export let errorMessage = '';
-  export let placeholder = '';
-  export let size = 'default'; // 'default' (24px) or 'large' (32px)
-  export let type = 'text';
-  export let ariaLabel = '';
-  export let ariaLabelledBy = '';
+  interface Props {
+    id?: string | null;
+    value?: string | number | null;
+    name?: string | null;
+    disabled?: boolean;
+    /** Lead icon, SVG icon data */
+    iconName?: string | null;
+    invalid?: boolean;
+    errorMessage?: string;
+    placeholder?: string;
+    /** 24px or 32px tall */
+    size?: 'default' | 'large';
+    type?: string;
+    ariaLabel?: string;
+    ariaLabelledBy?: string;
+    class?: string;
+    /** After `value` updates */
+    oninput?: FormEventHandler<HTMLInputElement>;
+    onchange?: FormEventHandler<HTMLInputElement>;
+    onkeydown?: KeyboardEventHandler<HTMLInputElement>;
+    onfocus?: FocusEventHandler<HTMLInputElement>;
+    onblur?: FocusEventHandler<HTMLInputElement>;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    id = null,
+    value = $bindable(),
+    name = null,
+    disabled = false,
+    iconName = null,
+    invalid = false,
+    errorMessage = '',
+    placeholder = '',
+    size = 'default',
+    type = 'text',
+    ariaLabel = '',
+    ariaLabelledBy = '',
+    class: className = '',
+    oninput,
+    onchange,
+    onkeydown,
+    onfocus,
+    onblur,
+  }: Props = $props();
 
-  let errorId = (id || 'input--' + (Math.random() * 10000000).toFixed(0).toString()) + '-error';
+  const fallbackId = 'input--' + (Math.random() * 10000000).toFixed(0).toString();
+  let errorId = $derived((id || fallbackId) + '-error');
 
   // Svelte disallows dynamic `type` on inputs with bind:value; use an action instead
-  function inputType(node, t) {
+  function inputType(node: HTMLInputElement, t: string) {
     node.type = t;
     return {
-      update: (newT) => {
+      update: (newT: string) => {
         node.type = newT;
       },
     };
@@ -37,11 +68,11 @@
     </div>
     <input
       use:inputType={type}
-      on:input
-      on:change
-      on:keydown
-      on:focus
-      on:blur
+      {oninput}
+      {onchange}
+      {onkeydown}
+      {onfocus}
+      {onblur}
       bind:value
       {id}
       {name}
@@ -65,11 +96,11 @@
   <div class="input {className}">
     <input
       use:inputType={type}
-      on:input
-      on:change
-      on:keydown
-      on:focus
-      on:blur
+      {oninput}
+      {onchange}
+      {onkeydown}
+      {onfocus}
+      {onblur}
       bind:value
       {id}
       {name}

@@ -1,16 +1,40 @@
-<script>
-  export let group = null;
-  export let value = null;
-  export let name = '';
-  export let disabled = false;
-  export let tabindex = 0;
-  /** @type {'input' | 'button'} button: the label in a box that fills when selected (UI3's radio "Button" variant) */
-  export let variant = 'input';
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+  import type { FocusEventHandler, FormEventHandler } from 'svelte/elements';
 
-  let className = '';
-  export { className as class };
+  interface Props {
+    /** The group's value; bind it on every radio of the group */
+    group?: unknown;
+    value?: unknown;
+    name?: string;
+    disabled?: boolean;
+    tabindex?: number;
+    /** button: the label in a box that fills when selected (UI3's radio "Button" variant) */
+    variant?: 'input' | 'button';
+    class?: string;
+    /** The label */
+    children?: Snippet;
+    onchange?: FormEventHandler<HTMLInputElement>;
+    onfocus?: FocusEventHandler<HTMLInputElement>;
+    onblur?: FocusEventHandler<HTMLInputElement>;
+  }
+
+  let {
+    group = $bindable(),
+    value = null,
+    name = '',
+    disabled = false,
+    tabindex = 0,
+    variant = 'input',
+    class: className = '',
+    children,
+    onchange,
+    onfocus,
+    onblur,
+  }: Props = $props();
+
   let uniqueId = 'radio--' + (Math.random() * 10000000).toFixed(0).toString();
-  $: checked = group === value;
+  let checked = $derived(group === value);
 </script>
 
 <div class="radio-container {className}" class:button-variant={variant === 'button'}>
@@ -23,13 +47,13 @@
     {tabindex}
     id={uniqueId}
     bind:group
-    on:change
-    on:focus
-    on:blur
+    {onchange}
+    {onfocus}
+    {onblur}
   />
   {#if variant === 'button'}
     <label for={uniqueId} class="radio-box" class:checked class:disabled>
-      <span class="radio-text"><slot /></span>
+      <span class="radio-text">{@render children?.()}</span>
     </label>
   {:else}
     <label for={uniqueId} class="radio-label">
@@ -39,7 +63,7 @@
         {/if}
       </div>
       <span class="radio-text">
-        <slot />
+        {@render children?.()}
       </span>
     </label>
   {/if}

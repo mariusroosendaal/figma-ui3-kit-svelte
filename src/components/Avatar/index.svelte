@@ -5,43 +5,51 @@
   Without a `color`, one is picked from the name, so the same person keeps the
   same color. `count` draws the overflow avatar (blue when `unread`).
 -->
-<script>
-  export let name = '';
-  /** @type {string | null} photo or organization image URL */
-  export let src = null;
-  /** @type {'purple' | 'blue' | 'pink' | 'red' | 'yellow' | 'green' | 'grey' | null} */
-  export let color = null;
-  /** @type {'small' | 'default' | 'large'} 16, 24 or 32px */
-  export let size = 'default';
-  /** @type {'circle' | 'square'} */
-  export let shape = 'circle';
-  /** @type {number | null} overflow avatar, e.g. 3 more people */
-  export let count = null;
-  export let unread = false;
-  export let disabled = false;
-  /** Only when the tooltip is the wrong name; by default the tooltip names it
-   * (the name, or "N more" for a count) and doubling the two reads twice. */
-  export let ariaLabel = '';
+<script lang="ts">
+  interface Props {
+    name?: string;
+    /** Photo or organization image URL */
+    src?: string | null;
+    color?: 'purple' | 'blue' | 'pink' | 'red' | 'yellow' | 'green' | 'grey' | null;
+    /** 16, 24 or 32px */
+    size?: 'small' | 'default' | 'large';
+    shape?: 'circle' | 'square';
+    /** Overflow avatar, e.g. 3 more people */
+    count?: number | null;
+    unread?: boolean;
+    disabled?: boolean;
+    /** Only when the tooltip is the wrong name; by default the tooltip names it
+     * (the name, or "N more" for a count) and doubling the two reads twice. */
+    ariaLabel?: string;
+    class?: string;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    name = '',
+    src = null,
+    color = null,
+    size = 'default',
+    shape = 'circle',
+    count = null,
+    unread = false,
+    disabled = false,
+    ariaLabel = '',
+    class: className = '',
+  }: Props = $props();
 
   const COLORS = ['purple', 'blue', 'pink', 'red', 'yellow', 'green', 'grey'];
 
-  $: hash = [...(name || '')].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 0);
-  $: hue = color ?? COLORS[hash % COLORS.length];
-  $: initial = (name || '').trim().charAt(0).toUpperCase();
-  $: overflow = count !== null && count !== undefined;
+  let hash = $derived([...(name || '')].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 0));
+  let hue = $derived(color ?? COLORS[hash % COLORS.length]);
+  let initial = $derived((name || '').trim().charAt(0).toUpperCase());
+  let overflow = $derived(count !== null && count !== undefined);
   // The tooltip names the avatar on its own, so `aria-label` is only set when
   // the caller wants a different one — otherwise both are read out.
-  $: tooltip = (overflow ? `${count} more` : name) || undefined;
-  $: label = ariaLabel || tooltip;
+  let tooltip = $derived((overflow ? `${count} more` : name) || undefined);
+  let label = $derived(ariaLabel || tooltip);
   // A broken image falls back to the initial; a new src tries again.
-  let failed = false;
-  $: resetFailed(src);
-  function resetFailed(_src) {
-    failed = false;
-  }
+  let failedSrc: string | null = $state(null);
+  let failed = $derived(src !== null && failedSrc === src);
 </script>
 
 <span
@@ -60,7 +68,7 @@
   title={tooltip}
 >
   {#if src && !failed && !overflow}
-    <img {src} alt="" on:error={() => (failed = true)} />
+    <img {src} alt="" onerror={() => (failedSrc = src)} />
   {:else}
     <span class="text" aria-hidden="true">{overflow ? count : initial}</span>
   {/if}

@@ -8,7 +8,7 @@
   - `type` makes a row a control. 'check' draws a leading checkmark (`checked:
     'mixed'` draws a dot) and closes the menu like any action; 'checkbox' and
     'toggle' draw a trailing checkbox or a leading switch and keep it open, so
-    several can be flipped in one go. Each flips `checked` and fires `select`.
+    several can be flipped in one go. Each flips `checked` and calls `onselect`.
   - Without a type, a row is an action. With `itemVariant="checkmark"` the rows
     are a single choice instead, marked by `selected` (how Dropdown uses it).
   - A group change draws a divider, and a heading when `showHeading` (or
@@ -19,8 +19,10 @@
   `searchable` the field keeps focus while the arrows move through what it
   leaves. The highlight follows the pointer too, so there is only ever one.
 -->
-<script>
-  import { createEventDispatcher, onDestroy, onMount, tick } from 'svelte';
+<script lang="ts" generics="T extends MenuOption = MenuOption">
+  import { onDestroy, onMount, tick, untrack } from 'svelte';
+  import type { MenuOption } from '../../types';
+  import Menu from './index.svelte';
   import MenuItem from '../MenuItem/index.svelte';
   import MenuDivider from '../MenuDivider/index.svelte';
   import MenuHeading from '../MenuHeading/index.svelte';
@@ -30,103 +32,141 @@
   import IconChevronUp from './../../icons/24/icon.24.chevron.up.svg';
   import IconPlus from './../../icons/16/icon.16.plus.svg';
 
-  export let isOpen = false;
-  /** @type {any[]} */
-  export let menuItems = [];
-  export let showGroupLabels = false;
-  /** @type {HTMLElement | null} */
-  export let anchorElement = null;
-  export let position = 'bottom-left'; // 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right' | 'right' (sub-menus)
-  export let minWidth = null;
-  export let itemVariant = 'default'; // "default" | "checkmark"
-  export let nestingLevel = 0; // Nesting level for z-index calculation (0 = top-level)
-  export let menuListId = '';
-  export let searchable = false;
-  export let searchPlaceholder = 'Search';
-  /** Label of a full-width button under the list, e.g. "Clear all"; fires `footer`. */
-  export let footerLabel = '';
-  /** @type {'button' | 'row'} button: a bordered button (multi-select menus); row: a centered "+ label" row (UI3's Menu row/Footer) */
-  export let footerVariant = 'button';
-  /** Row footer's icon; a plus by default */
-  export let footerIconName = null;
-  /** Whether the menu takes focus when it opens. Sub-menus opened by the pointer don't. */
-  export let autofocus = true;
+  interface Props {
+    isOpen?: boolean;
+    /** Menu sets their `checked` and `selected` as rows are picked */
+    menuItems?: T[];
+    showGroupLabels?: boolean;
+    anchorElement?: HTMLElement | null;
+    /** 'right' places sub-menus */
+    position?: 'bottom-left' | 'bottom-right' | 'top-left' | 'top-right' | 'right';
+    minWidth?: string | null;
+    itemVariant?: 'default' | 'checkmark';
+    /** Nesting level for z-index calculation (0 = top-level) */
+    nestingLevel?: number;
+    menuListId?: string;
+    searchable?: boolean;
+    searchPlaceholder?: string;
+    /** Label of a full-width button under the list, e.g. "Clear all"; calls `onfooter`. */
+    footerLabel?: string;
+    /** button: a bordered button (multi-select menus); row: a centered "+ label" row (UI3's Menu row/Footer) */
+    footerVariant?: 'button' | 'row';
+    /** Row footer's icon; a plus by default */
+    footerIconName?: string | null;
+    /** Whether the menu takes focus when it opens. Sub-menus opened by the pointer don't. */
+    autofocus?: boolean;
+    class?: string;
+    /** A picked row, a sub-menu's included, after its `checked` or `selected` updates */
+    onselect?: (item: T) => void;
+    /** After `isOpen` turns false. A sub-menu passes `{ all, returnFocus }` to close
+     * the whole menu, and nothing to close itself. */
+    onclose?: (detail?: { all: boolean; returnFocus: boolean }) => void;
+    /** The footer button */
+    onfooter?: () => void;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    isOpen = $bindable(),
+    menuItems = $bindable(),
+    showGroupLabels = false,
+    anchorElement = null,
+    position = 'bottom-left',
+    minWidth = null,
+    itemVariant = 'default',
+    nestingLevel = 0,
+    menuListId = '',
+    searchable = false,
+    searchPlaceholder = 'Search',
+    footerLabel = '',
+    footerVariant = 'button',
+    footerIconName = null,
+    autofocus = true,
+    class: className = '',
+    onselect,
+    onclose,
+    onfooter,
+  }: Props = $props();
 
-  const dispatch = createEventDispatcher();
+  // Unset, it has no rows
+  let items = $derived(menuItems ?? []);
+
   const menuId = Math.random().toString(36).slice(2, 11);
   const GAP = 4;
   const MARGIN = 8;
 
-  /** @type {HTMLDivElement} */
-  let wrapper;
-  /** @type {HTMLUListElement} */
-  let list;
-  /** @type {HTMLInputElement} */
-  let input;
-  /** @type {HTMLDivElement} */
-  let searchRow;
-  /** @type {HTMLDivElement} */
-  let footer;
+  let wrapper: HTMLDivElement | undefined = $state();
+  let list: HTMLUListElement | undefined = $state();
+  let input: HTMLInputElement | undefined = $state();
+  let searchRow: HTMLDivElement | undefined = $state();
+  let footer: HTMLDivElement | undefined = $state();
 
-  let query = '';
-  let active = -1; // index into menuItems
-  let placed = false;
-  let place_ = { top: 0, left: 0, maxHeight: 0 };
-  let openSub = -1;
-  let subByKeyboard = false;
-  /** @type {HTMLElement | null} */
-  let subAnchor = null;
-  let openTimer = null;
-  let closeTimer = null;
+  let query = $state('');
+  let active = $state(-1); // index into menuItems
+  let placed = $state(false);
+  let place_ = $state({ top: 0, left: 0, maxHeight: 0 });
+  let openSub = $state(-1);
+  let subByKeyboard = $state(false);
+  let subAnchor: HTMLElement | null = $state(null);
+  let openTimer: ReturnType<typeof setTimeout> | undefined;
+  let closeTimer: ReturnType<typeof setTimeout> | undefined;
   // Overflow: arrow rows at the edges scroll the list on hover (UI3's Menu row/Expand)
-  let canScrollUp = false;
-  let canScrollDown = false;
-  let scrollFrame = null;
+  let canScrollUp = $state(false);
+  let canScrollDown = $state(false);
+  let scrollFrame: number | null = null;
+  // Rows are flipped in place, on the caller's objects, which a plain array
+  // doesn't report: counting the flips redraws them.
+  let flips = $state(0);
 
-  $: listId = menuListId || `menu-${menuId}`;
-  const rowId = (index) => `${listId}-${index}`;
+  let listId = $derived(menuListId || `menu-${menuId}`);
+  const rowId = (index: number) => `${listId}-${index}`;
   // Called from the markup rather than kept as a reactive value: `active` is set
   // inside functions that reactive statements call, which a derived value misses.
-  const activeIdOf = (open, index) =>
+  const activeIdOf = (open: boolean, index: number) =>
     open && index >= 0 ? `menu-item-${rowId(index)}` : undefined;
 
-  const hasSub = (item) => Array.isArray(item?.subMenu) && item.subMenu.length > 0;
-  const sectionOf = (item) => item.section ?? item.group ?? null;
-  const headingOf = (item) => item.group && (item.showHeading ?? showGroupLabels);
-  const haystack = (item) =>
+  const hasSub = (item: MenuOption | undefined) =>
+    Array.isArray(item?.subMenu) && item.subMenu.length > 0;
+  const sectionOf = (item: MenuOption) => item.section ?? item.group ?? null;
+  const headingOf = (item: MenuOption) => item.group && (item.showHeading ?? showGroupLabels);
+  const haystack = (item: MenuOption) =>
     [item.label, item.group, item.detail].filter(Boolean).join(' ').toLowerCase();
 
-  $: needle = searchable ? query.trim().toLowerCase() : '';
-  $: rows = menuItems
-    .map((item, index) => ({ item, index }))
-    .filter(({ item }) => !needle || haystack(item).includes(needle));
-  $: enabled = rows.filter(({ item }) => !item.disabled).map(({ index }) => index);
+  let needle = $derived(searchable ? query.trim().toLowerCase() : '');
+  let rows = $derived.by(() => {
+    void flips;
+    return items
+      .map((item, index) => ({ item, index }))
+      .filter(({ item }) => !needle || haystack(item).includes(needle));
+  });
+  let enabled = $derived(rows.filter(({ item }) => !item.disabled).map(({ index }) => index));
   // Every row keeps the check column once one row needs it, so labels line up.
-  $: checkColumn = itemVariant === 'checkmark' || menuItems.some((item) => item.type === 'check');
+  let checkColumn = $derived(
+    itemVariant === 'checkmark' || items.some((item) => item.type === 'check')
+  );
 
-  function rowVariant(item) {
+  function rowVariant(item: MenuOption) {
     if (item.type === 'checkbox' || item.type === 'toggle') return item.type;
     return checkColumn ? 'checkmark' : 'default';
   }
 
-  function rowSelected(item) {
+  function rowSelected(item: MenuOption) {
     if (item.type) return item.checked ?? false;
     return itemVariant === 'checkmark' ? Boolean(item.selected) : false;
   }
 
-  function rowRole(item) {
+  function rowRole(item: MenuOption) {
     if (item.type) return 'menuitemcheckbox';
     return itemVariant === 'checkmark' ? 'menuitemradio' : 'menuitem';
   }
 
   // OPEN AND CLOSE
 
-  $: handleOpenChange(isOpen);
+  $effect.pre(() => {
+    const open = !!isOpen;
+    untrack(() => handleOpenChange(open));
+  });
 
-  async function handleOpenChange(open) {
+  async function handleOpenChange(open: boolean) {
     if (!open) {
       stopListening();
       return;
@@ -134,8 +174,8 @@
     query = '';
     placed = false;
     openSub = -1;
-    const chosen = menuItems.findIndex((item) => item.selected && !item.disabled);
-    const first = menuItems.findIndex((item) => !item.disabled);
+    const chosen = items.findIndex((item) => item.selected && !item.disabled);
+    const first = items.findIndex((item) => !item.disabled);
     active = chosen >= 0 ? chosen : nestingLevel > 0 && autofocus ? first : -1;
     if (nestingLevel === 0) {
       document.dispatchEvent(new CustomEvent('dropdown:open', { detail: { dropdownId: menuId } }));
@@ -156,23 +196,29 @@
 
   /** Closes the menu. `returnFocus` sends focus back to the trigger when it was inside. */
   function close(returnFocus = false) {
-    if (!isOpen) return;
-    const hadFocus = wrapper?.contains(document.activeElement);
+    if (isOpen) shut(returnFocus, wrapper?.contains(document.activeElement) ?? false);
+  }
+
+  // Closes even a menu its caller has closed already, from `onselect`: that
+  // caller still hears `onclose`, and the focus still goes back.
+  function shut(returnFocus: boolean, hadFocus: boolean) {
     clearTimers();
     openSub = -1;
     if (nestingLevel > 0) {
-      dispatch('close', { all: true, returnFocus });
+      onclose?.({ all: true, returnFocus });
       return;
     }
-    isOpen = false;
+    // Only when the caller hasn't: writing a prop the caller has just changed
+    // leaves Svelte 5.35+ deaf to it, as in Modal's closeModal
+    if (isOpen) isOpen = false;
     stopListening();
-    dispatch('close');
+    onclose?.();
     if (returnFocus && hadFocus) anchorElement?.focus();
   }
 
-  function onSubClose(event) {
-    if (event.detail?.all) {
-      close(event.detail.returnFocus);
+  function onSubClose(detail?: { all: boolean; returnFocus: boolean }) {
+    if (detail?.all) {
+      shut(detail.returnFocus, wrapper?.contains(document.activeElement) ?? false);
       return;
     }
     const byKeyboard = subByKeyboard;
@@ -180,18 +226,19 @@
     if (byKeyboard) (searchable ? input : list)?.focus({ preventScroll: true });
   }
 
-  function onClickOutside(event) {
-    if (isOpen && wrapper && !wrapper.contains(event.target)) close();
+  function onClickOutside(event: MouseEvent) {
+    if (isOpen && wrapper && !wrapper.contains(event.target as Node | null)) close();
   }
 
   // The menu is placed against its trigger once; anything scrolling behind it
   // would leave it floating, so that closes it.
-  function onScroll(event) {
-    if (isOpen && wrapper && !wrapper.contains(event.target)) close();
+  function onScroll(event: Event) {
+    if (isOpen && wrapper && !wrapper.contains(event.target as Node | null)) close();
   }
 
-  function onOtherMenuOpen(event) {
-    if (isOpen && nestingLevel === 0 && event.detail?.dropdownId !== menuId) close();
+  function onOtherMenuOpen(event: Event) {
+    const { detail } = event as CustomEvent<{ dropdownId: string } | undefined>;
+    if (isOpen && nestingLevel === 0 && detail?.dropdownId !== menuId) close();
   }
 
   function startListening() {
@@ -229,12 +276,14 @@
   }
 
   // Re-measured when the rows change (search) — after they render.
-  $: if (isOpen && placed) remeasure(rows);
-  function remeasure(_rows) {
-    tick().then(updateOverflow);
-  }
+  $effect(() => {
+    if (isOpen && placed) {
+      void rows;
+      tick().then(updateOverflow);
+    }
+  });
 
-  function startScroll(direction) {
+  function startScroll(direction: number) {
     stopScroll();
     const stepFrame = () => {
       if (!list) return;
@@ -298,7 +347,7 @@
 
   // HIGHLIGHT
 
-  function setActive(index, scroll = false) {
+  function setActive(index: number, scroll = false) {
     active = index;
     if (scroll) scrollToActive();
   }
@@ -309,7 +358,7 @@
     document.getElementById(`menu-item-${rowId(active)}`)?.scrollIntoView({ block: 'nearest' });
   }
 
-  function move(step) {
+  function move(step: number) {
     if (enabled.length === 0) return;
     const at = enabled.indexOf(active);
     const next =
@@ -323,14 +372,20 @@
 
   // Typing moves the highlight to the first match, so Enter picks it. Handed
   // what it reads, so it re-runs on a keystroke and not on an arrow key.
-  $: if (isOpen && searchable) firstMatch(needle, enabled);
-  function firstMatch(text, matches) {
+  $effect.pre(() => {
+    if (isOpen && searchable) {
+      const text = needle;
+      const matches = enabled;
+      untrack(() => firstMatch(text, matches));
+    }
+  });
+  function firstMatch(text: string, matches: number[]) {
     if (text) active = matches.length ? matches[0] : -1;
   }
 
   // SUB-MENUS
 
-  function openSubMenu(index, byKeyboard) {
+  function openSubMenu(index: number, byKeyboard: boolean) {
     clearTimers();
     subAnchor = document.getElementById(`menu-item-${rowId(index)}`);
     subByKeyboard = byKeyboard;
@@ -340,12 +395,12 @@
   function clearTimers() {
     clearTimeout(openTimer);
     clearTimeout(closeTimer);
-    openTimer = closeTimer = null;
+    openTimer = closeTimer = undefined;
   }
 
-  function onRowEnter(index) {
+  function onRowEnter(index: number) {
     setActive(index);
-    const item = menuItems[index];
+    const item = items[index];
     clearTimers();
     if (index === openSub) return;
     if (hasSub(item) && !item.disabled) {
@@ -361,8 +416,14 @@
 
   // PICKING
 
-  function activate(index, byKeyboard) {
-    const item = menuItems[index];
+  // Tells a caller that binds `menuItems` that its rows changed
+  function flipped() {
+    flips++;
+    menuItems = items;
+  }
+
+  function activate(index: number, byKeyboard: boolean) {
+    const item = items[index];
     if (!item || item.disabled) return;
     if (hasSub(item)) {
       openSubMenu(index, byKeyboard);
@@ -370,23 +431,24 @@
     }
     if (item.type === 'checkbox' || item.type === 'toggle') {
       item.checked = item.checked !== true;
-      menuItems = menuItems;
-      dispatch('select', item);
+      flipped();
+      onselect?.(item);
       return;
     }
     if (item.type === 'check') {
       item.checked = item.checked !== true;
-      menuItems = menuItems;
+      flipped();
     } else if (itemVariant === 'checkmark') {
-      menuItems.forEach((i) => (i.selected = false));
+      items.forEach((i) => (i.selected = false));
       item.selected = true;
-      menuItems = menuItems;
+      flipped();
     }
-    dispatch('select', item);
-    close(byKeyboard);
+    const hadFocus = wrapper?.contains(document.activeElement) ?? false;
+    onselect?.(item);
+    shut(byKeyboard, hadFocus);
   }
 
-  function handleKeydown(event) {
+  function handleKeydown(event: KeyboardEvent) {
     const inField = event.currentTarget === input;
     switch (event.key) {
       case 'ArrowDown':
@@ -415,19 +477,19 @@
       case 'ArrowRight':
         if (inField) return;
         event.preventDefault();
-        if (active >= 0 && hasSub(menuItems[active]) && !menuItems[active].disabled) {
+        if (active >= 0 && hasSub(items[active]) && !items[active].disabled) {
           openSubMenu(active, true);
         }
         break;
       case 'ArrowLeft':
         if (inField || nestingLevel === 0) return;
         event.preventDefault();
-        dispatch('close');
+        onclose?.();
         break;
       case 'Escape':
         event.preventDefault();
         event.stopPropagation();
-        if (nestingLevel > 0) dispatch('close');
+        if (nestingLevel > 0) onclose?.();
         else close(true);
         break;
       case 'Tab':
@@ -437,8 +499,8 @@
     }
   }
 
-  function onFocusOut(event) {
-    const next = event.relatedTarget;
+  function onFocusOut(event: FocusEvent) {
+    const next = event.relatedTarget as Node | null;
     // Focus moving to the trigger is a click on it, which toggles the menu
     // itself; closing here too would have that click open it again. Tab, the
     // keyboard's way there, closes the menu on keydown.
@@ -455,7 +517,7 @@
     style="--menu-min-width: {minWidth ||
       'auto'}; top: {place_.top}px; left: {place_.left}px; max-height: {place_.maxHeight ||
       'none'}{place_.maxHeight ? 'px' : ''}; z-index: {1001 + nestingLevel};"
-    on:focusout={onFocusOut}
+    onfocusout={onFocusOut}
   >
     {#if searchable}
       <div class="search-row" bind:this={searchRow}>
@@ -474,7 +536,7 @@
             placeholder={searchPlaceholder}
             autocomplete="off"
             spellcheck="false"
-            on:keydown={handleKeydown}
+            onkeydown={handleKeydown}
           />
         </div>
       </div>
@@ -483,15 +545,15 @@
     <div class="list-area" class:no-top-edge={searchable} class:no-bottom-edge={footerLabel}>
       <ul
         bind:this={list}
-        on:scroll={updateOverflow}
+        onscroll={updateOverflow}
         class="menu"
         role="menu"
         id={listId}
         tabindex={searchable ? -1 : 0}
         aria-activedescendant={searchable ? undefined : activeIdOf(isOpen, active)}
-        on:keydown={handleKeydown}
-        on:mouseleave={onListLeave}
-        on:mousedown|preventDefault
+        onkeydown={handleKeydown}
+        onmouseleave={onListLeave}
+        onmousedown={(event) => event.preventDefault()}
       >
         {#each rows as { item, index }, k (index)}
           {@const prev = k > 0 ? rows[k - 1].item : null}
@@ -514,9 +576,9 @@
             avatar={item.avatar ?? null}
             detail={item.detail ?? ''}
             badge={item.badge ?? ''}
-            on:mouseenter={() => onRowEnter(index)}
-            on:mousemove={() => active !== index && onRowEnter(index)}
-            on:click={() => activate(index, false)}
+            onmouseenter={() => onRowEnter(index)}
+            onmousemove={() => active !== index && onRowEnter(index)}
+            onclick={() => activate(index, false)}
           >
             {item.label}
           </MenuItem>
@@ -531,8 +593,8 @@
         <div
           class="overflow-arrow up"
           aria-hidden="true"
-          on:mouseenter={() => startScroll(-1)}
-          on:mouseleave={stopScroll}
+          onmouseenter={() => startScroll(-1)}
+          onmouseleave={stopScroll}
         >
           <Icon iconName={IconChevronUp} color="--color-icon-menu" />
         </div>
@@ -541,8 +603,8 @@
         <div
           class="overflow-arrow down"
           aria-hidden="true"
-          on:mouseenter={() => startScroll(1)}
-          on:mouseleave={stopScroll}
+          onmouseenter={() => startScroll(1)}
+          onmouseleave={stopScroll}
         >
           <Icon iconName={IconChevronDown} color="--color-icon-menu" />
         </div>
@@ -554,7 +616,7 @@
         <button
           type="button"
           class={footerVariant === 'row' ? 'footer-row' : 'footer-button'}
-          on:click={() => dispatch('footer')}
+          onclick={() => onfooter?.()}
         >
           {#if footerVariant === 'row'}
             <Icon iconName={footerIconName || IconPlus} color="--color-icon-menu" size={16} />
@@ -564,20 +626,20 @@
       </div>
     {/if}
 
-    {#if openSub >= 0 && hasSub(menuItems[openSub]) && subAnchor}
-      <!-- svelte-ignore a11y-no-static-element-interactions -->
-      <div class="sub-menu" on:mouseenter={clearTimers}>
-        <svelte:self
+    {#if openSub >= 0 && hasSub(items[openSub]) && subAnchor}
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <div class="sub-menu" onmouseenter={clearTimers}>
+        <Menu
           isOpen={true}
-          menuItems={menuItems[openSub].subMenu}
+          menuItems={items[openSub].subMenu as T[]}
           {showGroupLabels}
           {itemVariant}
           position="right"
           nestingLevel={nestingLevel + 1}
           anchorElement={subAnchor}
           autofocus={subByKeyboard}
-          on:select={(e) => dispatch('select', e.detail)}
-          on:close={onSubClose}
+          onselect={(item) => onselect?.(item)}
+          onclose={onSubClose}
         />
       </div>
     {/if}

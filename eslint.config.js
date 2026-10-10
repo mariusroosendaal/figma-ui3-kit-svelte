@@ -1,5 +1,8 @@
 import js from '@eslint/js';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
 import svelte from 'eslint-plugin-svelte';
+import svelteParser from 'svelte-eslint-parser';
 
 export default [
   js.configs.recommended,
@@ -8,22 +11,7 @@ export default [
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
-      globals: {
-        window: 'readonly',
-        document: 'readonly',
-        console: 'readonly',
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
-        requestAnimationFrame: 'readonly',
-        MouseEvent: 'readonly',
-        KeyboardEvent: 'readonly',
-        HTMLElement: 'readonly',
-        Event: 'readonly',
-        CustomEvent: 'readonly',
-        MutationObserver: 'readonly',
-      },
+      globals: globals.browser,
     },
     rules: {
       'no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^\\$\\$' }],
@@ -33,8 +21,10 @@ export default [
   {
     files: ['**/*.svelte'],
     languageOptions: {
+      parser: svelteParser,
       parserOptions: {
-        parser: null,
+        parser: tseslint.parser,
+        extraFileExtensions: ['.svelte'],
       },
     },
     rules: {
@@ -43,14 +33,15 @@ export default [
     },
   },
   {
-    ignores: [
-      'node_modules/',
-      'storybook-static/',
-      '*.config.js',
-      '.storybook/',
-    ],
+    files: ['**/*.ts'],
+    languageOptions: { parser: tseslint.parser },
   },
-  // Runes-mode advice: legacy-mode components react to reassignment, not to
-  // SvelteSet or SvelteMap. Drop this once the components move to runes.
-  { rules: { 'svelte/prefer-svelte-reactivity': 'off' } },
+  // TypeScript checks these, and knows types and globals ESLint's core rules don't
+  {
+    files: ['**/*.svelte', '**/*.ts'],
+    rules: { 'no-unused-vars': 'off', 'no-undef': 'off' },
+  },
+  {
+    ignores: ['node_modules/', 'storybook-static/', '*.config.js', '.storybook/'],
+  },
 ];

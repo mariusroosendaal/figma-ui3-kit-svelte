@@ -35,7 +35,7 @@ export default {
     },
     text: {
       control: 'text',
-      description: 'Text content (falls back to slot content if provided)',
+      description: 'Text content (children replace it)',
     },
     class: {
       table: {

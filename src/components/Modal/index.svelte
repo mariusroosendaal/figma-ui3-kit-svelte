@@ -1,52 +1,108 @@
-<script context="module">
+<script lang="ts" module>
   // The open modals, the last opened on top: only it answers Escape and Tab,
   // so a confirmation over a modal closes alone.
-  const openModals = [];
+  const openModals: object[] = [];
 </script>
 
-<script>
+<script lang="ts">
+  import { onDestroy, tick, type ComponentProps, type Snippet } from 'svelte';
   import ModalHeader from '../ModalHeader/index.svelte';
   import ModalFooter from '../ModalFooter/index.svelte';
-  import { createEventDispatcher, onDestroy, tick } from 'svelte';
 
-  export let isOpen = false;
-  export let title = '';
-  export let headerVariant = 'default'; // 'default' | 'navigation' | 'tabs'
-  export let onBack = null; // navigation header's back arrow; also fires `back`
-  export let backAriaLabel = 'Back'; // navigation header's back arrow
-  export let headerTabs = []; // tabs header: as Tabs' `tabs`
-  export let selectedTab = 0; // tabs header: bindable
-  export let panelIds = []; // tabs header: ids of the panels, for aria-controls
-  export let icon2 = false;
-  export let icon2Name = null;
-  export let icon2AriaLabel = ''; // required whenever `icon2` is set (WCAG 4.1.2)
-  export let onIcon2Click = null;
-  export let footerVariant = 'default';
-  export let footerBorder = true;
-  export let showOverlay = true;
-  export let closeOnOverlayClick = true;
-  export let closeOnEscape = true;
-  export let onClose = null;
-  // Asked before X, Escape or a click outside closes the modal: return false,
-  // or a promise of false, to keep it open (to confirm discarding edits, say).
-  export let beforeClose = null;
-  export let width = 'medium'; // "small" (240px), "medium" (320px), "large" (480px), or custom string
-  export let height = 'auto'; // "auto" (hugs content), "50vh", "80vh", or custom string
-  export let position = 'center'; // "center" (default), "left", "right", "bottom"
-  export let overlayPadding = '16px'; // Controls padding/viewport constraint
-  export let contentPadding = true; // Controls padding on content area
+  type Size = string | number;
 
-  let className = '';
-  export { className as class };
-  let modalElement;
-  let previousActiveElement = null;
+  interface Props {
+    isOpen?: boolean;
+    title?: string;
+    headerVariant?: 'default' | 'navigation' | 'tabs';
+    /** Navigation header's back arrow */
+    backAriaLabel?: string;
+    /** Tabs header: as Tabs' `tabs` */
+    headerTabs?: ComponentProps<typeof ModalHeader>['tabs'];
+    /** Tabs header */
+    selectedTab?: number;
+    /** Tabs header: ids of the panels, for aria-controls */
+    panelIds?: string[];
+    icon2?: boolean;
+    icon2Name?: string | null;
+    /** Required whenever `icon2` is set (WCAG 4.1.2) */
+    icon2AriaLabel?: string;
+    footerVariant?: string;
+    footerBorder?: boolean;
+    showOverlay?: boolean;
+    closeOnOverlayClick?: boolean;
+    closeOnEscape?: boolean;
+    /** Asked before X, Escape or a click outside closes the modal: return false,
+     * or a promise of false, to keep it open (to confirm discarding edits, say). */
+    beforeClose?: (() => boolean | Promise<boolean>) | null;
+    /** "small" (240px), "medium" (320px), "large" (480px), a CSS length, or px */
+    width?: Size;
+    /** "auto" (hugs content), "50vh", "80vh", a CSS length, or px */
+    height?: Size;
+    position?: 'center' | 'left' | 'right' | 'bottom';
+    /** The gap kept round the modal; "0px" for edge to edge */
+    overlayPadding?: string;
+    contentPadding?: boolean;
+    class?: string;
+    children?: Snippet;
+    /** A control in place of the title, such as a Dropdown */
+    header?: Snippet;
+    footerLeft?: Snippet;
+    footerRight?: Snippet;
+    /** Across the footer, when there is no `footerLeft` or `footerRight` */
+    footerFull?: Snippet;
+    /** X, Escape or a click outside, once `beforeClose` allows it. `isOpen`
+     * turns false a tick later unless the handler closed the modal itself. */
+    onclose?: () => void;
+    /** Navigation header's back arrow */
+    onback?: (event: MouseEvent) => void;
+    onicon2click?: (event: MouseEvent) => void;
+    /** Tabs header: the chosen tab's index, after `selectedTab` updates */
+    ontabchange?: (index: number) => void;
+  }
+
+  let {
+    isOpen = $bindable(),
+    title = '',
+    headerVariant = 'default',
+    backAriaLabel = 'Back',
+    headerTabs = [],
+    selectedTab = $bindable(),
+    panelIds = [],
+    icon2 = false,
+    icon2Name = null,
+    icon2AriaLabel = '',
+    footerVariant = 'default',
+    footerBorder = true,
+    showOverlay = true,
+    closeOnOverlayClick = true,
+    closeOnEscape = true,
+    beforeClose = null,
+    width = 'medium',
+    height = 'auto',
+    position = 'center',
+    overlayPadding = '16px',
+    contentPadding = true,
+    class: className = '',
+    children,
+    header,
+    footerLeft,
+    footerRight,
+    footerFull,
+    onclose,
+    onback,
+    onicon2click,
+    ontabchange,
+  }: Props = $props();
+
+  let modalElement: HTMLDivElement | undefined = $state();
+  let previousActiveElement: HTMLElement | null = null;
   const self = {};
   let closing = false;
-  const dispatch = createEventDispatcher();
   let modalTitleId = 'modal-title--' + (Math.random() * 10000000).toFixed(0).toString();
 
   // Calculate modal width
-  $: modalWidth = (() => {
+  let modalWidth = $derived.by(() => {
     // For bottom position, default to full width minus padding
     if (
       position === 'bottom' &&
@@ -69,10 +125,10 @@
       }
     }
     return `${width}px`; // Number value
-  })();
+  });
 
   // Calculate modal height
-  $: modalHeight = (() => {
+  let modalHeight = $derived.by(() => {
     if (typeof height === 'string') {
       switch (height) {
         case 'auto':
@@ -90,13 +146,13 @@
       }
     }
     return `${height}px`; // Number value
-  })();
+  });
 
   // Calculate modal max-height
-  $: modalMaxHeight = `calc(100vh - 2 * ${overlayPadding})`;
+  let modalMaxHeight = $derived(`calc(100vh - 2 * ${overlayPadding})`);
 
   // Calculate border-radius based on position and padding
-  $: modalBorderRadius = (() => {
+  let modalBorderRadius = $derived.by(() => {
     // If no padding (edge-to-edge), remove border-radius for positioned modals
     if (overlayPadding === '0px' || overlayPadding === '0') {
       if (position === 'left' || position === 'right' || position === 'bottom') {
@@ -105,18 +161,18 @@
     }
     // Default border-radius for centered modals or when padding exists
     return 'var(--border-radius-large)';
-  })();
+  });
 
   function getFocusableElements() {
     if (!modalElement) return [];
     return Array.from(
-      modalElement.querySelectorAll(
+      modalElement.querySelectorAll<HTMLElement>(
         'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
       )
     );
   }
 
-  function handleOverlayClick(event) {
+  function handleOverlayClick(event: MouseEvent) {
     if (closeOnOverlayClick && event.target === event.currentTarget) {
       closeModal();
     }
@@ -124,7 +180,7 @@
 
   const isTop = () => openModals[openModals.length - 1] === self;
 
-  function handleKeydown(event) {
+  function handleKeydown(event: KeyboardEvent) {
     if (!isOpen || !isTop()) return;
 
     if (event.key === 'Escape') {
@@ -153,23 +209,6 @@
     }
   }
 
-  function handleIcon2Click(event) {
-    if (onIcon2Click) {
-      onIcon2Click(event);
-    }
-    dispatch('icon2Click', event);
-  }
-
-  function handleBack(event) {
-    if (onBack) onBack(event);
-    dispatch('back', event);
-  }
-
-  function handleTabChange(event) {
-    selectedTab = event.detail;
-    dispatch('tabChange', selectedTab);
-  }
-
   async function closeModal() {
     if (closing) return;
     if (beforeClose) {
@@ -182,10 +221,7 @@
       }
       if (!close || !isOpen) return;
     }
-    if (onClose) {
-      onClose();
-    }
-    dispatch('close');
+    onclose?.();
     // Close it here only if the parent didn't. Writing the prop while the
     // parent's own update is in flight leaves Svelte 5.35+ deaf to the parent
     // reopening it when isOpen is an expression, such as `panel !== null`.
@@ -194,10 +230,10 @@
   }
 
   // Focus management and body scroll lock
-  $: if (typeof document !== 'undefined') {
+  $effect.pre(() => {
     if (isOpen) {
       if (!openModals.includes(self)) openModals.push(self);
-      previousActiveElement = document.activeElement;
+      previousActiveElement = document.activeElement as HTMLElement | null;
       document.body.style.overflow = 'hidden';
       tick().then(() => {
         if (!isOpen) return;
@@ -216,7 +252,7 @@
       if (previousActiveElement?.isConnected) previousActiveElement.focus();
       previousActiveElement = null;
     }
-  }
+  });
 
   function removeFromStack() {
     const index = openModals.indexOf(self);
@@ -233,14 +269,14 @@
   });
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 {#if isOpen}
   <!-- Without an overlay the wrapper takes no box (display: contents). -->
   <div
     class={showOverlay ? `modal-overlay modal-overlay--${position}` : 'modal-bare'}
     style={showOverlay ? `padding: ${overlayPadding}` : undefined}
-    on:click={showOverlay ? handleOverlayClick : undefined}
+    onclick={showOverlay ? handleOverlayClick : undefined}
     role="presentation"
   >
     <div
@@ -252,56 +288,37 @@
       aria-modal="true"
       aria-labelledby={modalTitleId}
     >
-      {#if $$slots.header}
-        <ModalHeader
-          {title}
-          titleId={modalTitleId}
-          variant={headerVariant}
-          {icon2}
-          {icon2Name}
-          {icon2AriaLabel}
-          onIcon2Click={handleIcon2Click}
-          onClose={closeModal}
-          onBack={handleBack}
-          {backAriaLabel}
-        >
-          <slot name="header" slot="title" />
-        </ModalHeader>
-      {:else}
-        <ModalHeader
-          {title}
-          titleId={modalTitleId}
-          variant={headerVariant}
-          {icon2}
-          {icon2Name}
-          {icon2AriaLabel}
-          onIcon2Click={handleIcon2Click}
-          onClose={closeModal}
-          onBack={handleBack}
-          {backAriaLabel}
-          tabs={headerTabs}
-          {selectedTab}
-          {panelIds}
-          on:tabChange={handleTabChange}
-        />
-      {/if}
+      <ModalHeader
+        {title}
+        titleId={modalTitleId}
+        variant={headerVariant}
+        {icon2}
+        {icon2Name}
+        {icon2AriaLabel}
+        {backAriaLabel}
+        tabs={headerTabs}
+        bind:selectedTab
+        {panelIds}
+        {header}
+        {onicon2click}
+        onclose={closeModal}
+        {onback}
+        {ontabchange}
+      />
 
       <div class="modal-content" class:no-padding={!contentPadding}>
-        <slot />
+        {@render children?.()}
       </div>
 
-      {#if $$slots['footer-left'] || $$slots['footer-right'] || $$slots['footer-full']}
+      {#if footerLeft || footerRight || footerFull}
         <ModalFooter
           variant={footerVariant}
           border={footerBorder}
-          useFullLayout={$$slots['footer-full'] &&
-            !$$slots['footer-left'] &&
-            !$$slots['footer-right']}
-        >
-          <slot name="footer-left" slot="left" />
-          <slot name="footer-right" slot="right" />
-          <slot name="footer-full" slot="full" />
-        </ModalFooter>
+          useFullLayout={!!footerFull && !footerLeft && !footerRight}
+          left={footerLeft}
+          right={footerRight}
+          full={footerFull}
+        />
       {/if}
     </div>
   </div>

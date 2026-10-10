@@ -2,8 +2,44 @@
 
 ## [Unreleased]
 
-### Changed
-- Needs Svelte 5: `svelte` is a peer dependency, `^5.0.0`. The components keep their Svelte 4 syntax, which Svelte 5 compiles in legacy mode
+### Breaking
+- Needs Svelte 5: `svelte` is a peer dependency, `^5.0.0`. The components are Svelte 5 runes components with typed props, in TypeScript that is only types, so the compiler strips it and a plugin needs no TypeScript setup. A plugin's own components can stay in Svelte 4 syntax; only their calls to the kit change:
+  - **Events are callback props**, named as DOM handlers are: `on:change={handle}` becomes `onchange={handle}`. A callback gets what was `event.detail`, so `(e) => pick(e.detail.value)` becomes `(item) => pick(item.value)`. Callbacks that pass on the element's own event (`onclick` on Button, `oninput` on Input) get that event, as before
+  - **Named slots are snippets** of the same name, camelCased: `<div slot="footer-right">` becomes `{#snippet footerRight()}<div>…</div>{/snippet}`. Content inside the tag is `children` and works as before
+  - **Only the props a component writes can be bound**: the ones listed under `bind:` in the components reference. A bound variable may start `undefined`
+- Renamed, component by component:
+
+  | Component | Svelte 4 | Svelte 5 |
+  | --- | --- | --- |
+  | Button | `on:click`, `on:focus`, `on:blur` | `onclick` (not while `disabled` or `ariaDisabled`), `onfocus`, `onblur` |
+  | Checkbox, Switch, Radio | `on:change`, `on:focus`, `on:blur` | `onchange`, `onfocus`, `onblur` |
+  | Chip | `on:click`, `on:focus`, `on:blur`; `on:close` | `onclick`, `onfocus`, `onblur`; `onclose({ label })` |
+  | ColorInput | `on:input`, `on:change` | `oninput`, `onchange`, each with `{ value, opacity }` |
+  | ColorPicker | `on:input`, `on:change`; `on:close` | `oninput`, `onchange`, each with `{ value, opacity }`; `onclose()` |
+  | Disclosure | `on:change` | `onchange(ids)` |
+  | DisclosureItem | `on:toggle` | `ontoggle({ expanded, uniqueId })` |
+  | Dropdown | `on:change` | `onchange(item)` |
+  | Dropzone | `on:files`, `on:reject` | `onfiles({ files })`, `onreject({ files })`; children replace the illustration |
+  | IconButton, Segment | `on:click`, `on:focus`, `on:blur` | `onclick`, `onfocus`, `onblur` |
+  | IconToggle, ToggleButton | `on:change`; `on:click`, `on:focus`, `on:blur` | `onchange(pressed)`; then `onclick`, and `onfocus`, `onblur` |
+  | Input, Textarea | `on:input`, `on:change`, `on:keydown`, `on:focus`, `on:blur` | `oninput`, `onchange`, `onkeydown`, `onfocus`, `onblur` |
+  | LinkTooltip | `on:primary`, `on:action`, `on:submit`, `on:close`; `on:input` | `onprimary()`, `onaction({ value, label })`, `onsubmit(value)`, `onclose()`; `oninput` |
+  | Menu | `on:select`, `on:close`, `on:footer` | `onselect(item)`, `onclose()`, `onfooter()` |
+  | MenuItem | `on:click`, `on:mouseenter`, `on:mouseleave`, `on:mousemove`; slots `lead`, `trail` | the same as callbacks; snippets `lead`, `trail` |
+  | Modal | `on:close` and `onClose`, `on:back` and `onBack`, `on:icon2Click` and `onIcon2Click`, `on:tabChange`; slots `header`, `footer-left`, `footer-right`, `footer-full` | `onclose()`, `onback(event)`, `onicon2click(event)`, `ontabchange(index)`; snippets `header`, `footerLeft`, `footerRight`, `footerFull` |
+  | ModalHeader | as Modal's callbacks; slot `title` | as Modal's; snippet `header` |
+  | ModalFooter | slots `left`, `right`, `full` | snippets `left`, `right`, `full` |
+  | NumericInput | `on:change`, `on:input`, `on:detach`, `on:variableClick`; `on:focus`, `on:blur`, `on:keydown` | `onchange(value)`, `oninput(value)`, `ondetach(variable)`, `onvariableclick(variable)`; `onfocus`, `onblur`, `onkeydown` |
+  | NumericInputMulti | `on:change`, `on:input` | `onchange`, `oninput`, each with `{ values, index }` |
+  | SegmentedControl | `on:change` | `onchange(value)` |
+  | SidebarRow | `on:click`, `on:focus`, `on:blur`, `on:link`; slots `lead`, `actions` | `onclick`, `onfocus`, `onblur`, `onlink()`; snippets `lead`, `actions` |
+  | Slider | `on:input`, `on:change`, `on:focus`, `on:blur` | `oninput({ value })`, `onchange({ value })`, `onfocus(event)`, `onblur(event)` |
+  | SplitButton | `on:click`, `on:focus`, `on:blur`; `on:select` | `onclick`, `onfocus`, `onblur`; `onselect(item)` |
+  | Tabs | `onTabChange` | `onchange(index)` |
+  | Tree | `on:toggle`, `on:select`, `on:change` | `ontoggle({ id, expanded })`, `onselect(node)`, `onchange(checked)` |
+
+### Added
+- Types for plugins written in TypeScript: `import type { MenuOption, TreeNode, BadgeSpec, AvatarSpec } from 'figma-ui3-kit-svelte'`. Menu, Dropdown, SplitButton, SegmentedControl and Tree take the type of the items they're given, so `onselect` hands back the caller's own item type
 
 ### Removed
 - `svelte-click-outside`, a dependency nothing imported

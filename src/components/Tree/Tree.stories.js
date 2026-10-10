@@ -40,7 +40,7 @@ const pages = [
   { id: 'cover', label: 'Cover', iconName: IconPage },
 ];
 
-const render = (args) => ({
+const render = (/** @type {Record<string, any>} */ args) => ({
   Component: WideContainer,
   props: { width: '260px', childComponent: Tree, childProps: args },
 });

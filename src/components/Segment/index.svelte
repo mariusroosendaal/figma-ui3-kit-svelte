@@ -1,35 +1,63 @@
-<script context="module">
+<script lang="ts" module>
   export const segmentedControl = {};
+
+  export interface SegmentedControlContext {
+    readonly selected: unknown;
+    readonly disabled: boolean;
+    select(value: unknown): void;
+  }
 </script>
 
-<script>
-  import { getContext } from 'svelte';
-  import { readable } from 'svelte/store';
+<script lang="ts">
+  import { getContext, type Snippet } from 'svelte';
+  import type { FocusEventHandler, MouseEventHandler } from 'svelte/elements';
   import Icon from './../Icon/index.svelte';
   import Tooltip from './../Tooltip/index.svelte';
 
-  export let value = null;
-  export let iconName = null; // icon mode when set: 24×24 icon, no padding
-  export let disabled = false;
-  export let tooltip = ''; // shown on hover/focus; explains why a segment is disabled
-  export let ariaLabel = null; // required for icon segments without a tooltip
+  interface Props {
+    value?: unknown;
+    /** Icon mode when set: 24×24 icon, no padding */
+    iconName?: string | null;
+    disabled?: boolean;
+    /** Shown on hover and focus; explains why a segment is disabled */
+    tooltip?: string;
+    /** Required for icon segments without a tooltip */
+    ariaLabel?: string | null;
+    class?: string;
+    /** The label */
+    children?: Snippet;
+    /** After the segment is selected */
+    onclick?: MouseEventHandler<HTMLButtonElement>;
+    onfocus?: FocusEventHandler<HTMLButtonElement>;
+    onblur?: FocusEventHandler<HTMLButtonElement>;
+  }
 
-  let className = '';
-  export { className as class };
+  let {
+    value = null,
+    iconName = null,
+    disabled = false,
+    tooltip = '',
+    ariaLabel = null,
+    class: className = '',
+    children,
+    onclick,
+    onfocus,
+    onblur,
+  }: Props = $props();
 
-  const context = getContext(segmentedControl);
-  const selected = context?.selected ?? readable(null);
-  const groupDisabled = context?.disabled ?? readable(false);
+  const context = getContext<SegmentedControlContext | undefined>(segmentedControl);
 
-  $: active = $selected === value;
+  let active = $derived((context ? context.selected : null) === value);
+  let groupDisabled = $derived(context?.disabled ?? false);
   // Group-disabled removes the segments from the tab order; a single disabled
   // segment stays focusable (aria-disabled) so its tooltip is reachable by keyboard.
-  $: unavailable = disabled || $groupDisabled;
-  $: label = ariaLabel || (iconName ? tooltip : null) || undefined;
+  let unavailable = $derived(disabled || groupDisabled);
+  let label = $derived(ariaLabel || (iconName ? tooltip : null) || undefined);
 
-  function handleClick() {
+  function handleClick(event: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }) {
     // Enter/Space on an already-selected segment must not deselect it
     if (!unavailable && !active) context?.select(value);
+    onclick?.(event);
   }
 </script>
 
@@ -45,16 +73,15 @@
         aria-checked={active}
         aria-disabled={unavailable || undefined}
         aria-label={label}
-        disabled={$groupDisabled}
-        on:click={handleClick}
-        on:click
-        on:focus
-        on:blur
+        disabled={groupDisabled}
+        onclick={handleClick}
+        {onfocus}
+        {onblur}
       >
         {#if iconName}
           <Icon {iconName} color="--segment-icon-color" />
         {:else}
-          <span class="segment-label"><slot /></span>
+          <span class="segment-label">{@render children?.()}</span>
         {/if}
       </button>
     </Tooltip>
@@ -68,16 +95,15 @@
       aria-checked={active}
       aria-disabled={unavailable || undefined}
       aria-label={label}
-      disabled={$groupDisabled}
-      on:click={handleClick}
-      on:click
-      on:focus
-      on:blur
+      disabled={groupDisabled}
+      onclick={handleClick}
+      {onfocus}
+      {onblur}
     >
       {#if iconName}
         <Icon {iconName} color="--segment-icon-color" />
       {:else}
-        <span class="segment-label"><slot /></span>
+        <span class="segment-label">{@render children?.()}</span>
       {/if}
     </button>
   {/if}

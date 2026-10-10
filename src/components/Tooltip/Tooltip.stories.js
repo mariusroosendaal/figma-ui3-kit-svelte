@@ -52,7 +52,7 @@ export const Default = {
     direction: 'Top',
     disabled: false,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: TooltipWrapper,
     props: { ...args },
   }),
@@ -66,7 +66,7 @@ export const WithHotkey = {
     direction: 'Top',
     disabled: false,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: TooltipWrapper,
     props: { ...args },
   }),

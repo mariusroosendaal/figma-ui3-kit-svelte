@@ -1,30 +1,54 @@
-<script>
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+  import type { FocusEventHandler, MouseEventHandler } from 'svelte/elements';
   import Icon from './../Icon/index.svelte';
-  import { createEventDispatcher } from 'svelte';
 
-  export let variant = 'primary'; // primary, secondary, destructive, secondary-destructive, inverse, success, figjam, link, link-danger, ghost
-  export let size = 'default'; // default, large, wide
-  export let disabled = false;
-  export let ariaDisabled = false;
-  export let iconName = null; // Icon component to display
-  export let iconLead = 'left'; // left, center - Only applies to wide variant
-  export let label = ''; // Button label text (falls back to slot content if provided)
-  export let ariaLabel = '';
-  /** @type {'button' | 'submit' | 'reset'} */
-  export let type = 'button';
+  interface Props {
+    /** primary, secondary, destructive, secondary-destructive, inverse, success, figjam,
+     * link, link-danger, ghost */
+    variant?: string;
+    size?: 'default' | 'large' | 'wide';
+    disabled?: boolean;
+    ariaDisabled?: boolean;
+    /** SVG icon data */
+    iconName?: string | null;
+    /** Only applies to the wide size */
+    iconLead?: 'left' | 'center';
+    /** Shown when there are no children */
+    label?: string;
+    ariaLabel?: string;
+    type?: 'button' | 'submit' | 'reset';
+    class?: string;
+    /** The button, for `bind:element` */
+    element?: HTMLButtonElement | null;
+    children?: Snippet;
+    /** Not called while `disabled` or `ariaDisabled` */
+    onclick?: MouseEventHandler<HTMLButtonElement>;
+    onfocus?: FocusEventHandler<HTMLButtonElement>;
+    onblur?: FocusEventHandler<HTMLButtonElement>;
+  }
 
-  let className = '';
-  export { className as class };
-  /** @type {HTMLButtonElement|undefined} */
-  let buttonElement = undefined;
-  const dispatch = createEventDispatcher();
+  let {
+    variant = 'primary',
+    size = 'default',
+    disabled = false,
+    ariaDisabled = false,
+    iconName = null,
+    iconLead = 'left',
+    label = '',
+    ariaLabel = '',
+    type = 'button',
+    class: className = '',
+    element = $bindable(),
+    children,
+    onclick,
+    onfocus,
+    onblur,
+  }: Props = $props();
 
-  // Export the button element for external binding (optional - use bind:element if needed)
-  export { buttonElement as element };
-
-  function handleClick(event) {
+  function handleClick(event: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }) {
     if (!disabled && !ariaDisabled) {
-      dispatch('click', event);
+      onclick?.(event);
     }
   }
 
@@ -32,7 +56,7 @@
   const filledVariants = ['primary', 'destructive', 'inverse', 'success', 'figjam'];
 
   // Function to determine the correct icon color based on variant and state
-  function getIconColor(disabled, ariaDisabled, variant) {
+  function getIconColor(disabled: boolean, ariaDisabled: boolean, variant: string) {
     if (disabled || ariaDisabled) {
       // White on the gray fill; on a transparent button white would vanish
       return filledVariants.includes(variant)
@@ -62,16 +86,14 @@
         return '--figma-color-icon';
     }
   }
-  // A $: statement, so the color follows its inputs; a call in the markup would not re-run.
-  $: iconColor = getIconColor(disabled, ariaDisabled, variant);
+  let iconColor = $derived(getIconColor(disabled, ariaDisabled, variant));
 </script>
 
 <button
-  bind:this={buttonElement}
-  on:click={handleClick}
-  on:submit|preventDefault
-  on:blur
-  on:focus
+  bind:this={element}
+  onclick={handleClick}
+  {onblur}
+  {onfocus}
   {type}
   {disabled}
   aria-disabled={ariaDisabled || undefined}
@@ -96,7 +118,7 @@
   {/if}
 
   <span class="button-text">
-    <slot>{label}</slot>
+    {#if children}{@render children()}{:else}{label}{/if}
   </span>
 </button>
 
@@ -448,5 +470,4 @@
   .button[aria-disabled='true'] {
     cursor: not-allowed;
   }
-
 </style>

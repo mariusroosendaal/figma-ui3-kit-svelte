@@ -40,7 +40,7 @@ export const Range = {
     step: 1,
     disabled: false,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: WideContainer,
     props: {
       width: '300px',
@@ -60,7 +60,7 @@ export const Delta = {
     disabled: false,
     defaultValue: 50,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: WideContainer,
     props: {
       width: '300px',
@@ -79,7 +79,7 @@ export const Stepper = {
     step: 10,
     disabled: false,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: WideContainer,
     props: {
       width: '300px',
@@ -98,7 +98,7 @@ export const Disabled = {
     step: 1,
     disabled: true,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: WideContainer,
     props: {
       width: '300px',
@@ -117,7 +117,7 @@ export const CustomRange = {
     step: 5,
     disabled: false,
   },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: WideContainer,
     props: {
       width: '300px',
@@ -130,7 +130,7 @@ export const CustomRange = {
 // UI3's "Color Range": a hue slider
 export const Hue = {
   args: { variant: 'hue', value: 270, min: 0, max: 360, ariaLabel: 'Hue' },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: WideContainer,
     props: { childComponent: Slider, childProps: args },
   }),
@@ -139,7 +139,7 @@ export const Hue = {
 // UI3's "Fill": opacity of a color over the checkerboard
 export const Opacity = {
   args: { variant: 'opacity', color: '#9747ff', value: 80, ariaLabel: 'Opacity' },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: WideContainer,
     props: { childComponent: Slider, childProps: args },
   }),
@@ -148,7 +148,7 @@ export const Opacity = {
 // UI3's "Corner Radius": a range slider with a marker at a reference value
 export const WithMarker = {
   args: { variant: 'range', value: 30, defaultValue: 70, ariaLabel: 'Corner radius' },
-  render: (args) => ({
+  render: (/** @type {Record<string, any>} */ args) => ({
     Component: WideContainer,
     props: { childComponent: Slider, childProps: args },
   }),

@@ -1,33 +1,49 @@
-<script context="module">
+<script lang="ts" module>
   // Shared by every Tooltip: once one has shown, the next shows after the short delay
-  /** @type {{ hasShownFirstTooltip: boolean, resetTimeout: ReturnType<typeof setTimeout> | null }} */
-  const globalTooltipState = {
+  const globalTooltipState: {
+    hasShownFirstTooltip: boolean;
+    resetTimeout: ReturnType<typeof setTimeout> | null;
+  } = {
     hasShownFirstTooltip: false,
     resetTimeout: null,
   };
 </script>
 
-<script>
-  import { tick, onMount, onDestroy } from 'svelte';
+<script lang="ts">
+  import { tick, onMount, onDestroy, type Snippet } from 'svelte';
   import { placeTooltip, arrowStyle } from './position.js';
 
-  export let label = '';
-  export let hotkey = false;
-  export let hotkeyText = '⌘V';
-  export let direction = 'Top';
-  export let disabled = false;
+  interface Props {
+    label?: string;
+    hotkey?: boolean;
+    hotkeyText?: string;
+    direction?:
+      'Top' | 'TopLeft' | 'TopRight' | 'Bottom' | 'BottomLeft' | 'BottomRight' | 'Left' | 'Right';
+    disabled?: boolean;
+    class?: string;
+    /** The element the tooltip describes */
+    children?: Snippet;
+  }
 
-  let className = '';
-  export { className as class };
-  let wrapperElement;
-  let tooltipElement;
+  let {
+    label = '',
+    hotkey = false,
+    hotkeyText = '⌘V',
+    direction = 'Top',
+    disabled = false,
+    class: className = '',
+    children,
+  }: Props = $props();
+
+  let wrapperElement: HTMLDivElement | undefined = $state();
+  let tooltipElement: HTMLDivElement | undefined = $state();
   let tooltipId = 'tooltip--' + (Math.random() * 10000000).toFixed(0).toString();
-  let showTooltip = false;
-  let hoverTimeout;
-  let tooltipPosition = { top: 0, left: 0 };
+  let showTooltip = $state(false);
+  let hoverTimeout: ReturnType<typeof setTimeout> | null = null;
+  let tooltipPosition = $state({ top: 0, left: 0 });
   // The side actually used (it flips when the asked-for side has no room) and the arrow's offset
-  let placedDirection = direction;
-  let arrow = null;
+  let placedDirection: string = $derived(direction);
+  let arrow: number | null = $state(null);
 
   // Arrow SVG paths for different directions
   const arrowPath = 'M6 0L12 6H0L6 0Z';
@@ -35,11 +51,11 @@
   const FIRST_DELAY = 1000;
   const WARM_DELAY = 200;
 
-  function show(delay) {
+  function show(delay: number) {
     if (disabled) return;
 
     // Hovering then clicking fires mouseenter and focusin: one pending timer, not two
-    clearTimeout(hoverTimeout);
+    if (hoverTimeout) clearTimeout(hoverTimeout);
 
     // Clear any existing reset timeout since user is actively hovering
     if (globalTooltipState.resetTimeout) {
@@ -69,14 +85,14 @@
 
   // Keyboard focus asked for the element, so it gets the short delay; focus from a
   // click follows the pointer's timing, which mouseenter already started.
-  function handleFocusIn(event) {
-    if (event.target?.matches?.(':focus-visible')) {
+  function handleFocusIn(event: FocusEvent) {
+    if ((event.target as Element | null)?.matches?.(':focus-visible')) {
       show(WARM_DELAY);
     }
   }
 
   function handleMouseLeave() {
-    clearTimeout(hoverTimeout);
+    if (hoverTimeout) clearTimeout(hoverTimeout);
     hoverTimeout = null;
     showTooltip = false;
 
@@ -91,16 +107,18 @@
     }
   }
 
-  function handleFocusOut(event) {
-    if (wrapperElement?.contains(event.relatedTarget)) return;
+  function handleFocusOut(event: FocusEvent) {
+    if (wrapperElement?.contains(event.relatedTarget as Node | null)) return;
     handleMouseLeave();
   }
 
-  function handleKeydown(event) {
+  function handleKeydown(event: KeyboardEvent) {
     if (showTooltip && event.key === 'Escape') handleMouseLeave();
   }
 
-  onDestroy(() => clearTimeout(hoverTimeout));
+  onDestroy(() => {
+    if (hoverTimeout) clearTimeout(hoverTimeout);
+  });
 
   onMount(() => {
     const trigger = wrapperElement?.querySelector(
@@ -122,7 +140,7 @@
   }
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <!-- Always in DOM so aria-describedby resolves at focus time -->
 <span id={tooltipId} role="tooltip" class="sr-only">
@@ -132,14 +150,14 @@
 <div
   bind:this={wrapperElement}
   class="tooltip-wrapper {className}"
-  on:mouseenter={handleMouseEnter}
-  on:mouseleave={handleMouseLeave}
-  on:focusin={handleFocusIn}
-  on:focusout={handleFocusOut}
+  onmouseenter={handleMouseEnter}
+  onmouseleave={handleMouseLeave}
+  onfocusin={handleFocusIn}
+  onfocusout={handleFocusOut}
   style="display: inline-block;"
   role="none"
 >
-  <slot />
+  {@render children?.()}
 </div>
 
 {#if showTooltip}

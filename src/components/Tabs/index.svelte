@@ -1,38 +1,53 @@
-<script>
+<script lang="ts">
   import Badge from '../Badge/index.svelte';
 
-  /**
-   * Strings, or `{ label, badge?, unread? }` — `badge` is a count beside the
-   * label, `unread` marks that count as new.
-   */
-  export let tabs = [];
-  export let selectedTab = 0;
-  export let onTabChange = null;
-  export let id = 'tabs--' + (Math.random() * 10000000).toFixed(0).toString();
-  export let panelIds = []; // optional: IDs of tabpanel elements for aria-controls
+  type Tab = string | { label: string; badge?: string | number | null; unread?: boolean };
 
-  let className = '';
-  export { className as class };
-  let tablistElement;
+  interface Props {
+    /** Strings, or `{ label, badge?, unread? }`: `badge` is a count beside the
+     * label, `unread` marks that count as new. */
+    tabs?: Tab[];
+    selectedTab?: number;
+    id?: string;
+    /** IDs of the tabpanel elements, for aria-controls */
+    panelIds?: string[];
+    class?: string;
+    /** The chosen tab's index, after `selectedTab` updates */
+    onchange?: (index: number) => void;
+  }
 
-  $: isSingleTab = tabs.length === 1;
+  let {
+    tabs = [],
+    selectedTab = $bindable(),
+    id = 'tabs--' + (Math.random() * 10000000).toFixed(0).toString(),
+    panelIds = [],
+    class: className = '',
+    onchange,
+  }: Props = $props();
+
+  let tablistElement: HTMLDivElement | undefined = $state();
+
+  let items = $derived(tabs.map((tab) => (typeof tab === 'string' ? { label: tab } : tab)));
+  let isSingleTab = $derived(tabs.length === 1);
+  // Unset, the first tab is selected
+  let current = $derived(selectedTab ?? 0);
 
   // UI3's "Badge small alt" carries three counter looks, and a tab picks one
   // from two axes at once — selected or not, new or not. New wins on either
   // tab, since that is what the blue count is for; otherwise the selected tab
   // gets the filled gray Default and the rest the quieter Count Inactive.
-  function counterVariant(tab, selected) {
+  function counterVariant(tab: { unread?: boolean }, selected: boolean) {
     if (tab.unread) return 'count'; // "Count New"
     return selected ? 'default' : 'count-inactive';
   }
 
-  function handleTabClick(index) {
+  function handleTabClick(index: number) {
     selectedTab = index;
-    if (onTabChange) onTabChange(index);
+    onchange?.(index);
   }
 
-  function handleKeydown(event, index) {
-    let newIndex = null;
+  function handleKeydown(event: KeyboardEvent, index: number) {
+    let newIndex: number;
     if (event.key === 'ArrowRight') newIndex = (index + 1) % tabs.length;
     else if (event.key === 'ArrowLeft') newIndex = (index - 1 + tabs.length) % tabs.length;
     else if (event.key === 'Home') newIndex = 0;
@@ -42,31 +57,31 @@
     event.preventDefault();
     handleTabClick(newIndex);
 
-    const buttons = tablistElement?.querySelectorAll('[role="tab"]');
+    const buttons = tablistElement?.querySelectorAll<HTMLElement>('[role="tab"]');
     if (buttons?.[newIndex]) buttons[newIndex].focus();
   }
 </script>
 
 <div bind:this={tablistElement} class="tabs-container {className}" role="tablist">
-  {#each tabs as tab, index (index)}
+  {#each items as tab, index (index)}
     <button
       type="button"
       id="{id}-tab-{index}"
       class="tab"
-      class:selected={index === selectedTab}
+      class:selected={index === current}
       class:single-tab={isSingleTab}
-      on:click={() => handleTabClick(index)}
-      on:keydown={(e) => handleKeydown(e, index)}
-      aria-selected={index === selectedTab}
+      onclick={() => handleTabClick(index)}
+      onkeydown={(e) => handleKeydown(e, index)}
+      aria-selected={index === current}
       aria-controls={panelIds[index] || undefined}
-      tabindex={index === selectedTab ? 0 : -1}
+      tabindex={index === current ? 0 : -1}
       role="tab"
     >
-      <span class="tab-text">{tab.label || tab}</span>
+      <span class="tab-text">{tab.label}</span>
       {#if tab.badge !== undefined && tab.badge !== null && tab.badge !== ''}
         <Badge
-          variant={counterVariant(tab, index === selectedTab)}
-          strong={!tab.unread && index === selectedTab}
+          variant={counterVariant(tab, index === current)}
+          strong={!tab.unread && index === current}
           text={String(tab.badge)}
           ariaLabel={tab.unread ? `${tab.badge} new` : null}
         />

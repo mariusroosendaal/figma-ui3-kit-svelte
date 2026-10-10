@@ -9,38 +9,63 @@
 
   `pressed` binds; `change` hands back the new state.
 -->
-<script>
-  import { createEventDispatcher } from 'svelte';
+<script lang="ts">
+  import type { FocusEventHandler, MouseEventHandler } from 'svelte/elements';
   import Icon from '../Icon/index.svelte';
 
-  export let pressed = false;
-  export let iconName = null;
-  /** Icon while pressed; swaps instead of filling. */
-  export let iconNameOn = null;
-  /** @type {'default' | 'secondary'} */
-  export let variant = 'default';
-  /** Shows the pressed fill with swapped icons too. */
-  export let highlighted = false;
-  export let disabled = false;
-  export let ariaLabel = '';
-  export let tabindex = 0;
-
-  let className = '';
-  export { className as class };
-
-  const dispatch = createEventDispatcher();
-
-  $: if (!ariaLabel && typeof window !== 'undefined') {
-    console.warn('[IconToggle] ariaLabel is required for icon-only buttons (WCAG 4.1.2)');
+  interface Props {
+    pressed?: boolean;
+    /** SVG icon data */
+    iconName?: string | null;
+    /** Icon while pressed; swaps instead of filling. */
+    iconNameOn?: string | null;
+    variant?: 'default' | 'secondary';
+    /** Shows the pressed fill with swapped icons too. */
+    highlighted?: boolean;
+    disabled?: boolean;
+    /** Required: the button has no text (WCAG 4.1.2) */
+    ariaLabel?: string;
+    tabindex?: number;
+    class?: string;
+    /** The new pressed state */
+    onchange?: (pressed: boolean) => void;
+    /** After `onchange` */
+    onclick?: MouseEventHandler<HTMLButtonElement>;
+    onfocus?: FocusEventHandler<HTMLButtonElement>;
+    onblur?: FocusEventHandler<HTMLButtonElement>;
   }
 
-  $: icon = pressed && iconNameOn ? iconNameOn : iconName;
-  $: filled = pressed && (!iconNameOn || highlighted);
+  let {
+    pressed = $bindable(),
+    iconName = null,
+    iconNameOn = null,
+    variant = 'default',
+    highlighted = false,
+    disabled = false,
+    ariaLabel = '',
+    tabindex = 0,
+    class: className = '',
+    onchange,
+    onclick,
+    onfocus,
+    onblur,
+  }: Props = $props();
 
-  function toggle() {
-    if (disabled) return;
-    pressed = !pressed;
-    dispatch('change', pressed);
+  $effect(() => {
+    if (!ariaLabel) {
+      console.warn('[IconToggle] ariaLabel is required for icon-only buttons (WCAG 4.1.2)');
+    }
+  });
+
+  let icon = $derived(pressed && iconNameOn ? iconNameOn : iconName);
+  let filled = $derived(pressed && (!iconNameOn || highlighted));
+
+  function handleClick(event: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }) {
+    if (!disabled) {
+      pressed = !pressed;
+      onchange?.(pressed);
+    }
+    onclick?.(event);
   }
 </script>
 
@@ -48,14 +73,13 @@
   type="button"
   class="icon-toggle {variant} {className}"
   class:filled
-  aria-pressed={pressed}
+  aria-pressed={!!pressed}
   aria-label={ariaLabel || undefined}
   {disabled}
   {tabindex}
-  on:click={toggle}
-  on:click
-  on:focus
-  on:blur
+  onclick={handleClick}
+  {onfocus}
+  {onblur}
 >
   <Icon iconName={icon} color={disabled ? '--figma-color-icon-disabled' : '--figma-color-icon'} />
 </button>

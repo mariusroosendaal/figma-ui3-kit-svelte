@@ -1,67 +1,98 @@
-<script>
-  import { createEventDispatcher } from 'svelte';
-
-  export let value = 50;
-  export let min = 0;
-  export let max = 100;
-  export let step = 1;
-  export let variant = 'range'; // 'delta' | 'range' | 'stepper' | 'hue' | 'opacity'
-  /** Opacity variant: the color faded over the checkerboard. */
-  export let color = '#000000';
-  export let disabled = false;
-  export let tabindex = 0;
-  export let defaultValue = null; // Delta: the reference point. Range: a marker dot there (UI3's corner radius slider).
-  export let ariaLabel = '';
-  export let ariaValueText = '';
-
-  $: if (!ariaLabel && typeof window !== 'undefined') {
-    console.warn('[Slider] ariaLabel is required for accessibility. Provide a descriptive label.');
+<script lang="ts">
+  interface Props {
+    value?: number;
+    min?: number;
+    max?: number;
+    step?: number;
+    variant?: 'delta' | 'range' | 'stepper' | 'hue' | 'opacity';
+    /** Opacity variant: the color faded over the checkerboard. */
+    color?: string;
+    disabled?: boolean;
+    tabindex?: number;
+    /** Delta: the reference point. Range: a marker dot there (UI3's corner radius slider). */
+    defaultValue?: number | null;
+    /** Required (WCAG 4.1.2) */
+    ariaLabel?: string;
+    ariaValueText?: string;
+    class?: string;
+    /** While dragging, after `value` updates */
+    oninput?: (detail: { value: number }) => void;
+    /** On release, after `value` updates */
+    onchange?: (detail: { value: number }) => void;
+    /** Not while disabled */
+    onfocus?: (event: FocusEvent) => void;
+    onblur?: (event: FocusEvent) => void;
   }
 
-  let className = '';
-  export { className as class };
+  let {
+    value = $bindable(),
+    min = 0,
+    max = 100,
+    step = 1,
+    variant = 'range',
+    color = '#000000',
+    disabled = false,
+    tabindex = 0,
+    defaultValue = null,
+    ariaLabel = '',
+    ariaValueText = '',
+    class: className = '',
+    oninput,
+    onchange,
+    onfocus,
+    onblur,
+  }: Props = $props();
+
+  $effect(() => {
+    if (!ariaLabel) {
+      console.warn(
+        '[Slider] ariaLabel is required for accessibility. Provide a descriptive label.'
+      );
+    }
+  });
 
   let uniqueId = 'slider--' + (Math.random() * 10000000).toFixed(0).toString();
-  let isFocused = false;
+  let isFocused = $state(false);
 
-  const dispatch = createEventDispatcher();
+  // Unset, it sits halfway, as a range input does
+  let current = $derived(value ?? (min + max) / 2);
 
   // Calculate percentage position of value
-  $: percentage = ((value - min) / (max - min)) * 100;
+  let percentage = $derived(((current - min) / (max - min)) * 100);
 
   // Calculate default position for delta variant
-  $: actualDefaultValue = defaultValue !== null ? defaultValue : (min + max) / 2;
-  $: defaultPercentage = ((actualDefaultValue - min) / (max - min)) * 100;
+  let actualDefaultValue = $derived(defaultValue !== null ? defaultValue : (min + max) / 2);
+  let defaultPercentage = $derived(((actualDefaultValue - min) / (max - min)) * 100);
 
   // Hue and opacity draw a color track with a plain white knob instead of a fill
-  $: spectrum = variant === 'hue' || variant === 'opacity';
-  $: showMarker = variant === 'range' && defaultValue !== null;
+  let spectrum = $derived(variant === 'hue' || variant === 'opacity');
+  let showMarker = $derived(variant === 'range' && defaultValue !== null);
 
   // Check if handle is at default position (for delta variant handle styling)
-  $: isAtDefault = variant === 'delta' && value === actualDefaultValue;
+  let isAtDefault = $derived(variant === 'delta' && current === actualDefaultValue);
   // UI3's "Stroke (Modified)" handle — a ring whose hole shows the fill and ticks beneath.
   // Delta at its default, hue and opacity use the plain "Fill (Default)" disc instead.
-  $: stroke = !spectrum && !disabled && !isAtDefault;
+  let stroke = $derived(!spectrum && !disabled && !isAtDefault);
 
   // The fill, in px from the track's padding box. Range runs from the pill's start (8px before
   // the track) to the handle; delta from the default to the handle, 8px past each. The handle
   // covers handleX ± 8, and a fill edge on that outline antialiases into a blue fringe round
   // the handle, so any edge within 1px of it is pulled 2px inside, under the white ring. The
   // hole (± 4) still shows the fill.
-  let trackWidth = 0;
-  $: handleX = (percentage / 100) * trackWidth;
-  $: defaultX = (defaultPercentage / 100) * trackWidth;
-  $: rawStart = variant === 'delta' ? Math.min(handleX, defaultX) - 8 : -8;
-  $: rawEnd = variant === 'delta' ? Math.max(handleX, defaultX) + 8 : handleX + 8;
-  $: fillStart = rawStart > handleX - 9 ? handleX - 6 : rawStart;
-  $: fillEnd = rawEnd < handleX + 9 ? handleX + 6 : rawEnd;
+  let trackWidth = $state(0);
+  let handleX = $derived((percentage / 100) * trackWidth);
+  let defaultX = $derived((defaultPercentage / 100) * trackWidth);
+  let rawStart = $derived(variant === 'delta' ? Math.min(handleX, defaultX) - 8 : -8);
+  let rawEnd = $derived(variant === 'delta' ? Math.max(handleX, defaultX) + 8 : handleX + 8);
+  let fillStart = $derived(rawStart > handleX - 9 ? handleX - 6 : rawStart);
+  let fillEnd = $derived(rawEnd < handleX + 9 ? handleX + 6 : rawEnd);
   // Wholly under the handle (range at its minimum, delta at its default): shrink it to a
   // 12px disc so its top and bottom stay off the outline too.
-  $: fillCompact = fillStart >= handleX - 8 && fillEnd <= handleX + 8;
+  let fillCompact = $derived(fillStart >= handleX - 8 && fillEnd <= handleX + 8);
 
   // Calculate tick marks for stepper variant
-  $: tickCount = variant === 'stepper' ? Math.floor((max - min) / step) + 1 : 0;
-  $: tickPositions =
+  let tickCount = $derived(variant === 'stepper' ? Math.floor((max - min) / step) + 1 : 0);
+  let tickPositions = $derived(
     variant === 'stepper'
       ? Array.from({ length: tickCount }, (_, i) => {
           const tickValue = min + i * step;
@@ -71,33 +102,38 @@
             isDefault: Math.abs(tickValue - actualDefaultValue) < 1e-9,
           };
         })
-      : [];
+      : []
+  );
 
-  function handleInput(event) {
+  type RangeEvent = Event & { currentTarget: EventTarget & HTMLInputElement };
+
+  function handleInput(event: RangeEvent) {
     if (!disabled) {
-      value = Number(event.target.value);
-      dispatch('input', { value });
+      const next = Number(event.currentTarget.value);
+      value = next;
+      oninput?.({ value: next });
     }
   }
 
-  function handleChange(event) {
+  function handleChange(event: RangeEvent) {
     if (!disabled) {
-      value = Number(event.target.value);
-      dispatch('change', { value });
+      const next = Number(event.currentTarget.value);
+      value = next;
+      onchange?.({ value: next });
     }
   }
 
-  function handleFocus(event) {
+  function handleFocus(event: FocusEvent) {
     if (!disabled) {
       isFocused = true;
-      dispatch('focus', event);
+      onfocus?.(event);
     }
   }
 
-  function handleBlur(event) {
+  function handleBlur(event: FocusEvent) {
     if (!disabled) {
       isFocused = false;
-      dispatch('blur', event);
+      onblur?.(event);
     }
   }
 </script>
@@ -117,7 +153,7 @@
     <input
       type="range"
       id={uniqueId}
-      bind:value
+      value={current}
       {min}
       {max}
       {step}
@@ -126,10 +162,10 @@
       aria-label={ariaLabel || undefined}
       aria-valuetext={ariaValueText || undefined}
       class="slider-input"
-      on:input={handleInput}
-      on:change={handleChange}
-      on:focus={handleFocus}
-      on:blur={handleBlur}
+      oninput={handleInput}
+      onchange={handleChange}
+      onfocus={handleFocus}
+      onblur={handleBlur}
     />
 
     <!-- Fill portion -->

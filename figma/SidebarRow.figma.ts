@@ -44,25 +44,25 @@ if (actions.length) {
   if (!imports.includes(line)) imports.push(line)
 }
 
-const fragment = (name, items) => {
+const snippet = (name, items) => {
   if (!items.length) return ''
   let code
   items.forEach((item) => {
     code = code ? figma.code`${code}\n    ${item}` : item
   })
   return figma.code`
-  <svelte:fragment slot="${name}">
+  {#snippet ${name}()}
     ${code}
-  </svelte:fragment>`
+  {/snippet}`
 }
 
-const body = figma.code`${fragment('lead', lead)}${fragment('actions', actions)}`
+const body = figma.code`${snippet('lead', lead)}${snippet('actions', actions)}`
 
 export default {
   example: lead.length || actions.length
-    ? figma.code`<SidebarRow${props} on:click={open}${replies ? ' on:link={openReplies}' : ''}>${body}
+    ? figma.code`<SidebarRow${props} onclick={open}${replies ? ' onlink={openReplies}' : ''}>${body}
 </SidebarRow>`
-    : figma.code`<SidebarRow${props} on:click={open}${replies ? ' on:link={openReplies}' : ''} />`,
+    : figma.code`<SidebarRow${props} onclick={open}${replies ? ' onlink={openReplies}' : ''} />`,
   imports,
   id: 'sidebar-row',
   metadata: { nestable: true, props: { imports } },

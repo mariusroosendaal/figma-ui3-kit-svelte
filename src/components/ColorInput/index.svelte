@@ -4,66 +4,92 @@
 
   - The hex takes 3, 6 or 8 digits, with or without `#`; eight digits also set
     the opacity. An unreadable entry reverts.
-  - The chit opens a color picker (`pickable`), which fires `input` while it
-    moves and `change` when it settles: the system's, or with `picker="panel"`
+  - The chit opens a color picker (`pickable`), which calls `oninput` while it
+    moves and `onchange` when it settles: the system's, or with `picker="panel"`
     the kit's ColorPicker, Figma's own, offering `swatches`, by the chit or,
     with `pickerPosition="bottom"`, along the window's bottom.
   - `variable` shows a bound variable's name instead of the hex, as Figma does;
     it isn't editable here.
 
-  `change` hands back `{ value, opacity }`; `value` is always `#RRGGBB`.
+  `onchange` gets `{ value, opacity }`; `value` is always `#RRGGBB`.
 -->
-<script>
-  import { createEventDispatcher } from 'svelte';
+<script lang="ts">
+  import type { ComponentProps } from 'svelte';
   import Chit from '../Chit/index.svelte';
   import ColorPicker from '../ColorPicker/index.svelte';
   import { parseHex } from '../ColorPicker/color.js';
 
-  export let value = '#000000';
-  /** 0–100; null hides the opacity cell. */
-  /** @type {number | null} */
-  export let opacity = null;
-  /** @type {string | null} a bound variable's name, shown instead of the hex */
-  export let variable = null;
-  export let pickable = true;
-  /** @type {'system' | 'panel'} the system picker, or the kit's ColorPicker */
-  export let picker = 'system';
-  /** @type {Array<any>} the ColorPicker's swatches, with `picker="panel"` */
-  export let swatches = [];
-  /** the ColorPicker's `compact`, with `picker="panel"`: a 144px square */
-  export let compactPicker = false;
-  /** @type {'anchor' | 'bottom'} the ColorPicker's `position`, with `picker="panel"` */
-  export let pickerPosition = 'anchor';
-  export let disabled = false;
-  export let id = null;
-  export let ariaLabel = 'Color';
+  type Detail = { value: string; opacity: number | null };
 
-  let className = '';
-  export { className as class };
+  interface Props {
+    /** `#RRGGBB` once the field sets it */
+    value?: string;
+    /** 0–100; null hides the opacity cell. */
+    opacity?: number | null;
+    /** A bound variable's name, shown instead of the hex */
+    variable?: string | null;
+    pickable?: boolean;
+    /** The system picker, or the kit's ColorPicker */
+    picker?: 'system' | 'panel';
+    /** The ColorPicker's swatches, with `picker="panel"` */
+    swatches?: ComponentProps<typeof ColorPicker>['swatches'];
+    /** The ColorPicker's `compact`, with `picker="panel"`: a 144px square */
+    compactPicker?: boolean;
+    /** The ColorPicker's `position`, with `picker="panel"` */
+    pickerPosition?: 'anchor' | 'bottom';
+    disabled?: boolean;
+    id?: string | null;
+    ariaLabel?: string;
+    class?: string;
+    /** While the picker moves, after `value` and `opacity` update */
+    oninput?: (detail: Detail) => void;
+    /** A committed color, after `value` and `opacity` update */
+    onchange?: (detail: Detail) => void;
+  }
 
-  const dispatch = createEventDispatcher();
+  let {
+    value = $bindable(),
+    opacity = $bindable(),
+    variable = null,
+    pickable = true,
+    picker = 'system',
+    swatches = [],
+    compactPicker = false,
+    pickerPosition = 'anchor',
+    disabled = false,
+    id = null,
+    ariaLabel = 'Color',
+    class: className = '',
+    oninput,
+    onchange,
+  }: Props = $props();
 
-  let hexText = '';
-  let opacityText = '';
-  let hexFocused = false;
-  let opacityFocused = false;
-  let root;
-  let panelOpen = false;
+  let hexText = $state('');
+  let opacityText = $state('');
+  let hexFocused = $state(false);
+  let opacityFocused = $state(false);
+  let root: HTMLDivElement | undefined = $state();
+  let panelOpen = $state(false);
 
-  $: hex = normalize(value)?.hex ?? '#000000';
-  $: if (!hexFocused) hexText = hex.slice(1).toUpperCase();
-  $: if (!opacityFocused) opacityText = opacity == null ? '' : String(Math.round(opacity));
+  let hex = $derived(normalize(value)?.hex ?? '#000000');
+  $effect.pre(() => {
+    if (!hexFocused) hexText = hex.slice(1).toUpperCase();
+  });
+  $effect.pre(() => {
+    if (!opacityFocused) opacityText = opacity == null ? '' : String(Math.round(opacity));
+  });
 
   /** '#RGB', 'RRGGBB', '#RRGGBBAA'… → { hex: '#rrggbb', alpha: 0–100 | null } */
-  function normalize(input) {
+  function normalize(input: string | undefined) {
     const parsed = parseHex(input);
     if (!parsed) return null;
     return { hex: parsed.hex, alpha: parsed.alpha == null ? null : Math.round(parsed.alpha * 100) };
   }
 
-  // Reads `value`, not the derived `hex`, which only catches up after the update.
-  function emit(event = 'change') {
-    dispatch(event, { value: normalize(value)?.hex ?? hex, opacity });
+  function emit(event: 'input' | 'change' = 'change') {
+    const detail = { value: normalize(value)?.hex ?? hex, opacity: opacity ?? null };
+    if (event === 'input') oninput?.(detail);
+    else onchange?.(detail);
   }
 
   function commitHex() {
@@ -83,7 +109,7 @@
     emit();
   }
 
-  function commitOpacity(n) {
+  function commitOpacity(n: number | null) {
     if (n == null || Number.isNaN(n)) {
       opacityText = String(Math.round(opacity ?? 100));
       return;
@@ -96,7 +122,7 @@
     }
   }
 
-  function handleHexKeydown(event) {
+  function handleHexKeydown(event: KeyboardEvent & { currentTarget: HTMLInputElement }) {
     if (event.key === 'Enter') {
       event.preventDefault();
       commitHex();
@@ -109,7 +135,7 @@
     }
   }
 
-  function handleOpacityKeydown(event) {
+  function handleOpacityKeydown(event: KeyboardEvent & { currentTarget: HTMLInputElement }) {
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       event.preventDefault();
       const step = (event.shiftKey ? 10 : 1) * (event.key === 'ArrowUp' ? 1 : -1);
@@ -127,15 +153,19 @@
     }
   }
 
-  function handlePicker(event, kind) {
+  function handlePicker(
+    event: Event & { currentTarget: HTMLInputElement },
+    kind: 'input' | 'change'
+  ) {
     value = event.currentTarget.value;
     emit(kind);
   }
 
-  function handlePanel(event, kind) {
-    value = event.detail.value;
-    if (opacity != null) opacity = event.detail.opacity;
-    dispatch(kind, { value, opacity });
+  function handlePanel(detail: Detail, kind: 'input' | 'change') {
+    value = detail.value;
+    if (opacity != null) opacity = detail.opacity;
+    if (kind === 'input') oninput?.({ value, opacity: opacity ?? null });
+    else onchange?.({ value, opacity: opacity ?? null });
   }
 </script>
 
@@ -148,7 +178,7 @@
       aria-label="{ariaLabel} picker"
       aria-haspopup="dialog"
       aria-expanded={panelOpen}
-      on:click={() => (panelOpen = !panelOpen)}
+      onclick={() => (panelOpen = !panelOpen)}
     >
       <Chit color={hex} opacity={opacity ?? 100} />
     </button>
@@ -160,8 +190,8 @@
         class="picker"
         value={hex}
         aria-label="{ariaLabel} picker"
-        on:input={(e) => handlePicker(e, 'input')}
-        on:change={(e) => handlePicker(e, 'change')}
+        oninput={(e) => handlePicker(e, 'input')}
+        onchange={(e) => handlePicker(e, 'change')}
       />
     </label>
   {:else}
@@ -181,15 +211,15 @@
       {disabled}
       aria-label={ariaLabel}
       bind:value={hexText}
-      on:focus={(e) => {
+      onfocus={(e) => {
         hexFocused = true;
         e.currentTarget.select();
       }}
-      on:blur={() => {
+      onblur={() => {
         hexFocused = false;
         commitHex();
       }}
-      on:keydown={handleHexKeydown}
+      onkeydown={handleHexKeydown}
     />
     {#if opacity != null}
       <span class="opacity">
@@ -204,15 +234,15 @@
           aria-valuemax="100"
           {disabled}
           bind:value={opacityText}
-          on:focus={(e) => {
+          onfocus={(e) => {
             opacityFocused = true;
             e.currentTarget.select();
           }}
-          on:blur={() => {
+          onblur={() => {
             opacityFocused = false;
             commitOpacity(parseFloat(opacityText));
           }}
-          on:keydown={handleOpacityKeydown}
+          onkeydown={handleOpacityKeydown}
         />
         <span class="percent" aria-hidden="true">%</span>
       </span>
@@ -225,12 +255,12 @@
     bind:isOpen={panelOpen}
     anchorElement={root}
     value={hex}
-    {opacity}
+    opacity={opacity ?? null}
     {swatches}
     compact={compactPicker}
     position={pickerPosition}
-    on:input={(e) => handlePanel(e, 'input')}
-    on:change={(e) => handlePanel(e, 'change')}
+    oninput={(detail) => handlePanel(detail, 'input')}
+    onchange={(detail) => handlePanel(detail, 'change')}
   />
 {/if}
 

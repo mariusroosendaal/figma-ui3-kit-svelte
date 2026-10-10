@@ -11,79 +11,108 @@
 
   `pressed` binds; `change` hands back the new state.
 -->
-<script>
-  import { createEventDispatcher } from 'svelte';
+<script lang="ts">
+  import type { Snippet } from 'svelte';
+  import type { FocusEventHandler, MouseEventHandler } from 'svelte/elements';
   import Icon from '../Icon/index.svelte';
   import Badge from '../Badge/index.svelte';
 
-  export let pressed = false;
-  /** Button text; falls back to slot content */
-  export let label = '';
-  /** @type {string | null} lead icon */
-  export let iconName = null;
-  /** Badge after the label; the kit Badge's `text` */
-  export let badge = '';
-  /** the kit Badge's `variant`; `default` follows the pressed state */
-  export let badgeVariant = 'default';
-  /** @type {'default' | 'secondary'} `secondary` carries a resting border */
-  export let variant = 'default';
-  /** @type {'default' | 'large'} 24px or 32px tall, as Button */
-  export let size = 'default';
-  export let disabled = false;
-  /** Only needed when the label does not name the action */
-  export let ariaLabel = '';
-  export let tabindex = 0;
+  interface Props {
+    pressed?: boolean;
+    /** Shown when there are no children */
+    label?: string;
+    /** Lead icon, SVG icon data */
+    iconName?: string | null;
+    /** Badge after the label; the kit Badge's `text` */
+    badge?: string;
+    /** The kit Badge's `variant`; `default` follows the pressed state */
+    badgeVariant?: string;
+    /** `secondary` carries a resting border */
+    variant?: 'default' | 'secondary';
+    /** 24px or 32px tall, as Button */
+    size?: 'default' | 'large';
+    disabled?: boolean;
+    /** Only needed when the label does not name the action */
+    ariaLabel?: string;
+    tabindex?: number;
+    class?: string;
+    /** The button, for `bind:element` */
+    element?: HTMLButtonElement | null;
+    children?: Snippet;
+    /** The new pressed state */
+    onchange?: (pressed: boolean) => void;
+    /** After `onchange` */
+    onclick?: MouseEventHandler<HTMLButtonElement>;
+    onfocus?: FocusEventHandler<HTMLButtonElement>;
+    onblur?: FocusEventHandler<HTMLButtonElement>;
+  }
 
-  let className = '';
-  export { className as class };
-  /** @type {HTMLButtonElement|undefined} */
-  let buttonElement = undefined;
-  export { buttonElement as element };
+  let {
+    pressed = $bindable(),
+    label = '',
+    iconName = null,
+    badge = '',
+    badgeVariant = 'default',
+    variant = 'default',
+    size = 'default',
+    disabled = false,
+    ariaLabel = '',
+    tabindex = 0,
+    class: className = '',
+    element = $bindable(),
+    children,
+    onchange,
+    onclick,
+    onfocus,
+    onblur,
+  }: Props = $props();
 
-  const dispatch = createEventDispatcher();
-
-  $: iconColor = disabled ? '--figma-color-icon-disabled' : '--figma-color-icon';
+  let iconColor = $derived(disabled ? '--figma-color-icon-disabled' : '--figma-color-icon');
   // The same pair Tabs draws on: the quiet "Count Inactive" while the button
   // rests, and a fill from the on-selected tokens while it is pressed, which
   // Badge has no variant for until `strong`. Disabled keeps the quiet one, since
   // the button drops to the disabled fill.
-  $: resolvedBadgeVariant =
+  let resolvedBadgeVariant = $derived(
     badgeVariant === 'default'
       ? pressed && !disabled
         ? 'selected'
         : 'count-inactive'
-      : badgeVariant;
+      : badgeVariant
+  );
   // The filled badge family: no outline against the button.
-  $: badgeStrong = ['default', 'selected', 'invert'].includes(resolvedBadgeVariant);
+  let badgeStrong = $derived(['default', 'selected', 'invert'].includes(resolvedBadgeVariant));
 
-  function toggle() {
-    if (disabled) return;
-    pressed = !pressed;
-    dispatch('change', pressed);
+  function handleClick(event: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }) {
+    if (!disabled) {
+      pressed = !pressed;
+      onchange?.(pressed);
+    }
+    onclick?.(event);
   }
 </script>
 
 <button
-  bind:this={buttonElement}
+  bind:this={element}
   type="button"
   class="toggle-button {variant} {className}"
   class:pressed
   class:large={size === 'large'}
   class:has-icon={iconName}
-  aria-pressed={pressed}
+  aria-pressed={!!pressed}
   aria-label={ariaLabel || undefined}
   {disabled}
   {tabindex}
-  on:click={toggle}
-  on:click
-  on:focus
-  on:blur
+  onclick={handleClick}
+  {onfocus}
+  {onblur}
 >
   {#if iconName}
     <span class="icon"><Icon {iconName} color={iconColor} /></span>
   {/if}
 
-  <span class="label"><slot>{label}</slot></span>
+  <span class="label"
+    >{#if children}{@render children()}{:else}{label}{/if}</span
+  >
 
   {#if badge}
     <span class="badge">
