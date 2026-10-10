@@ -3,10 +3,7 @@
 import './global.css';
 
 // Types, for `import type { MenuOption } from 'figma-ui3-kit-svelte'`
-/** @typedef {import('./types').AvatarSpec} AvatarSpec */
-/** @typedef {import('./types').BadgeSpec} BadgeSpec */
-/** @typedef {import('./types').MenuOption} MenuOption */
-/** @typedef {import('./types').TreeNode} TreeNode */
+export type { AvatarSpec, BadgeSpec, MenuOption, TreeNode } from './types';
 
 // Components
 import Avatar from './components/Avatar/index.svelte';

@@ -34,7 +34,7 @@
     rgbToHsv,
     hsvToHsl,
     hslToHsv,
-  } from './color.js';
+  } from './color';
 
   type Format = 'hex' | 'rgb' | 'css' | 'hsl' | 'hsb';
   /** A color: '#RRGGBB', '#RRGGBBAA' or any CSS color, or one with an opacity and a name */

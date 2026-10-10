@@ -58,9 +58,10 @@
     class?: string;
     /** A picked row, a sub-menu's included, after its `checked` or `selected` updates */
     onselect?: (item: T) => void;
-    /** After `isOpen` turns false. A sub-menu passes `{ all, returnFocus }` to close
-     * the whole menu, and nothing to close itself. */
-    onclose?: (detail?: { all: boolean; returnFocus: boolean }) => void;
+    /** After `isOpen` turns false */
+    onclose?: () => void;
+    /** Internal: how a sub-menu closes the whole menu, from its parent */
+    closeAll?: (returnFocus: boolean) => void;
     /** The footer button */
     onfooter?: () => void;
   }
@@ -84,6 +85,7 @@
     class: className = '',
     onselect,
     onclose,
+    closeAll,
     onfooter,
   }: Props = $props();
 
@@ -205,7 +207,7 @@
     clearTimers();
     openSub = -1;
     if (nestingLevel > 0) {
-      onclose?.({ all: true, returnFocus });
+      closeAll?.(returnFocus);
       return;
     }
     // Only when the caller hasn't: writing a prop the caller has just changed
@@ -639,7 +641,8 @@
           anchorElement={subAnchor}
           autofocus={subByKeyboard}
           onselect={(item) => onselect?.(item)}
-          onclose={onSubClose}
+          onclose={() => onSubClose()}
+          closeAll={(returnFocus) => onSubClose({ all: true, returnFocus })}
         />
       </div>
     {/if}

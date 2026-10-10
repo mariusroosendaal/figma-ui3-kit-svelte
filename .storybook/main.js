@@ -43,6 +43,14 @@ const config = {
       loader: 'svelte-loader',
     });
 
+    // The kit's own .ts modules, imported without an extension
+    config.module.rules.push({
+      test: /\.ts$/,
+      exclude: [/node_modules/, /\.svelte\.ts$/],
+      loader: new URL('./ts-loader.cjs', import.meta.url).pathname,
+    });
+    config.resolve.extensions = [...(config.resolve.extensions ?? []), '.ts'];
+
     return config;
   },
 };

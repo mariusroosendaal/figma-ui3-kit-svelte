@@ -1,3 +1,4 @@
+/// <reference path="./assets.d.ts" />
 //UI3 Icons (24px default)
 export { default as IconBack } from './icons/24/icon.24.navigate.back.svg';
 export { default as IconCheck } from './icons/24/icon.24.check.svg';

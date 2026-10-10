@@ -21,7 +21,7 @@
   import VariablePill from '../VariablePill/index.svelte';
   import IconChevronDown from './../../icons/24/icon.24.chevron.down.svg';
   import IconDetach from './../../icons/24/icon.24.detach.small.svg';
-  import { endScrub, evaluate, scrubOffset, startScrub, type Scrub } from './numeric.js';
+  import { endScrub, evaluate, scrubOffset, startScrub, type Scrub } from './numeric';
 
   interface Props {
     /** A numeric string ("12", from older saved settings say) reads as its number */

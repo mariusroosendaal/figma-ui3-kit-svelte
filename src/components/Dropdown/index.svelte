@@ -43,7 +43,7 @@
   let {
     placeholder = 'Select an option',
     value = $bindable(),
-    menuItems = $bindable(),
+    menuItems = [],
     showGroupLabels = false,
     disabled = false,
     invalid = false,

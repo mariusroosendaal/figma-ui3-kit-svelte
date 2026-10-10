@@ -3,7 +3,7 @@
 ## [Unreleased]
 
 ### Breaking
-- Needs Svelte 5: `svelte` is a peer dependency, `^5.0.0`. The components are Svelte 5 runes components with typed props, in TypeScript that is only types, so the compiler strips it and a plugin needs no TypeScript setup. A plugin's own components can stay in Svelte 4 syntax; only their calls to the kit change:
+- Needs Svelte 5.35 or later: `svelte` is a peer dependency, `^5.35.0`. The components are Svelte 5 runes components with typed props, in TypeScript that is only types, so the compiler strips it and a plugin needs no TypeScript setup. A plugin's own components can stay in Svelte 4 syntax; only their calls to the kit change:
   - **Events are callback props**, named as DOM handlers are: `on:change={handle}` becomes `onchange={handle}`. A callback gets what was `event.detail`, so `(e) => pick(e.detail.value)` becomes `(item) => pick(item.value)`. Callbacks that pass on the element's own event (`onclick` on Button, `oninput` on Input) get that event, as before
   - **Named slots are snippets** of the same name, camelCased: `<div slot="footer-right">` becomes `{#snippet footerRight()}<div>…</div>{/snippet}`. Content inside the tag is `children` and works as before
   - **Only the props a component writes can be bound**: the ones listed under `bind:` in the components reference. A bound variable may start `undefined`
@@ -18,12 +18,12 @@
   | ColorPicker | `on:input`, `on:change`; `on:close` | `oninput`, `onchange`, each with `{ value, opacity }`; `onclose()` |
   | Disclosure | `on:change` | `onchange(ids)` |
   | DisclosureItem | `on:toggle` | `ontoggle({ expanded, uniqueId })` |
-  | Dropdown | `on:change` | `onchange(item)` |
+  | Dropdown | `on:change`; `bind:menuItems` | `onchange(item)`; `menuItems` is passed, not bound, since Dropdown doesn't change it |
   | Dropzone | `on:files`, `on:reject` | `onfiles({ files })`, `onreject({ files })`; children replace the illustration |
   | IconButton, Segment | `on:click`, `on:focus`, `on:blur` | `onclick`, `onfocus`, `onblur` |
   | IconToggle, ToggleButton | `on:change`; `on:click`, `on:focus`, `on:blur` | `onchange(pressed)`; then `onclick`, and `onfocus`, `onblur` |
   | Input, Textarea | `on:input`, `on:change`, `on:keydown`, `on:focus`, `on:blur` | `oninput`, `onchange`, `onkeydown`, `onfocus`, `onblur` |
-  | LinkTooltip | `on:primary`, `on:action`, `on:submit`, `on:close`; `on:input` | `onprimary()`, `onaction({ value, label })`, `onsubmit(value)`, `onclose()`; `oninput` |
+  | LinkTooltip | `open`; `on:primary`, `on:action`, `on:submit`, `on:close`; `on:input` | `isOpen`, as Menu and Modal; `onprimary()`, `onaction({ value, label })`, `onsubmit(value)`, `onclose()`; `oninput` |
   | Menu | `on:select`, `on:close`, `on:footer` | `onselect(item)`, `onclose()`, `onfooter()` |
   | MenuItem | `on:click`, `on:mouseenter`, `on:mouseleave`, `on:mousemove`; slots `lead`, `trail` | the same as callbacks; snippets `lead`, `trail` |
   | Modal | `on:close` and `onClose`, `on:back` and `onBack`, `on:icon2Click` and `onIcon2Click`, `on:tabChange`; slots `header`, `footer-left`, `footer-right`, `footer-full` | `onclose()`, `onback(event)`, `onicon2click(event)`, `ontabchange(index)`; snippets `header`, `footerLeft`, `footerRight`, `footerFull` |
@@ -39,7 +39,7 @@
   | Tree | `on:toggle`, `on:select`, `on:change` | `ontoggle({ id, expanded })`, `onselect(node)`, `onchange(checked)` |
 
 ### Added
-- Types for plugins written in TypeScript: `import type { MenuOption, TreeNode, BadgeSpec, AvatarSpec } from 'figma-ui3-kit-svelte'`. Menu, Dropdown, SplitButton, SegmentedControl and Tree take the type of the items they're given, so `onselect` hands back the caller's own item type
+- Types for plugins written in TypeScript: `import type { MenuOption, TreeNode, BadgeSpec, AvatarSpec } from 'figma-ui3-kit-svelte'`. The entry points are TypeScript, so the types reach a plugin that installs the kit from npm. Menu, Dropdown, SplitButton, SegmentedControl and Tree take the type of the items they're given, so `onselect` hands back the caller's own item type
 
 ### Removed
 - `svelte-click-outside`, a dependency nothing imported

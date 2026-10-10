@@ -11,7 +11,7 @@
 
 <script lang="ts">
   import { tick, onMount, onDestroy, type Snippet } from 'svelte';
-  import { placeTooltip, arrowStyle } from './position.js';
+  import { placeTooltip, arrowStyle } from './position';
 
   interface Props {
     label?: string;

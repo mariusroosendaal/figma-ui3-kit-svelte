@@ -11,13 +11,7 @@
 <script lang="ts">
   import { onDestroy, untrack } from 'svelte';
   import Icon from '../Icon/index.svelte';
-  import {
-    endScrub,
-    evaluate,
-    scrubOffset,
-    startScrub,
-    type Scrub,
-  } from '../NumericInput/numeric.js';
+  import { endScrub, evaluate, scrubOffset, startScrub, type Scrub } from '../NumericInput/numeric';
 
   type Values = Array<number | null>;
 

@@ -3,15 +3,17 @@
   "version": "0.8.0",
   "type": "module",
   "description": "A collection of Svelte 5 components that match Figma UI3 for building plugins",
-  "svelte": "./src/index.js",
+  "svelte": "./src/index.ts",
   "exports": {
     ".": {
-      "svelte": "./src/index.js",
-      "default": "./src/index.js"
+      "types": "./src/index.ts",
+      "svelte": "./src/index.ts",
+      "default": "./src/index.ts"
     },
     "./icons": {
-      "svelte": "./src/icons.js",
-      "default": "./src/icons.js"
+      "types": "./src/icons.ts",
+      "svelte": "./src/icons.ts",
+      "default": "./src/icons.ts"
     },
     "./package.json": "./package.json",
     "./src/*": "./src/*"
@@ -25,11 +27,11 @@
     "node": ">=16.0.0"
   },
   "sideEffects": [
-    "./src/index.js",
+    "./src/index.ts",
     "./src/global.css"
   ],
   "peerDependencies": {
-    "svelte": "^5.0.0"
+    "svelte": "^5.35.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",

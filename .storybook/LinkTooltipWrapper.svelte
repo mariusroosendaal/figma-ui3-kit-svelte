@@ -53,7 +53,7 @@
 </div>
 
 <LinkTooltip
-  bind:open
+  bind:isOpen={open}
   bind:value
   {anchor}
   label={shownLabel}

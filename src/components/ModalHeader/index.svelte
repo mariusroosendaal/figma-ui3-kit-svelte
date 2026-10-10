@@ -31,7 +31,7 @@
     /** A control in place of the title, such as a Dropdown; the title stays for screen readers */
     header?: Snippet;
     onicon2click?: (event: MouseEvent) => void;
-    onclose?: (event: MouseEvent) => void;
+    onclose?: () => void;
     /** Navigation variant: the back arrow */
     onback?: (event: MouseEvent) => void;
     /** Tabs variant: the chosen tab's index, after `selectedTab` updates */
@@ -92,7 +92,7 @@
     {/if}
     <IconButton
       iconName={IconCloseSmall}
-      onclick={(e) => onclose?.(e)}
+      onclick={() => onclose?.()}
       variant="default"
       ariaLabel="Close dialog"
     />

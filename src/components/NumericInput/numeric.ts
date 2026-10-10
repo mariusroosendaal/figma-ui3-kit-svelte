@@ -2,31 +2,24 @@
 
 // Arithmetic without eval: numbers, + - * /, parentheses and unary minus.
 // Anything else is not a number.
-/**
- * @param {unknown} source
- * @returns {number | null}
- */
-export function evaluate(source) {
+export function evaluate(source: unknown): number | null {
   const src = String(source ?? '')
     .replace(/,/g, '.')
     .replace(/\s+/g, '');
   if (!src) return null;
   let at = 0;
   const peek = () => src[at];
-  /** @returns {number} */
-  function expr() {
+  function expr(): number {
     let v = term();
     while (peek() === '+' || peek() === '-') v = src[at++] === '+' ? v + term() : v - term();
     return v;
   }
-  /** @returns {number} */
-  function term() {
+  function term(): number {
     let v = factor();
     while (peek() === '*' || peek() === '/') v = src[at++] === '*' ? v * factor() : v / factor();
     return v;
   }
-  /** @returns {number} */
-  function factor() {
+  function factor(): number {
     if (peek() === '-') {
       at++;
       return -factor();
@@ -67,34 +60,31 @@ export function evaluate(source) {
 const SLACK = 3;
 const SCRUBBING = 'numeric-scrubbing';
 
-/**
- * @template [T=number]
- * @typedef {{ id: number, x: number, start: T, offset: number, moved: boolean }} Scrub
- */
+export type Scrub<T = number> = {
+  id: number;
+  x: number;
+  start: T;
+  offset: number;
+  moved: boolean;
+};
 
-/**
- * @template T
- * @param {PointerEvent} event
- * @param {T} start
- * @returns {Scrub<T>}
- */
-export function startScrub(event, start) {
+export function startScrub<T>(event: PointerEvent, start: T): Scrub<T> {
   document.documentElement.classList.add(SCRUBBING);
   return { id: event.pointerId, x: event.clientX, start, offset: 0, moved: false };
 }
 
-export function endScrub() {
+export function endScrub(): void {
   document.documentElement.classList.remove(SCRUBBING);
 }
 
 /**
  * The drag's offset from its start after this move, or null for none yet.
- * @param {Scrub<unknown>} scrub
- * @param {PointerEvent} event
- * @param {number} step
- * @returns {number | null}
  */
-export function scrubOffset(scrub, event, step) {
+export function scrubOffset(
+  scrub: Scrub<unknown>,
+  event: PointerEvent,
+  step: number
+): number | null {
   if (event.pointerId !== scrub.id) return null;
   if (!scrub.moved) {
     if (Math.abs(event.clientX - scrub.x) < SLACK) return null;

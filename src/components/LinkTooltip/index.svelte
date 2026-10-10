@@ -11,10 +11,10 @@
   import { onDestroy, tick, untrack } from 'svelte';
   import type { FormEventHandler } from 'svelte/elements';
   import Icon from '../Icon/index.svelte';
-  import { placeTooltip, arrowStyle } from '../Tooltip/position.js';
+  import { placeTooltip, arrowStyle } from '../Tooltip/position';
 
   interface Props {
-    open?: boolean;
+    isOpen?: boolean;
     /** What it points at: an element, or a rect such as a text selection's */
     anchor?: HTMLElement | DOMRect | null;
     /** The side of the anchor it prefers; it flips when there's no room */
@@ -31,7 +31,7 @@
     placeholder?: string;
     ariaLabel?: string;
     class?: string;
-    /** Escape, a pointer down outside, a resize or a scroll, after `open` turns false */
+    /** Escape, a pointer down outside, a resize or a scroll, after `isOpen` turns false */
     onclose?: () => void;
     /** Enter in the URL field: the URL */
     onsubmit?: (value: string) => void;
@@ -44,7 +44,7 @@
   }
 
   let {
-    open = $bindable(),
+    isOpen = $bindable(),
     anchor = null,
     direction = 'Top',
     label = '',
@@ -72,8 +72,8 @@
   let listening = false;
 
   $effect.pre(() => {
-    const isOpen = !!open;
-    untrack(() => handleOpen(isOpen));
+    const shown = !!isOpen;
+    untrack(() => handleOpen(shown));
   });
   // Follows a new anchor or side, and its own new size, while open
   $effect.pre(() => {
@@ -105,12 +105,12 @@
       return;
     }
     await tick();
-    if (!open) return;
+    if (!isOpen) return;
     place();
     placed = true;
     // A tick later, so the pointerdown that opened it isn't taken for one outside
     setTimeout(() => {
-      if (open) startListening();
+      if (isOpen) startListening();
     }, 0);
   }
 
@@ -129,8 +129,8 @@
   }
 
   function close() {
-    if (!open) return;
-    open = false;
+    if (!isOpen) return;
+    isOpen = false;
     onclose?.();
   }
 
@@ -176,7 +176,7 @@
   }
 </script>
 
-{#if open}
+{#if isOpen}
   <div
     bind:this={element}
     class="link-tooltip {placedDirection} {className}"

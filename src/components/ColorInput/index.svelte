@@ -17,7 +17,7 @@
   import type { ComponentProps } from 'svelte';
   import Chit from '../Chit/index.svelte';
   import ColorPicker from '../ColorPicker/index.svelte';
-  import { parseHex } from '../ColorPicker/color.js';
+  import { parseHex } from '../ColorPicker/color';
 
   type Detail = { value: string; opacity: number | null };
 
