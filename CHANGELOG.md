@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-10-10
+
 ### Added
 - **Dropdown** — `invalid` and `errorMessage`, as on Input: the danger border, and the message under the dropdown, announced as an alert
 
