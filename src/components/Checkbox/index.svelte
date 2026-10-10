@@ -49,7 +49,7 @@
     id={uniqueId}
     bind:this={inputEl}
     bind:checked
-    bind:value
+    {value}
     {disabled}
     {tabindex}
     aria-label={ariaLabel || undefined}

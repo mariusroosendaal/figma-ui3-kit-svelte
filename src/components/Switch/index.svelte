@@ -26,7 +26,7 @@
     type="checkbox"
     id={uniqueId}
     bind:checked
-    bind:value
+    {value}
     {disabled}
     {tabindex}
     role={mixed ? undefined : 'switch'}
