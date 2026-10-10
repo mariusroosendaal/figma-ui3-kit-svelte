@@ -50,4 +50,7 @@ export default [
       '.storybook/',
     ],
   },
+  // Runes-mode advice: legacy-mode components react to reassignment, not to
+  // SvelteSet or SvelteMap. Drop this once the components move to runes.
+  { rules: { 'svelte/prefer-svelte-reactivity': 'off' } },
 ];

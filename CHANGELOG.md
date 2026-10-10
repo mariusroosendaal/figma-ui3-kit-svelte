@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Changed
+- Needs Svelte 5: `svelte` is a peer dependency, `^5.0.0`. The components keep their Svelte 4 syntax, which Svelte 5 compiles in legacy mode
+
+### Removed
+- `svelte-click-outside`, a dependency nothing imported
+
 ## [0.8.0] - 2026-10-10
 
 ### Added

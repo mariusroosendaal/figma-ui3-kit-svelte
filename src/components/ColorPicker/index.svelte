@@ -466,7 +466,6 @@
 <svelte:window on:pointerdown|capture={handleOutside} on:resize={() => isOpen && reposition()} />
 
 {#if inline || isOpen}
-  <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
   <div
     bind:this={panel}
     class="color-picker {className}"

@@ -155,6 +155,7 @@
 >
   {#if hasLead}
     <!-- Scrubbing is a pointer shortcut; each cell's arrow keys do the same. -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <span
       class="lead"
       on:pointerdown={scrubStart}

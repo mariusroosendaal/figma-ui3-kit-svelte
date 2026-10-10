@@ -59,7 +59,7 @@
         on:click
         on:focus
         on:blur
-      />
+      ></button>
     {/if}
     {#if $$slots.lead}
       <div class="lead"><slot name="lead" /></div>

@@ -1,6 +1,6 @@
 # LLM Assistant Guidelines for Figma UI3 Kit Svelte
 
-Svelte 4.x component library for Figma plugin UIs matching Figma's UI3 design system.
+Svelte 5 component library, in Svelte 4 syntax for now, for Figma plugin UIs matching Figma's UI3 design system.
 
 ## Project Structure
 
@@ -17,7 +17,7 @@ Svelte 4.x component library for Figma plugin UIs matching Figma's UI3 design sy
   main.js, preview.js, *Wrapper.svelte files
 ```
 
-**Dependencies:** Svelte 4.x, Storybook 8.x, svelte-click-outside
+**Dependencies:** Svelte 5 (peer), Storybook 8.x
 
 ## Core Rules
 

@@ -28,8 +28,8 @@
     "./src/index.js",
     "./src/global.css"
   ],
-  "dependencies": {
-    "svelte-click-outside": "^1.0.0"
+  "peerDependencies": {
+    "svelte": "^5.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
@@ -48,7 +48,7 @@
     "prettier": "^3.9.8",
     "prettier-plugin-svelte": "^3.4.1",
     "storybook": "^8.6.14",
-    "svelte": "^4.2.20",
+    "svelte": "^5.57.2",
     "svelte-check": "^4.3.6",
     "svelte-loader": "^3.2.4",
     "typescript": "^5.9.3"

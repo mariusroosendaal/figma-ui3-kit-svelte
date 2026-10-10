@@ -7,7 +7,7 @@ A lightweight, modern Svelte component library for building Figma plugin interfa
 - Light/dark theme support via Figma's CSS variables
 - 35+ components matching Figma UI3
 - 700+ icons (16px and 24px sizes)
-- Svelte 4.x, no heavy dependencies
+- Svelte 5, no other dependencies
 
 ## Documentation
 
