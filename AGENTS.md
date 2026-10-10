@@ -9,10 +9,11 @@ Svelte 5 component library, in runes with type-only TypeScript, for Figma plugin
   components/       # One component per directory (PascalCase/index.svelte)
   icons/16/         # 16px icons (compact spaces)
   icons/24/         # 24px icons (default)
-  icons.js          # named icon export entrypoint
+  icons.ts          # named icon export entrypoint
   global.css        # Typography, spacing, shared UI3 styles only
   figma-development-theme.css  # Figma CSS variables
-  index.js          # Exports (alphabetized)
+  index.ts          # Exports (alphabetized)
+  types.ts          # Types plugins import, re-exported from index.ts
 /.storybook/
   main.js, preview.js, *Wrapper.svelte files
 ```
@@ -104,7 +105,7 @@ Svelte 5 component library, in runes with type-only TypeScript, for Figma plugin
 
 ## Icons
 
-Named icons are exported from `src/icons.js` and exposed through the package's dedicated `./icons` entrypoint.
+Named icons are exported from `src/icons.ts` and exposed through the package's dedicated `./icons` entrypoint.
 
 ### Named icon exports
 
@@ -121,7 +122,7 @@ import IconClose from './../../icons/24/icon.24.close.svg';
 import Icon16Check from './../../icons/16/icon.16.check.svg';
 ```
 
-If you add a new icon, export it from `src/icons.js` rather than adding it to `src/index.js`.
+If you add a new icon, export it from `src/icons.ts` rather than adding it to `src/index.ts`.
 
 ```svelte
 <Icon iconName={IconClose} color="--figma-color-icon" />
@@ -130,9 +131,9 @@ If you add a new icon, export it from `src/icons.js` rather than adding it to `s
 ## Adding Components
 
 1. Create `/src/components/ComponentName/index.svelte`
-2. Add to `/src/index.js` (alphabetical order)
+2. Add to `/src/index.ts` (alphabetical order)
 3. Create `ComponentName.stories.js`
-4. A type plugins need, such as an item's shape, goes in `src/types.ts`, with a `@typedef` line in `src/index.js` so plugins import it from the package root
+4. A type plugins need, such as an item's shape, goes in `src/types.ts`, re-exported with `export type` from `src/index.ts` so plugins import it from the package root. Not in a component's module script: a plugin's `tsc` can't read types out of a `.svelte` file
 5. Update README.md and CHANGELOG.md
 
 ## Removing Components
@@ -140,7 +141,7 @@ If you add a new icon, export it from `src/icons.js` rather than adding it to `s
 Remove completely (no deprecation warnings):
 
 1. Delete component directory
-2. Remove from `/src/index.js`
+2. Remove from `/src/index.ts`
 3. Remove Storybook story
 4. Update README.md and CHANGELOG.md
 
