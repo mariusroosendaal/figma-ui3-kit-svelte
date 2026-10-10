@@ -35,6 +35,14 @@ const config = {
       type: 'asset/source',
     });
 
+    // Svelte 5 runes modules, such as the renderer's createSvelte5Props.svelte.js:
+    // the preset compiles only .svelte files, so `$state` would reach the
+    // browser as is and throw rune_outside_svelte.
+    config.module.rules.push({
+      test: /\.svelte\.(js|ts)$/,
+      loader: 'svelte-loader',
+    });
+
     return config;
   },
 };
