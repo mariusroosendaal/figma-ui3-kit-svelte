@@ -186,7 +186,11 @@
       onClose();
     }
     dispatch('close');
-    isOpen = false;
+    // Close it here only if the parent didn't. Writing the prop while the
+    // parent's own update is in flight leaves Svelte 5.35+ deaf to the parent
+    // reopening it when isOpen is an expression, such as `panel !== null`.
+    await tick();
+    if (isOpen) isOpen = false;
   }
 
   // Focus management and body scroll lock
