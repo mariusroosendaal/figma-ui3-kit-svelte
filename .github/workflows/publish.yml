@@ -21,4 +21,6 @@ jobs:
       # Trusted publishing: npm exchanges the workflow's OIDC token for a
       # one-off publish credential, so there is no NPM_TOKEN to expire. Needs
       # npm 11.5.1+ (Node 24) and the package's trusted publisher set on npmjs.com.
-      - run: npm publish --access public
+      # A release marked as a pre-release, such as v1.0.0-rc.0, goes under the
+      # `next` tag, so `npm install` keeps giving everyone the last stable one.
+      - run: npm publish --access public ${{ github.event.release.prerelease && '--tag next' || '' }}
