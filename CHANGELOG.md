@@ -43,6 +43,7 @@
 
 ### Removed
 - `svelte-click-outside`, a dependency nothing imported
+- The Storybook stories from the published package, which `.npmignore` meant to leave out but `files` kept
 
 ## [0.8.0] - 2026-10-10
 

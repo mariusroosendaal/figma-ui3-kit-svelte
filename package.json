@@ -20,6 +20,9 @@
   },
   "files": [
     "src",
+    "!src/**/*.stories.js",
+    "!src/**/*.stories.svelte",
+    "!src/**/*.test.ts",
     "README.md",
     "LICENSE"
   ],
