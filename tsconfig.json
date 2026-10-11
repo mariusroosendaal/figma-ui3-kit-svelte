@@ -6,12 +6,7 @@
     "checkJs": true,
     "strict": true,
     "noEmit": true,
-    "skipLibCheck": true,
-    "ignoreDeprecations": "6.0",
-    "baseUrl": ".",
-    "paths": {
-      "$lib/*": ["src/*"]
-    }
+    "skipLibCheck": true
   },
   "include": ["src/**/*.js", "src/**/*.ts", "src/**/*.svelte"],
   "exclude": ["node_modules", "storybook-static", ".storybook"]
