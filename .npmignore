@@ -4,3 +4,6 @@
 
 # Ignore other dev config files that might be in src (just in case)
 .DS_Store
+
+# Unit tests
+*.test.ts

@@ -62,6 +62,7 @@
     "lint:fix": "eslint src/ --fix",
     "prettier": "npx prettier --write \"src/**/*.{js,ts,svelte,html,css}\"",
     "check": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings",
+    "test": "esbuild \"src/**/*.test.ts\" --bundle --platform=node --format=esm --outdir=.tests --outbase=src --log-level=warning && node --test \".tests/**/*.test.js\"",
     "figma:icons": "node figma/scripts/import-icons.mjs",
     "figma:parse": "figma connect parse",
     "figma:publish": "npm run figma:icons && figma connect publish"

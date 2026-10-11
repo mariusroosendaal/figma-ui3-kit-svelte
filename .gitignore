@@ -107,3 +107,6 @@ archive/
 
 # Generated Code Connect icon templates (npm run figma:icons)
 figma/icons/
+
+# Unit tests, bundled to run on node
+.tests/
