@@ -14,6 +14,8 @@
     iconName?: string | null;
     /** Only applies to the wide size */
     iconLead?: 'left' | 'center';
+    /** Spins the icon, while the button's action runs */
+    spin?: boolean;
     /** Shown when there are no children */
     label?: string;
     ariaLabel?: string;
@@ -35,6 +37,7 @@
     ariaDisabled = false,
     iconName = null,
     iconLead = 'left',
+    spin = false,
     label = '',
     ariaLabel = '',
     type = 'button',
@@ -107,13 +110,13 @@
 >
   {#if iconName && iconLead === 'left'}
     <div class="button-icon-left">
-      <Icon {iconName} color={iconColor} />
+      <Icon {iconName} {spin} color={iconColor} />
     </div>
   {/if}
 
   {#if iconName && iconLead === 'center'}
     <div class="button-icon-center">
-      <Icon {iconName} color={iconColor} />
+      <Icon {iconName} {spin} color={iconColor} />
     </div>
   {/if}
 
