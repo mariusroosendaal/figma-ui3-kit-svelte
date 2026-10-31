@@ -40,6 +40,7 @@
 
 ### Added
 - Button takes `spin`, as IconButton does, to spin its icon while the button's action runs
+- NumericInput and NumericInputMulti take `clearable`: emptying the field and pressing Enter or leaving it sets the value to `null`, which shows the placeholder, and NumericInput's `onchange` gets `null`. Without it an emptied field reverts, as Figma's do
 - Types for plugins written in TypeScript: `import type { MenuOption, TreeNode, BadgeSpec, AvatarSpec } from 'figma-ui3-kit-svelte'`. The entry points are TypeScript, so the types reach a plugin that installs the kit from npm. Menu, Dropdown, SplitButton, SegmentedControl and Tree take the type of the items they're given, so `onselect` hands back the caller's own item type
 
 ### Removed

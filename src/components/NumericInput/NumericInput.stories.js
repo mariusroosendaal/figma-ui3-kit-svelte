@@ -15,6 +15,7 @@ export default {
     unit: { control: 'text' },
     placeholder: { control: 'text' },
     disabled: { control: 'boolean' },
+    clearable: { control: 'boolean', description: 'An emptied field commits null' },
     options: { control: 'object', description: 'Presets for the chevron menu' },
     ariaLabel: { control: 'text' },
     iconName: { table: { disable: true } },
@@ -28,6 +29,10 @@ export const WithUnit = {
 };
 export const Mixed = {
   args: { value: null, label: 'W', placeholder: 'Mixed', ariaLabel: 'Width' },
+};
+// Empty it and press Enter: the value goes and the placeholder shows
+export const Clearable = {
+  args: { value: 4, label: 'G', clearable: true, placeholder: 'Auto', ariaLabel: 'Gap' },
 };
 // UI3's "Combo input"
 export const WithPresets = {

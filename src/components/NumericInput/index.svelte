@@ -7,12 +7,12 @@
     Escape reverts. Simple arithmetic is accepted: `24*2`, `100/3`, `16+8`.
   - The value is clamped to `min`/`max` and rounded to `precision` decimals. An
     empty or unparseable entry reverts; `value = null` shows the placeholder
-    ("Mixed", say).
+    ("Mixed", say). With `clearable`, an emptied field commits `null` instead.
   - `options` adds a chevron that opens a list of presets (Figma's "Combo input").
 
   `oninput` is called while scrubbing, `onchange` whenever a value is committed.
 -->
-<script lang="ts">
+<script lang="ts" generics="Clearable extends boolean = false">
   import { onDestroy, tick } from 'svelte';
   import type { FocusEventHandler, KeyboardEventHandler } from 'svelte/elements';
   import Icon from '../Icon/index.svelte';
@@ -23,7 +23,7 @@
   import IconDetach from './../../icons/24/icon.24.detach.small.svg';
   import { endScrub, evaluate, scrubOffset, startScrub, type Scrub } from './numeric';
 
-  interface Props {
+  interface BaseProps {
     /** A numeric string ("12", from older saved settings say) reads as its number */
     value?: number | string | null;
     min?: number | null;
@@ -49,8 +49,6 @@
     /** A bound variable's name: shown as a pill in place of the value, with a detach button */
     variable?: string | null;
     class?: string;
-    /** A committed value, after `value` updates */
-    onchange?: (value: number) => void;
     /** While scrubbing, after `value` updates */
     oninput?: (value: number) => void;
     /** The detach button, or a preset picked while bound: the variable's name */
@@ -61,6 +59,15 @@
     onfocus?: FocusEventHandler<HTMLElement>;
     onblur?: FocusEventHandler<HTMLElement>;
     onkeydown?: KeyboardEventHandler<HTMLElement>;
+  }
+
+  // `onchange` hears `null` only from a field that can be cleared, so a
+  // handler that takes a number keeps working everywhere else.
+  interface Props extends BaseProps {
+    /** Emptying the field and committing sets `value` to `null`, as an HTML input can */
+    clearable?: Clearable;
+    /** A committed value, after `value` updates; `null` when a `clearable` field was emptied */
+    onchange?: (value: Clearable extends true ? number | null : number) => void;
   }
 
   let {
@@ -81,6 +88,7 @@
     ariaLabel = '',
     variable = null,
     class: className = '',
+    clearable = false as Clearable,
     onchange,
     oninput,
     ondetach,
@@ -126,6 +134,11 @@
     return Number(n.toFixed(decimals));
   }
 
+  // Null only reaches a `clearable` field's handler, which the type allows.
+  function changed(n: number | null) {
+    (onchange as ((value: number | null) => void) | undefined)?.(n);
+  }
+
   function commit(n: number | null) {
     if (n == null || Number.isNaN(n)) {
       text = format(numeric);
@@ -135,16 +148,30 @@
     text = format(next);
     if (next !== numeric || typeof value !== 'number') {
       value = next;
-      onchange?.(next);
-      // A parent may answer the change with another value — snapping to a
-      // preset, say. Show it even though the field still has focus, so the
-      // next arrow key steps from what the parent kept.
-      tick().then(() => {
-        if (!focused) return;
-        text = format(numeric);
-        if (input && document.activeElement === input) input.select();
-      });
+      changed(next);
+      showAnswer();
     }
+  }
+
+  // An emptied field reverts unless it is `clearable`.
+  function commitText() {
+    if (!clearable || text.trim() !== '') return commit(evaluate(text));
+    text = '';
+    if (numeric == null) return;
+    value = null;
+    changed(null);
+    showAnswer();
+  }
+
+  // A parent may answer the change with another value — snapping to a
+  // preset, say. Show it even though the field still has focus, so the
+  // next arrow key steps from what the parent kept.
+  function showAnswer() {
+    tick().then(() => {
+      if (!focused) return;
+      text = format(numeric);
+      if (input && document.activeElement === input) input.select();
+    });
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -156,7 +183,7 @@
       input?.select();
     } else if (event.key === 'Enter') {
       event.preventDefault();
-      commit(evaluate(text));
+      commitText();
       input?.select();
     } else if (event.key === 'Escape') {
       // Undoes the field alone: a modal it's in stays open
@@ -174,7 +201,7 @@
 
   function handleBlur() {
     focused = false;
-    commit(evaluate(text));
+    commitText();
   }
 
   // A click that focuses the field keeps the whole value selected, as a tab does.
@@ -216,7 +243,7 @@
     const { moved, start } = scrub;
     scrub = null;
     endScrub();
-    if (moved && typeof value === 'number' && value !== start) onchange?.(value);
+    if (moved && typeof value === 'number' && value !== start) changed(value);
     if (!moved) input?.focus();
   }
 

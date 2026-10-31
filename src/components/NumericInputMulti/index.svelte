@@ -3,7 +3,8 @@
   behind one lead, e.g. the four corner radii or paddings.
 
   Each cell behaves like NumericInput: arrow keys step (Shift ×10), Enter
-  commits, Escape reverts, arithmetic works. Dragging the lead scrubs every
+  commits, Escape reverts, arithmetic works, and with `clearable` an emptied
+  cell commits `null`. Dragging the lead scrubs every
   enabled cell together. `disabled` is one flag for the field or one per cell.
 
   `onchange` gets `{ values, index }` (the cell that changed; -1 for all).
@@ -31,6 +32,8 @@
     placeholder?: string;
     /** One flag for the field, or one per cell */
     disabled?: boolean | boolean[];
+    /** Emptying a cell and committing sets it to `null`; otherwise an empty cell reverts */
+    clearable?: boolean;
     class?: string;
     /** A committed value, after `values` updates: the cell that changed, -1 for all */
     onchange?: (detail: { values: Values; index: number }) => void;
@@ -50,6 +53,7 @@
     ariaLabels = [],
     placeholder = '',
     disabled = false,
+    clearable = false,
     class: className = '',
     onchange,
     oninput,
@@ -105,6 +109,14 @@
     }
   }
 
+  function commitText(index: number) {
+    if (!clearable || texts[index].trim() !== '') return commit(index, evaluate(texts[index]));
+    texts[index] = '';
+    if (cells[index] == null) return;
+    values = cells.map((v, i) => (i === index ? null : v));
+    onchange?.({ values: cells, index });
+  }
+
   function handleKeydown(event: KeyboardEvent, index: number) {
     const input = inputs[index];
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
@@ -114,7 +126,7 @@
       input.select();
     } else if (event.key === 'Enter') {
       event.preventDefault();
-      commit(index, evaluate(texts[index]));
+      commitText(index);
       input.select();
     } else if (event.key === 'Escape') {
       // Undoes the field alone: a modal it's in stays open
@@ -130,7 +142,7 @@
   }
 
   function handleBlur(index: number) {
-    commit(index, evaluate(texts[index]));
+    commitText(index);
     if (focusedIndex === index) focusedIndex = -1;
   }
 
